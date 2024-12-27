@@ -4,9 +4,6 @@ input_date_utils.py
 Collects user input for date-related calculation, the 
 """
 
-from datetime import date
-from .core import get_period_dates, get_etterslep_dates, get_period_label
-
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 
 
