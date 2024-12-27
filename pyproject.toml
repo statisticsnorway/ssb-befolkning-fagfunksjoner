@@ -8,6 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner"
 repository = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner"
 documentation = "https://statisticsnorway.github.io/ssb-befolkning-fagfunksjoner"
+packages = [{ include = "ssb_befolkning_fagfunksjoner", from = "src" }]
 classifiers = ["Development Status :: 4 - Beta"]
 
 [tool.poetry.urls]
