@@ -13,7 +13,7 @@ from .date_tools import (
     get_last_day_of_month,
 )
 
-from input_date_utils import get_user_inputs
+from input_function import get_user_inputs
 
 __all__ = [
     "get_period_dates",

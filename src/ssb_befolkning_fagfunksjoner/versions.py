@@ -11,11 +11,8 @@ consider version numbers.
 
 import dapla as dp
 import pandas as pd
-from dapla import FileClient
 from pathlib import Path
 import logging
-
-fs = dp.FileClient.get_gcs_file_system()
 
 
 def deconstruct_file_pattern(filepath: str) -> str:
@@ -32,9 +29,9 @@ def deconstruct_file_pattern(filepath: str) -> str:
 def get_fileversions(filepath: str) -> list[str]:
 
     glob_pattern: str = deconstruct_file_pattern(filepath=filepath)
-    fs = FileClient.get_gcs_file_system()
+    fs = dp.FileClient.get_gcs_file_system()
 
-    files_list: list[str] = fs.glob(path=glob_pattern)
+    files_list: list[str] = fs.glob(path=glob_pattern)  # type: ignore
 
     return files_list
 
@@ -111,6 +108,7 @@ def write_versioned_pandas(
     # Validate the naming convention
     validate_file_naming(gcs_path)
 
+    fs = dp.FileClient.get_gcs_file_system()
     path: Path = Path(gcs_path)
     folders: Path = path.parent
     stem: str = path.stem

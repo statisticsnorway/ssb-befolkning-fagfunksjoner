@@ -17,6 +17,10 @@ Changelog = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner/re
 [tool.poetry.dependencies]
 python = "^3.10"
 click = ">=8.0.1"
+pytest = "^8.3.4"
+python-dateutil = "^2.9.0.post0"
+dapla-toolbelt = "^3.2.2"
+pandas = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 pygments = ">=2.10.0"
