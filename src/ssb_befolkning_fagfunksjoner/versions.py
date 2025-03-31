@@ -17,6 +17,7 @@ import pandas as pd
 
 
 def deconstruct_file_pattern(filepath: str) -> str:
+    """Returns a string with folders and base filename without versioning."""
     path: Path = Path(filepath)
     stem: str = path.stem
     folders: Path = path.parent
@@ -28,6 +29,7 @@ def deconstruct_file_pattern(filepath: str) -> str:
 
 
 def get_fileversions(filepath: str) -> list[str]:
+    """Returns a list of versioned files in gcs filepath."""
     glob_pattern: str = deconstruct_file_pattern(filepath=filepath)
     fs = dp.FileClient.get_gcs_file_system()
     files_list: list[str] = fs.glob(path=glob_pattern)  # type: ignore
@@ -36,6 +38,7 @@ def get_fileversions(filepath: str) -> list[str]:
 
 
 def get_version_number_from_filepath(filepath: str) -> int | None:
+    """Returns the version number from a filepath including verisioned filename."""
     path: Path = Path(filepath)
     stem: str = path.stem
 
@@ -52,6 +55,7 @@ def get_version_number_from_filepath(filepath: str) -> int | None:
 
 
 def get_latest_version_number(filepath: str) -> int:
+    """Return the latest version number for the files in a given gcs filepath."""
     files_list: list[str] = get_fileversions(filepath)
 
     if not files_list:
