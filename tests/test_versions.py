@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -105,7 +104,7 @@ def test_write_versioned_pandas_no_existing_files(
 
     mock_get_fileversions.return_value = []
     mock_get_next_version_number.return_value = 1
-    df: Any = pd.DataFrame({"col1": [1, 2, 3]})
+    df = pd.DataFrame({"col1": [1, 2, 3]})
 
     mock_path = MagicMock()
     mock_path.stem = "file"
