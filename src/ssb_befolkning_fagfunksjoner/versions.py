@@ -117,7 +117,7 @@ def write_versioned_pandas(
     # Handle overwrite case
     if overwrite:
         try:
-            df.to_parquet(gcs_path=gcs_path)
+            df.to_parquet(gcs_path)
         except Exception as e:
             logging.error(f"Failed to overwrite data at {gcs_path}: {e}")
             raise
@@ -153,7 +153,7 @@ def write_versioned_pandas(
         # Write new file as v2
         new_path_v2: UPath = parent / f"{stem_without_version}_v2.parquet"
         try:
-            df.to_parquet(gcs_path=str(new_path_v2))
+            df.to_parquet(str(new_path_v2))
         except Exception as e:
             logging.error(f"Failed to write version: {new_path_v2}: {e}")
             raise
@@ -165,7 +165,7 @@ def write_versioned_pandas(
             parent / f"{stem_without_version}_v{next_version_number}.parquet"
         )
         try:
-            df.to_parquet(gcs_path=str(new_path_vn))
+            df.to_parquet(str(new_path_vn))
         except Exception as e:
             logging.error(f"Failed to write version: {new_path_vn}: {e}")
         logging.info(f"Wrote new version: {new_path_vn}")
@@ -173,7 +173,7 @@ def write_versioned_pandas(
     # Update the unversioned file to reflect the latest data
     latest_version_path: UPath = parent / f"{stem_without_version}.parquet"
     try:
-        df.to_parquet(gcs_path=str(latest_version_path))
+        df.to_parquet(str(latest_version_path))
     except Exception as e:
         logging.error(f"Failed to update latest version: {latest_version_path}: {e}")
         raise

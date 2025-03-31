@@ -1,8 +1,9 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 
 def test_deconstruct_file_pattern():
-    from src.ssb_befolkning_fagfunksjoner.versions import deconstruct_file_pattern
+    from ssb_befolkning_fagfunksjoner.versions import deconstruct_file_pattern
 
     filepath = "gs://bucket/folder/file_v1.parquet"
     expected = "gs://bucket/folder/file*.parquet"
@@ -11,7 +12,7 @@ def test_deconstruct_file_pattern():
 
 
 def test_get_version_number_from_filepath():
-    from src.ssb_befolkning_fagfunksjoner.versions import (
+    from ssb_befolkning_fagfunksjoner.versions import (
         get_version_number_from_filepath,
     )
 
@@ -60,8 +61,8 @@ def test_write_versioned_pandas_existing_v1(
     mock_get_next_version_number,
     mock_get_fileversions,
 ):
-    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
     import pandas as pd
+    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
 
     mock_get_fileversions.return_value = ["gs://bucket/folder/file.parquet"]
     mock_get_next_version_number.return_value = 2
@@ -82,7 +83,8 @@ def test_write_versioned_pandas_existing_v1(
     mock_to_parquet.assert_any_call("gs://bucket/folder/file.parquet")
 
     mock_path.fs.copy.assert_called_once_with(
-        "gs://bucket/folder/file.parquet", "gs://bucket/folder/file_v1.parquet", overwrite=True
+        "gs://bucket/folder/file.parquet",
+        "gs://bucket/folder/file_v1.parquet",
     )
     mock_path.fs.rm_file.assert_called_once_with("gs://bucket/folder/file.parquet")
 
@@ -97,8 +99,8 @@ def test_write_versioned_pandas_no_existing_files(
     mock_get_next_version_number,
     mock_get_fileversions,
 ):
-    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
     import pandas as pd
+    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
 
     mock_get_fileversions.return_value = []
     mock_get_next_version_number.return_value = 1
@@ -130,8 +132,8 @@ def test_write_versioned_pandas_multiple_existing_versions(
     mock_get_next_version_number,
     mock_get_fileversions,
 ):
-    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
     import pandas as pd
+    from src.ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
 
     mock_get_fileversions.return_value = [
         "gs://bucket/folder/file.parquet",
