@@ -18,6 +18,7 @@ import pandas as pd
 
 def deconstruct_file_pattern(filepath: str) -> str:
     """Returns a string with folders and base filename without versioning."""
+    
     path: Path = Path(filepath)
     stem: str = path.stem
     folders: Path = path.parent
@@ -30,6 +31,7 @@ def deconstruct_file_pattern(filepath: str) -> str:
 
 def get_fileversions(filepath: str) -> list[str]:
     """Returns a list of versioned files in gcs filepath."""
+
     glob_pattern: str = deconstruct_file_pattern(filepath=filepath)
     fs = dp.FileClient.get_gcs_file_system()
     files_list: list[str] = fs.glob(path=glob_pattern)  # type: ignore
@@ -39,6 +41,7 @@ def get_fileversions(filepath: str) -> list[str]:
 
 def get_version_number_from_filepath(filepath: str) -> int | None:
     """Returns the version number from a filepath including verisioned filename."""
+
     path: Path = Path(filepath)
     stem: str = path.stem
 
@@ -56,6 +59,7 @@ def get_version_number_from_filepath(filepath: str) -> int | None:
 
 def get_latest_version_number(filepath: str) -> int:
     """Return the latest version number for the files in a given gcs filepath."""
+
     files_list: list[str] = get_fileversions(filepath)
 
     if not files_list:
@@ -75,6 +79,7 @@ def get_next_version_number(filepath: str) -> int:
     it returns one greater than the latest existing version. If no versioned files exist yet,
     it defaults to 1.
     """
+
     latest_version_number: int = get_latest_version_number(filepath=filepath)
 
     return latest_version_number + 1
@@ -84,6 +89,7 @@ def validate_file_naming(filepath: str) -> None:
     """Validate that the file follows the expected naming convention.
     Raises ValueError if the naming is invalid.
     """
+
     path = Path(filepath)
     stem = path.stem
     if "_v" in stem and not stem.split("_v")[-1].isdigit():
@@ -104,6 +110,7 @@ def write_versioned_pandas(
 
     If `overwrite` is True, the latest version `<base_filename>.parquet` is simply overwritten.
     """
+
     # Validate the naming convention
     validate_file_naming(gcs_path)
 
