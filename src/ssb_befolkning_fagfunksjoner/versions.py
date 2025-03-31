@@ -10,39 +10,36 @@ consider version numbers.
 """
 
 import logging
-from pathlib import Path
 
-import dapla as dp
 import pandas as pd
+from upath import UPath
 
 
 def deconstruct_file_pattern(filepath: str) -> str:
-    """Returns a string with folders and base filename without versioning."""
-
-    path: Path = Path(filepath)
+    """Returns a glob pattern (string) with folders and base filename without specifying version."""
+    path: UPath = UPath(filepath, protocol="gs")
     stem: str = path.stem
-    folders: Path = path.parent
+    parent: UPath = path.parent
     stem_without_version: str = stem.rpartition("_v")[
         0
     ]  # if no versioning on filename, then still returns stem_without_version
 
-    return f"{folders!s}/{stem_without_version}*.parquet"
+    return f"{parent!s}/{stem_without_version}*.parquet"
 
 
 def get_fileversions(filepath: str) -> list[str]:
     """Returns a list of versioned files in gcs filepath."""
-
     glob_pattern: str = deconstruct_file_pattern(filepath=filepath)
-    fs = dp.FileClient.get_gcs_file_system()
-    files_list: list[str] = fs.glob(path=glob_pattern)  # type: ignore
+    path = UPath(filepath, protocol="gs")
+    fs = path.fs
+    files_list: list[str] = fs.glob(path=glob_pattern)
 
     return files_list
 
 
 def get_version_number_from_filepath(filepath: str) -> int | None:
-    """Returns the version number from a filepath including verisioned filename."""
-
-    path: Path = Path(filepath)
+    """Returns the version number from a gcs filepath including versioned filename."""
+    path: UPath = UPath(filepath, protocol="gs")
     stem: str = path.stem
 
     occurrences: int = stem.count("_v")
@@ -59,7 +56,6 @@ def get_version_number_from_filepath(filepath: str) -> int | None:
 
 def get_latest_version_number(filepath: str) -> int:
     """Return the latest version number for the files in a given gcs filepath."""
-
     files_list: list[str] = get_fileversions(filepath)
 
     if not files_list:
@@ -79,7 +75,6 @@ def get_next_version_number(filepath: str) -> int:
     it returns one greater than the latest existing version. If no versioned files exist yet,
     it defaults to 1.
     """
-
     latest_version_number: int = get_latest_version_number(filepath=filepath)
 
     return latest_version_number + 1
@@ -87,12 +82,11 @@ def get_next_version_number(filepath: str) -> int:
 
 def validate_file_naming(filepath: str) -> None:
     """Validate that the file follows the expected naming convention.
-    
+
     Raises ValueError if the naming is invalid.
     """
-
-    path = Path(filepath)
-    stem = path.stem
+    path: UPath = UPath(filepath, protocol="gs")
+    stem: str = path.stem
     if "_v" in stem and not stem.split("_v")[-1].isdigit():
         raise ValueError(f"File {filepath} does not follow expected naming convention.")
 
@@ -111,15 +105,24 @@ def write_versioned_pandas(
 
     If `overwrite` is True, the latest version `<base_filename>.parquet` is simply overwritten.
     """
-
     # Validate the naming convention
     validate_file_naming(gcs_path)
 
-    fs = dp.FileClient.get_gcs_file_system()
-    path: Path = Path(gcs_path)
-    folders: Path = path.parent
+    path: UPath = UPath(gcs_path, protocol="gs")
+    fs = path.fs
+    parent: UPath = path.parent
     stem: str = path.stem
     stem_without_version: str = stem.split(sep="_v")[0]
+
+    # Handle overwrite case
+    if overwrite:
+        try:
+            df.to_parquet(gcs_path=gcs_path)
+        except Exception as e:
+            logging.error(f"Failed to overwrite data at {gcs_path}: {e}")
+            raise
+        logging.info(f"Overwrote data: {stem}")
+        return
 
     if stem != stem_without_version and not overwrite:
         raise ValueError(
@@ -134,32 +137,23 @@ def write_versioned_pandas(
     # Log the list of files in the directory
     logging.info(f"Files in path for {gcs_path}: {get_fileversions(filepath=gcs_path)}")
 
-    # Handle overwrite case
-    if overwrite:
-        try:
-            dp.write_pandas(df=df, gcs_path=gcs_path)
-        except Exception as e:
-            logging.error(f"Failed to overwrite data at {gcs_path}: {e}")
-            raise
-        logging.info(f"Overwrote data: {stem}")
-        return
-
     # Handle none-overwrite case
     if next_version_number == 2:
         # Rename existing unversioned file to v1
-        old_path: Path = folders / f"{stem_without_version}.parquet"
-        new_path_v1: Path = folders / f"{stem_without_version}_v1.parquet"
+        old_path: UPath = parent / f"{stem_without_version}.parquet"
+        new_path_v1: UPath = parent / f"{stem_without_version}_v1.parquet"
         try:
-            fs.mv(str(old_path), str(new_path_v1))
+            fs.copy(str(old_path), str(new_path_v1))
+            fs.rm_file(str(old_path))
         except Exception as e:
             logging.error(f"Failed to rename {old_path} to {new_path_v1}: {e}")
             raise
         logging.info(f"Renamed {old_path} to {new_path_v1}")
 
         # Write new file as v2
-        new_path_v2: Path = folders / f"{stem_without_version}_v2.parquet"
+        new_path_v2: UPath = parent / f"{stem_without_version}_v2.parquet"
         try:
-            dp.write_pandas(df=df, gcs_path=str(new_path_v2))
+            df.to_parquet(gcs_path=str(new_path_v2))
         except Exception as e:
             logging.error(f"Failed to write version: {new_path_v2}: {e}")
             raise
@@ -167,19 +161,19 @@ def write_versioned_pandas(
 
     elif next_version_number > 2:
         # Write the next version v{n}
-        new_path_vn: Path = (
-            folders / f"{stem_without_version}_v{next_version_number}.parquet"
+        new_path_vn: UPath = (
+            parent / f"{stem_without_version}_v{next_version_number}.parquet"
         )
         try:
-            dp.write_pandas(df=df, gcs_path=str(new_path_vn))
+            df.to_parquet(gcs_path=str(new_path_vn))
         except Exception as e:
             logging.error(f"Failed to write version: {new_path_vn}: {e}")
         logging.info(f"Wrote new version: {new_path_vn}")
 
     # Update the unversioned file to reflect the latest data
-    latest_version_path: Path = folders / f"{stem_without_version}.parquet"
+    latest_version_path: UPath = parent / f"{stem_without_version}.parquet"
     try:
-        dp.write_pandas(df=df, gcs_path=str(latest_version_path))
+        df.to_parquet(gcs_path=str(latest_version_path))
     except Exception as e:
         logging.error(f"Failed to update latest version: {latest_version_path}: {e}")
         raise
