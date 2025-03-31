@@ -18,7 +18,7 @@ import pandas as pd
 
 def deconstruct_file_pattern(filepath: str) -> str:
     """Returns a string with folders and base filename without versioning."""
-    
+
     path: Path = Path(filepath)
     stem: str = path.stem
     folders: Path = path.parent
@@ -87,6 +87,7 @@ def get_next_version_number(filepath: str) -> int:
 
 def validate_file_naming(filepath: str) -> None:
     """Validate that the file follows the expected naming convention.
+    
     Raises ValueError if the naming is invalid.
     """
 
@@ -99,7 +100,7 @@ def validate_file_naming(filepath: str) -> None:
 def write_versioned_pandas(
     df: pd.DataFrame, gcs_path: str, overwrite: bool = False
 ) -> None:
-    """Write a pandas DataFrame as a Parquet file to a given GCS path, managing versions
+    """Write a pandas DataFrame as a Parquet file to a given GCS path, managing versions.
 
     If `overwrite` is False, versioning behavior is as follows:
     - The first write (version_number == 1) creates a file named `<base_filename>.parquet`.
