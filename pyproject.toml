@@ -23,6 +23,7 @@ dapla-toolbelt = "^3.2.2"
 pandas = "^2.2.3"
 pandas-stubs = "^2.2.3.250308"
 universal-pathlib = "^0.2.6"
+ipykernel = "^6.29.5"
 
 [tool.poetry.group.dev.dependencies]
 pygments = ">=2.10.0"
