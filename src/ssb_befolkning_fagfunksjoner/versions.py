@@ -9,18 +9,21 @@ files get version numbers according to the SSB standard (with one file unversion
 consider version numbers.
 """
 
+from typing import cast
+
+
 import logging
 
 import pandas as pd
+from fsspec.spec import AbstractFileSystem
 from upath import UPath
-from upath.core import UPath
 
 
 def deconstruct_file_pattern(filepath: str) -> str:
     """Returns a glob pattern (string) with folders and base filename without specifying version."""
-    path: UPath = UPath(filepath, protocol="gs")
+    path = UPath(filepath, protocol="gs")
     stem: str = path.stem
-    parent: UPath = path.parent
+    parent = path.parent
     stem_without_version: str = stem.rpartition("_v")[
         0
     ]  # if no versioning on filename, then still returns stem_without_version
@@ -28,14 +31,14 @@ def deconstruct_file_pattern(filepath: str) -> str:
     return f"{parent!s}/{stem_without_version}*.parquet"
 
 
-def get_fileversions(filepath: str) -> list:
+def get_fileversions(filepath: str) -> list[str]:
     """Returns a list of versioned files in gcs filepath."""
     glob_pattern: str = deconstruct_file_pattern(filepath)
-    path: UPath = UPath(filepath, protocol="gs")
+    path = UPath(filepath, protocol="gs")
     fs = path.fs
 
     try:
-        files_list: list = list(fs.glob(glob_pattern))
+        files_list: list[str] = cast(list[str], fs.glob(glob_pattern))
     except Exception as e:
         raise RuntimeError(f"Failed to glob files with pattern '{glob_pattern}'") from e
 
@@ -44,7 +47,7 @@ def get_fileversions(filepath: str) -> list:
 
 def get_version_number_from_filepath(filepath: str) -> int | None:
     """Returns the version number from a gcs filepath including versioned filename."""
-    path: UPath = UPath(filepath, protocol="gs")
+    path = UPath(filepath, protocol="gs")
     stem: str = path.stem
 
     occurrences: int = stem.count("_v")
@@ -90,7 +93,7 @@ def validate_file_naming(filepath: str) -> None:
 
     Raises ValueError if the naming is invalid.
     """
-    path: UPath = UPath(filepath, protocol="gs")
+    path = UPath(filepath, protocol="gs")
     stem: str = path.stem
     if "_v" in stem and not stem.split("_v")[-1].isdigit():
         raise ValueError(f"File {filepath} does not follow expected naming convention.")
@@ -113,9 +116,9 @@ def write_versioned_pandas(
     # Validate the naming convention
     validate_file_naming(gcs_path)
 
-    path: UPath = UPath(gcs_path, protocol="gs")
+    path = UPath(gcs_path, protocol="gs")
     fs = path.fs
-    parent: UPath = path.parent
+    parent = path.parent
     stem: str = path.stem
     stem_without_version: str = stem.split(sep="_v")[0]
 
@@ -153,7 +156,9 @@ def write_versioned_pandas(
 # ---------------------------------------------------------
 
 
-def _promote_unversioned_to_v1(fs, parent: UPath, stem: str) -> None:
+def _promote_unversioned_to_v1(
+    fs: AbstractFileSystem, parent: UPath, stem: str
+) -> None:
     old_path = parent / f"{stem}.parquet"
     new_path = parent / f"{stem}_v1.parquet"
     try:
