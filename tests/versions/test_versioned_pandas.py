@@ -1,18 +1,3 @@
-from unittest.mock import Mock
-
-
-from unittest.mock import Mock
-
-
-from unittest.mock import AsyncMock, MagicMock
-
-
-from typing import Any, Generator
-
-
-from unittest.mock import AsyncMock, MagicMock
-
-
 from unittest import mock
 
 import pandas as pd
@@ -28,7 +13,7 @@ def dummy_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def patched_env() -> Generator[tuple[MagicMock | AsyncMock, MagicMock | AsyncMock, MagicMock | AsyncMock], Any, None]:
+def patched_env():
     with mock.patch(
         "ssb_befolkning_fagfunksjoner.versions.UPath"
     ) as mock_upath, mock.patch(
@@ -40,21 +25,23 @@ def patched_env() -> Generator[tuple[MagicMock | AsyncMock, MagicMock | AsyncMoc
 
 
 @pytest.fixture
-def patched_to_parquet() -> Generator[MagicMock | AsyncMock, Any, None]:
+def patched_to_parquet():
     with mock.patch.object(pd.DataFrame, "to_parquet") as mock_to_parquet:
         yield mock_to_parquet
 
 
 @pytest.fixture
-def patched_fs() -> Mock:
-    mock_fs: Mock = mock.Mock()     # Mock FileClient fs
-    mock_fs.copy = mock.Mock()      # Mock return for fs.copy
-    mock_fs.rm_file = mock.Mock()   # Mock return for fs.rm_file
+def patched_fs():
+    mock_fs = mock.Mock()  # Mock FileClient fs
+    mock_fs.copy = mock.Mock()  # Mock return for fs.copy
+    mock_fs.rm_file = mock.Mock()  # Mock return for fs.rm_file
     return mock_fs
 
 
 # Test first write (version == 1)
-def test_first_write_only_latest_written(dummy_df, patched_env, patched_to_parquet) -> None:
+def test_first_write_only_latest_written(
+    dummy_df: pd.DataFrame, patched_env, patched_to_parquet
+) -> None:
     mock_upath, mock_get_version, mock_get_versions = patched_env
     mock_path = mock.Mock()
     mock_path.fs = mock.Mock()
@@ -68,12 +55,12 @@ def test_first_write_only_latest_written(dummy_df, patched_env, patched_to_parqu
     write_versioned_pandas(dummy_df, "gs://bucket/testfile.parquet", overwrite=False)
 
     # Should only write the unversioned file
-    patched_to_parquet.assert_called_once_with("gs://mock/parent/testfile.parquet")
+    patched_to_parquet.assert_called_once_with("gs://mock/parent/testfile.parquet")  # type: ignore
 
 
 # Test version == 2 (promote + v2 + update latest)
 def test_second_write_promotes_and_versions(
-    dummy_df, patched_env, patched_to_parquet, patched_fs
+    dummy_df: pd.DataFrame, patched_env, patched_to_parquet, patched_fs
 ) -> None:
     mock_upath, mock_get_version, mock_get_versions = patched_env
     mock_path = mock.Mock()

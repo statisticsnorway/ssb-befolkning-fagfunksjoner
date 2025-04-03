@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import mock
 
 from ssb_befolkning_fagfunksjoner.versions import get_next_version_number
@@ -24,7 +25,7 @@ def test_get_next_version_number_with_existing_versions() -> None:
 
 def test_get_next_version_number_no_existing_files() -> None:
     test_filepath = "gs://bucket/folder/file.parquet"
-    mock_files = []
+    mock_files: list[Any] = []
 
     expected_next_version = 1
 
