@@ -9,13 +9,11 @@ files get version numbers according to the SSB standard (with one file unversion
 consider version numbers.
 """
 
+import logging
 from typing import cast
 
-
-import logging
-
 import pandas as pd
-from fsspec.spec import AbstractFileSystem
+from fsspec.spec import AbstractFileSystem  # type: ignore
 from upath import UPath
 
 
@@ -35,7 +33,7 @@ def get_fileversions(filepath: str) -> list[str]:
     """Returns a list of versioned files in gcs filepath."""
     glob_pattern: str = deconstruct_file_pattern(filepath)
     path = UPath(filepath, protocol="gs")
-    fs = path.fs
+    fs: AbstractFileSystem = path.fs
 
     try:
         files_list: list[str] = cast(list[str], fs.glob(glob_pattern))
