@@ -7,6 +7,7 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 from fsspec.spec import AbstractFileSystem  # type: ignore
+
 from upath import UPath
 
 from ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
