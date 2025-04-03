@@ -47,17 +47,12 @@ def get_version_number_from_filepath(filepath: str) -> int | None:
     """Returns the version number from a gcs filepath including versioned filename."""
     path = UPath(filepath, protocol="gs")
     stem: str = path.stem
+    _, sep, suffix = stem.rpartition("_v")
 
-    occurrences: int = stem.count("_v")
-    if occurrences > 1:
-        raise ValueError(
-            f"Multiple '_v' occurrences found in '{stem}'. Filename does not follow the expected convention."
-        )
-
-    if occurrences == 1:
-        return int(stem.split(sep="_v", maxsplit=1)[1])
-    else:
+    if not sep or not suffix.isdigit():
+        logging.warning(f"No valid version number found in {stem}.")
         return None
+    return int(suffix)
 
 
 def get_latest_version_number(filepath: str) -> int:

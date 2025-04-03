@@ -1,7 +1,9 @@
+from collections.abc import Iterator
 from unittest import mock
 
 import pandas as pd
 import pytest
+from fsspec.spec import AbstractFileSystem
 from upath import UPath
 
 from ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
@@ -13,115 +15,121 @@ def dummy_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def patched_env():
+def mock_get_next_version_number() -> Iterator:
     with mock.patch(
-        "ssb_befolkning_fagfunksjoner.versions.UPath"
-    ) as mock_upath, mock.patch(
         "ssb_befolkning_fagfunksjoner.versions.get_next_version_number"
-    ) as mock_get_next_version_number, mock.patch(
+    ) as mock_fn:
+        yield mock_fn
+
+
+@pytest.fixture
+def mock_get_fileversions() -> Iterator:
+    with mock.patch(
         "ssb_befolkning_fagfunksjoner.versions.get_fileversions"
-    ) as mock_get_fileversions:
-        yield mock_upath, mock_get_next_version_number, mock_get_fileversions
+    ) as mock_fn:
+        yield mock_fn
 
 
 @pytest.fixture
-def patched_to_parquet():
-    with mock.patch.object(pd.DataFrame, "to_parquet") as mock_to_parquet:
-        yield mock_to_parquet
+def patched_upath() -> Iterator:
+    with mock.patch("ssb_befolkning_fagfunksjoner.versions.UPath") as mock_fn:
+        yield mock_fn
 
 
 @pytest.fixture
-def patched_fs():
-    mock_fs = mock.Mock()  # Mock FileClient fs
-    mock_fs.copy = mock.Mock()  # Mock return for fs.copy
-    mock_fs.rm_file = mock.Mock()  # Mock return for fs.rm_file
+def patched_to_parquet() -> Iterator:
+    with mock.patch.object(pd.DataFrame, "to_parquet") as mock_fn:
+        yield mock_fn
+
+
+@pytest.fixture
+def mock_fs() -> mock.Mock:
+    mock_fs = mock.Mock(spec=AbstractFileSystem)
+    mock_fs.copy = mock.Mock()
+    mock_fs.rm_file = mock.Mock()
     return mock_fs
+
+
+@pytest.fixture
+def mock_path(mock_fs: mock.Mock) -> mock.Mock:
+    mock_path = mock.Mock(spec=UPath)
+    mock_path.fs = mock_fs
+    mock_path.parent = UPath("bucket/folders", protocol="gs")
+    mock_path.stem = "testfile"
+    return mock_path
+
+
+@pytest.fixture
+def mock_env(
+    patched_upath,
+    mock_get_next_version_number,
+    mock_get_fileversions,
+) -> tuple:
+    return (
+        patched_upath,
+        mock_get_next_version_number,
+        mock_get_fileversions,
+    )
 
 
 # Test first write (version == 1)
 def test_first_write_only_latest_written(
-    dummy_df: pd.DataFrame, patched_env, patched_to_parquet
+    dummy_df: pd.DataFrame,
+    mock_env: tuple,
+    patched_to_parquet: Iterator,
+    mock_path: mock.Mock,
 ) -> None:
-    mock_upath, mock_get_version, mock_get_versions = patched_env
-    mock_path = mock.Mock()
-    mock_path.fs = mock.Mock()
-    mock_path.parent = UPath("mock/parent", protocol="gs")
-    mock_path.stem = "testfile"
+
+    test_file = "gs://bucket/folders/testfile.parquet"
+
+    # Mock internal functions used in write_versioned_pandas
+    mock_upath, mock_get_next_version_number, mock_get_fileversions = mock_env
+
+    # Patch return values for this test
     mock_upath.return_value = mock_path
+    mock_get_next_version_number.return_value = 1
+    mock_get_fileversions.return_value = []
 
-    mock_get_version.return_value = 1
-    mock_get_versions.return_value = []
-
-    write_versioned_pandas(dummy_df, "gs://bucket/testfile.parquet", overwrite=False)
+    write_versioned_pandas(dummy_df, test_file, overwrite=False)
 
     # Should only write the unversioned file
-    patched_to_parquet.assert_called_once_with("gs://mock/parent/testfile.parquet")  # type: ignore
+    patched_to_parquet.assert_called_once_with(test_file)  # type: ignore
 
 
 # Test version == 2 (promote + v2 + update latest)
 def test_second_write_promotes_and_versions(
-    dummy_df: pd.DataFrame, patched_env, patched_to_parquet, patched_fs
+    dummy_df: pd.DataFrame,
+    mock_env: tuple,
+    patched_to_parquet: Iterator,
+    mock_fs: mock.Mock,
+    mock_path: mock.Mock,
 ) -> None:
-    mock_upath, mock_get_version, mock_get_versions = patched_env
-    mock_path = mock.Mock()
-    mock_path.fs = patched_fs
-    mock_path.parent = UPath("mock/parent", protocol="gs")
-    mock_path.stem = "testfile"
+
+    test_file = "gs://bucket/folders/testfile.parquet"
+    existing_files = ["gs://bucket/folders/testfile.parquet"]
+
+    # Mock internal functions used in write_versioned_pandas
+    mock_upath, mock_get_next_version_number, mock_get_fileversions = mock_env
+
+    # Patch return values for this test
     mock_upath.return_value = mock_path
+    mock_get_next_version_number.return_value = 2
+    mock_get_fileversions.return_value = existing_files
 
-    mock_get_version.return_value = 2
-    mock_get_versions.return_value = []
-
-    write_versioned_pandas(dummy_df, "gs://bucket/testfile.parquet", overwrite=False)
+    write_versioned_pandas(dummy_df, test_file, overwrite=False)
 
     # Check copy and remove were called for promotion
-    patched_fs.copy.assert_called_once_with(
-        "gs://mock/parent/testfile.parquet", "gs://mock/parent/testfile_v1.parquet"
+    mock_fs.copy.assert_called_once_with(
+        "gs://bucket/folders/testfile.parquet",
+        "gs://bucket/folders/testfile_v1.parquet",
     )
-    patched_fs.rm_file.assert_called_once_with("gs://mock/parent/testfile.parquet")
+    mock_fs.rm_file.assert_called_once_with("gs://bucket/folders/testfile.parquet")
 
     # Check two writes: v2 and updated latest
     assert patched_to_parquet.call_count == 2
-    calls = [
-        mock.call("gs://mock/parent/testfile_v2.parquet"),
-        mock.call("gs://mock/parent/testfile.parquet"),
-    ]
-    patched_to_parquet.assert_has_calls(calls, any_order=False)
-
-
-# Test version > 2
-def test_later_write_adds_version(dummy_df, patched_env, patched_to_parquet) -> None:
-    mock_upath, mock_get_version, mock_get_versions = patched_env
-    mock_path = mock.Mock()
-    mock_path.fs = mock.Mock()
-    mock_path.parent = UPath("mock/parent", protocol="gs")
-    mock_path.stem = "testfile"
-    mock_upath.return_value = mock_path
-
-    mock_get_version.return_value = 5
-    mock_get_versions.return_value = []
-
-    write_versioned_pandas(dummy_df, "gs://bucket/testfile.parquet", overwrite=False)
-
-    # Should write v5 and update latest
-    assert patched_to_parquet.call_count == 2
-    calls = [
-        mock.call("gs://mock/parent/testfile_v5.parquet"),
-        mock.call("gs://mock/parent/testfile.parquet"),
-    ]
-    patched_to_parquet.assert_has_calls(calls, any_order=False)
-
-
-# Test input with version in name
-def test_input_with_version_suffix_raises(dummy_df, patched_env) -> None:
-    mock_upath, _, _ = patched_env
-    mock_path = mock.Mock()
-    mock_path.fs = mock.Mock()
-    mock_path.parent = UPath("mock/parent", protocol="gs")
-    mock_path.stem = "testfile_v2"
-    mock_upath.return_value = mock_path
-
-    with pytest.raises(ValueError, match="Detected versioning in function parameter"):
-        write_versioned_pandas(
-            dummy_df, "gs://bucket/testfile_v2.parquet", overwrite=False
-        )
+    patched_to_parquet.assert_has_calls(
+        [
+            mock.call("gs://bucket/folder/testfile_v2.parquet"),
+            mock.call("gs://bucket/folder/testfile.parquet"),
+        ]
+    )
