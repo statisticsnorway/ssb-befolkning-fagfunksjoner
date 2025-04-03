@@ -9,11 +9,11 @@ files get version numbers according to the SSB standard (with one file unversion
 consider version numbers.
 """
 
-from fsspec.spec import AbstractFileSystem
-from upath.core import UPath
 import logging
+
 import pandas as pd
 from upath import UPath
+from upath.core import UPath
 
 
 def deconstruct_file_pattern(filepath: str) -> str:
@@ -28,14 +28,14 @@ def deconstruct_file_pattern(filepath: str) -> str:
     return f"{parent!s}/{stem_without_version}*.parquet"
 
 
-def get_fileversions(filepath: str) -> list[str]:
+def get_fileversions(filepath: str) -> list:
     """Returns a list of versioned files in gcs filepath."""
     glob_pattern: str = deconstruct_file_pattern(filepath)
     path: UPath = UPath(filepath, protocol="gs")
-    fs: AbstractFileSystem = path.fs
+    fs = path.fs
 
     try:
-        files_list: list[str] = fs.glob(glob_pattern)  # type: ignore
+        files_list: list = list(fs.glob(glob_pattern))
     except Exception as e:
         raise RuntimeError(f"Failed to glob files with pattern '{glob_pattern}'") from e
 
@@ -114,7 +114,7 @@ def write_versioned_pandas(
     validate_file_naming(gcs_path)
 
     path: UPath = UPath(gcs_path, protocol="gs")
-    fs: AbstractFileSystem = path.fs
+    fs = path.fs
     parent: UPath = path.parent
     stem: str = path.stem
     stem_without_version: str = stem.split(sep="_v")[0]
@@ -137,9 +137,13 @@ def write_versioned_pandas(
 
     if next_version_number == 2:
         _promote_unversioned_to_v1(fs, parent, stem_without_version)
-        _write_new_version(df, parent, stem_without_version, version=next_version_number)
+        _write_new_version(
+            df, parent, stem_without_version, version=next_version_number
+        )
     elif next_version_number > 2:
-        _write_new_version(df, parent, stem_without_version, version=next_version_number)
+        _write_new_version(
+            df, parent, stem_without_version, version=next_version_number
+        )
 
     _update_latest_file(df, parent, stem_without_version)
 
@@ -148,7 +152,8 @@ def write_versioned_pandas(
 # Helper functions
 # ---------------------------------------------------------
 
-def _promote_unversioned_to_v1(fs: AbstractFileSystem, parent: UPath, stem: str) -> None:
+
+def _promote_unversioned_to_v1(fs, parent: UPath, stem: str) -> None:
     old_path = parent / f"{stem}.parquet"
     new_path = parent / f"{stem}_v1.parquet"
     try:
@@ -160,7 +165,9 @@ def _promote_unversioned_to_v1(fs: AbstractFileSystem, parent: UPath, stem: str)
         raise
 
 
-def _write_new_version(df: pd.DataFrame, parent: UPath, stem: str, version: int) -> None:
+def _write_new_version(
+    df: pd.DataFrame, parent: UPath, stem: str, version: int
+) -> None:
     versioned_path = parent / f"{stem}_v{version}.parquet"
     try:
         df.to_parquet(str(versioned_path))
