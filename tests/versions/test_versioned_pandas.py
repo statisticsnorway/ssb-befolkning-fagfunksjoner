@@ -35,7 +35,7 @@ def mock_get_fileversions() -> Generator[Mock, None, None]:
 
 @pytest.fixture
 def patched_upath() -> Generator[Mock, None, None]:
-    with mock.patch("ssb_befolkning_fagfunksjoner.versions.UPath") as mock_fn:
+    with mock.patch("ssb_befolkning_fagfunksjoner.versions.UPath", spec=UPath) as mock_fn:
         yield mock_fn
 
 
@@ -112,7 +112,7 @@ def test_first_write_only_latest_written(
 # Test version == 2 (promote + v2 + update latest)
 def test_second_write_promotes_and_versions(
     dummy_df: pd.DataFrame,
-    mock_env: tuple,
+    mock_env: tuple[Generator[Mock, None, None], Generator[Mock, None, None], Generator[Mock, None, None]],
     patched_to_parquet: Iterator[Mock],
     mock_fs: Mock,
     mock_path: Mock,
