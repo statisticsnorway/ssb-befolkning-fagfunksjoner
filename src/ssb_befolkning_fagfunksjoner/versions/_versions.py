@@ -19,7 +19,7 @@ def resolve_path(filepath: str) -> UPath:
                         or a local bucket path on the mounted filesystem.
 
     Returns:
-        str: Fully resolved GCS path (starting with 'gs://') or an absolute local path.
+        UPath: Fully resolved GCS path (starting with 'gs://') or an absolute local path.
 
     Raises:
         ValueError: If the path format is not supported or if a local bucket path is not mounted.
