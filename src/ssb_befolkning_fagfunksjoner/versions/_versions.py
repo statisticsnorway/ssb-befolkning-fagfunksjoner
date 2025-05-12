@@ -14,6 +14,10 @@ def resolve_path(filepath: str) -> UPath:
     - 'ssb-<dapla-name>-<bucket>-data-<env>/...' (GCS path without prefix)
     - '/buckets/<bucket>/...' (local path on mounted filesystem)
 
+    Args:
+        filepath (str): The input path to normalize. Can be a GCS path (with or without 'gs://')
+                        or a local bucket path on the mounted filesystem.
+
     Returns:
         str: Fully resolved GCS path (starting with 'gs://') or an absolute local path.
 
@@ -25,10 +29,10 @@ def resolve_path(filepath: str) -> UPath:
     elif filepath.startswith("/buckets"):
         try:
             return UPath(filepath)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             raise ValueError(
                 f"Local bucket path '{filepath} must be mounted in DaplaLab."
-            )
+            ) from e
     elif filepath.startswith("ssb-"):
         return UPath(f"gs://{filepath}")
     else:
@@ -55,13 +59,12 @@ def get_list_of_versioned_files(filepath: UPath) -> list[UPath]:
 
 
 def get_version_number_from_filepath(filepath: UPath) -> int | None:
-    """Returns the version number from a gcs filepath including versioned filename."""
-    _, sep, suffix = filepath.stem.rpartition("_v")
-
-    if not sep or not suffix.isdigit():
+    """Extracts the version number from a filename with a `_v<digit>` suffix, or returns None if not present."""
+    match = re.search(r"_v(\d+)$", filepath.stem)
+    if not match:
         logging.warning(f"No valid version number found in {filepath.stem}.")
         return None
-    return int(suffix)
+    return int(match.group(1))
 
 
 def get_latest_version_number(filepath: UPath) -> int:

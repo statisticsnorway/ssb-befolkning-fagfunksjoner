@@ -78,6 +78,11 @@ def write_versioned_pandas(
                 f"Failed to read existing version at {latest_path} for comparison: {e}"
             )
             raise
+    else:
+        if next_version_number == 2:
+            raise RuntimeError(
+                f"Expected {latest_path} to exist for rename to _v1, but it was not found."
+            )
 
     # --- CASE 2: Writing versioned file ---
     if next_version_number == 2:
