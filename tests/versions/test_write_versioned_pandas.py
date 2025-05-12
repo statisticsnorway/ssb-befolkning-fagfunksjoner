@@ -1,12 +1,9 @@
 from collections.abc import Generator
-from collections.abc import Iterator
-from typing import cast
 from unittest import mock
 from unittest.mock import Mock
 
 import pandas as pd
 import pytest
-from fsspec.spec import AbstractFileSystem  # type: ignore
 from upath import UPath
 
 from ssb_befolkning_fagfunksjoner.versions.versions import write_versioned_pandas
@@ -43,12 +40,17 @@ def mock_to_parquet() -> Generator[Mock, None, None]:
 @pytest.mark.parametrize(
     "input_filepath, resolved_upath",
     [
-        ("gs://bucket/folder/file.parquet", UPath("gs://bucket/folder/file.parquet", protocol="gs")),
-        ("ssb-bucket-data-dev/folder/file.parquet", UPath("gs://ssb-bucket-data-dev/folder/file.parquet", protocol="gs")),
+        (
+            "gs://bucket/folder/file.parquet",
+            UPath("gs://bucket/folder/file.parquet", protocol="gs"),
+        ),
+        (
+            "ssb-bucket-data-dev/folder/file.parquet",
+            UPath("gs://ssb-bucket-data-dev/folder/file.parquet", protocol="gs"),
+        ),
         ("/buckets/demo/file.parquet", UPath("/buckets/demo/file.parquet")),
     ],
 )
-
 def test_write_unversioned(
     dummy_df: pd.DataFrame,
     mock_resolve_path: Mock,
@@ -57,8 +59,7 @@ def test_write_unversioned(
     input_filepath: str,
     resolved_upath: UPath,
 ) -> None:
-    """
-    Test that write_versioned_pandas calls resolve_path to normalize the input,
+    """Test that write_versioned_pandas calls resolve_path to normalize the input,
     and that it writes only the unversioned file when no existing versions are present.
     """
     expected_write_path = resolved_upath.parent / f"{resolved_upath.stem}.parquet"
@@ -87,8 +88,7 @@ def test_write_promotion_and_update(
     equal: bool,
     expect_write: bool,
 ) -> None:
-    """
-    Test version 2 write behavior:
+    """Test version 2 write behavior.
 
     - If the existing file equals the new DataFrame:
         - Skip promotion and writing.
@@ -122,14 +122,11 @@ def test_write_promotion_and_update(
         mock_existing_df.equals.return_value = equal
 
         write_versioned_pandas(dummy_df, input_filepath)
-    
-    if expect_write:   
+
+    if expect_write:
         mock_rename.assert_called_once_with(target=promoted_path)
         mock_to_parquet.assert_has_calls(
-            [
-                mock.call(versioned_path),
-                mock.call(unversioned_path)
-            ]
+            [mock.call(versioned_path), mock.call(unversioned_path)]
         )
     else:
         mock_rename.assert_not_called()
@@ -140,4 +137,3 @@ def test_rejects_versioned_filepath(dummy_df: pd.DataFrame) -> None:
     versioned_input = "gs://bucket/folder/myfile_v2.parquet"
     with pytest.raises(ValueError, match="Detected versioning in function parameter"):
         write_versioned_pandas(dummy_df, versioned_input)
-

@@ -1,5 +1,6 @@
 from typing import Any
 from unittest import mock
+
 from upath import UPath
 
 from ssb_befolkning_fagfunksjoner.versions.versions import get_next_version_number
@@ -18,11 +19,11 @@ def test_get_next_version_number_with_existing_versions() -> None:
     expected_next_version = 4
 
     with mock.patch(
-            "ssb_befolkning_fagfunksjoner.versions._versions.get_list_of_versioned_files",
-            return_value=mock_files,
-        ):
+        "ssb_befolkning_fagfunksjoner.versions._versions.get_list_of_versioned_files",
+        return_value=mock_files,
+    ):
         result = get_next_version_number(test_filepath)
-    
+
     assert result == expected_next_version
 
 
