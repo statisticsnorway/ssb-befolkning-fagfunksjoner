@@ -10,10 +10,12 @@ consider version numbers.
 """
 
 import logging
+import re
+
 import pandas as pd
 from upath import UPath
+
 from . import _versions
-import re
 
 
 def get_next_version_number(filepath: str) -> int:
@@ -38,7 +40,7 @@ def write_versioned_pandas(
     - The second write (version_number == 2) renames the existing `<base_filename>.parquet`
       to `<base_filename>_v1.parquet` and writes the new file as `<base_filename>_v2.parquet`.
     - Subsequent writes (version_number > 2) append a new file `<base_filename>_v{n}.parquet`.
-    
+
     - The newest file is always accessible as `<base_filename>.parquet`.
     """
     normalised_filepath: UPath = _versions.resolve_path(filepath)
@@ -51,7 +53,9 @@ def write_versioned_pandas(
             "Use the basename (without version suffix) and the function will handle versioning. "
         )
 
-    next_version_number: int = _versions.get_next_version_number(filepath=normalised_filepath)
+    next_version_number: int = _versions.get_next_version_number(
+        filepath=normalised_filepath
+    )
     latest_path: UPath = parent / f"{stem}.parquet"
 
     # --- CASE 1: First write to directory ---
@@ -65,18 +69,24 @@ def write_versioned_pandas(
         try:
             existing_df = pd.read_parquet(latest_path)
             if existing_df.equals(df):
-                logging.info(f"No changes detected in {latest_path}. Skipping write to path.")
+                logging.info(
+                    f"No changes detected in {latest_path}. Skipping write to path."
+                )
                 return
         except Exception as e:
-            logging.error(f"Failed to read existing version at {latest_path} for comparison: {e}")
+            logging.error(
+                f"Failed to read existing version at {latest_path} for comparison: {e}"
+            )
             raise
 
-    # --- CASE 2: Writing versioned file --- 
+    # --- CASE 2: Writing versioned file ---
     if next_version_number == 2:
         _promote_unversioned_to_v1(parent=parent, stem=stem)
 
     versioned_path: UPath = parent / f"{stem}_v{next_version_number}.parquet"
-    logging.info(f"Detected change — writing version {next_version_number} to {versioned_path}")
+    logging.info(
+        f"Detected change — writing version {next_version_number} to {versioned_path}"
+    )
     _write_new_version(df=df, parent=parent, stem=stem, version=next_version_number)
     _update_latest_file(df=df, parent=parent, stem=stem)
 
@@ -97,7 +107,9 @@ def _promote_unversioned_to_v1(parent: UPath, stem: str) -> None:
         raise
 
 
-def _write_new_version(df: pd.DataFrame, parent: UPath, stem: str, version: int) -> None:
+def _write_new_version(
+    df: pd.DataFrame, parent: UPath, stem: str, version: int
+) -> None:
     versioned_path: UPath = parent / f"{stem}_v{version}.parquet"
     try:
         logging.info(f"Writing new version: {versioned_path}")

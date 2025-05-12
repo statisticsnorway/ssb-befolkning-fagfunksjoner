@@ -7,10 +7,9 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 from fsspec.spec import AbstractFileSystem  # type: ignore
-
 from upath import UPath
 
-from ssb_befolkning_fagfunksjoner.versions import write_versioned_pandas
+from ssb_befolkning_fagfunksjoner.versions.versions import write_versioned_pandas
 
 
 @pytest.fixture
@@ -106,7 +105,7 @@ def test_first_write_only_latest_written(
     mock_get_next_version_number.return_value = 1
     mock_get_fileversions.return_value = []
 
-    write_versioned_pandas(dummy_df, test_file, overwrite=False)
+    write_versioned_pandas(dummy_df, test_file)
 
     # Should only write the unversioned file
     patched_to_parquet.assert_called_once_with(test_file)  # type: ignore
@@ -138,7 +137,7 @@ def test_second_write_promotes_and_versions(
     mock_get_next_version_number.return_value = 2
     mock_get_fileversions.return_value = existing_files
 
-    write_versioned_pandas(dummy_df, test_file, overwrite=False)
+    write_versioned_pandas(dummy_df, test_file)
 
     # Check copy and remove were called for promotion
     mock_fs.copy.assert_called_once_with(

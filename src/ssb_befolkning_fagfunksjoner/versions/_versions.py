@@ -1,14 +1,14 @@
 """This module contains internal functions for versioning data in GCS."""
 
 import logging
-from upath import UPath
 import re
+
+from upath import UPath
 
 
 def resolve_path(filepath: str) -> UPath:
-    """
-    Normalize the input path string to a form that can be safely passed to UPath.
-    
+    """Normalize the input path string to a form that can be safely passed to UPath.
+
     Supported formats:
     - 'gs://ssb-<dapla-name>-<bucket>-data-<env>/...' (GCS path with prefix)
     - 'ssb-<dapla-name>-<bucket>-data-<env>/...' (GCS path without prefix)
@@ -26,7 +26,9 @@ def resolve_path(filepath: str) -> UPath:
         try:
             return UPath(filepath)
         except FileNotFoundError:
-            raise ValueError(f"Local bucket path '{filepath} must be mounted in DaplaLab.")
+            raise ValueError(
+                f"Local bucket path '{filepath} must be mounted in DaplaLab."
+            )
     elif filepath.startswith("ssb-"):
         return UPath(f"gs://{filepath}")
     else:

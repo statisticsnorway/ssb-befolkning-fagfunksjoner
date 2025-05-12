@@ -1,7 +1,7 @@
 from typing import Any
 from unittest import mock
 
-from ssb_befolkning_fagfunksjoner.versions import get_next_version_number
+from ssb_befolkning_fagfunksjoner.versions.versions import get_next_version_number
 
 
 def test_get_next_version_number_with_existing_versions() -> None:
