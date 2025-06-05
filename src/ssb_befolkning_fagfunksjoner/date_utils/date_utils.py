@@ -67,7 +67,7 @@ def get_date_parameters() -> DateParameters:
 
 
 def get_period_labels(
-    date_params: DateParameters, include_etterslep: bool = True
+    date_params: dict[str, Any], include_etterslep: bool = True
 ) -> str | tuple[str, str]:
     """Returns a tuple of strings for period label and etterslep label for filename."""
     period_label = get_period_label(
