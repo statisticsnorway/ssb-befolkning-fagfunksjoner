@@ -1,5 +1,4 @@
-"""
-_date_utils.py
+"""_date_utils.py
 
 This script contains the internal functions used in date_utils.py.
 In particular, those which convert date parameters into start and end dates.
@@ -13,17 +12,20 @@ get_date_parameters (public)
     └── _add_wait_period
 """
 
-from datetime import date, timedelta
-from dateutil.relativedelta import relativedelta
 import calendar
+from datetime import date
+from datetime import timedelta
+
+from dateutil.relativedelta import relativedelta
 
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 
 
-def get_period_dates(year: int, period_type: str, period_number: int|None = None) -> tuple[date, date, bool]:
-    """
-    Calculate the start and end dates of a given period.
-    
+def get_period_dates(
+    year: int, period_type: str, period_number: int | None = None
+) -> tuple[date, date, bool]:
+    """Calculate the start and end dates of a given period.
+
     Parameters:
     - year (int): The reference year.
     - period_type (str): One of 'year', 'quarter', 'month', 'week', 'halfyear'.
@@ -54,9 +56,10 @@ def get_period_dates(year: int, period_type: str, period_number: int|None = None
     raise ValueError(f"Unexpected period_type: {period_type}")
 
 
-def get_etterslep_dates(start_date: date, end_date: date, wait_months: int, wait_days: int) -> tuple[date, date]:
-    """
-    Calculate the waitperiod dates given a start date and and end date, and wait times.
+def get_etterslep_dates(
+    start_date: date, end_date: date, wait_months: int, wait_days: int
+) -> tuple[date, date]:
+    """Calculate the waitperiod dates given a start date and and end date, and wait times.
 
     Parameters:
     - start_date (date): start of base period
@@ -69,7 +72,9 @@ def get_etterslep_dates(start_date: date, end_date: date, wait_months: int, wait
     """
     if wait_months > 0:
         etterslep_start = start_date + relativedelta(months=wait_months)
-        etterslep_end = _add_wait_period(date_dt=end_date, add_months=wait_months, add_days=wait_days)
+        etterslep_end = _add_wait_period(
+            date_dt=end_date, add_months=wait_months, add_days=wait_days
+        )
     else:
         etterslep_start = start_date + timedelta(days=wait_days)
         etterslep_end = end_date + timedelta(days=wait_days)
@@ -128,9 +133,7 @@ def _get_week_dates(year: int, week: int) -> tuple[date, date, bool]:
 
 
 def _add_wait_period(date_dt: date, add_months: int, add_days: int) -> date:
-    """
-    Adjusts the given date by adding months and moving to the end of the new month.
-    """
+    """Adjusts the given date by adding months and moving to the end of the new month."""
     date_dt = date_dt + relativedelta(months=add_months)
     days_in_new_month = calendar.monthrange(date_dt.year, date_dt.month)[1]
     date_dt = date_dt.replace(day=days_in_new_month)

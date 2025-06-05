@@ -1,5 +1,4 @@
-"""
-_labels.py
+"""_labels.py
 
 This script contains the internal functions used in date_utils.py.
 In particular, that which creates labels from date parameters (year, period_type, period_number).
@@ -8,17 +7,19 @@ get_labels (public)
 └── get_period_label
 """
 
-def get_period_label(year: int, period_type: str, period_number: int|None = None) -> str:
-    """
-    Generate a label string for the given period.
-    
+
+def get_period_label(
+    year: int, period_type: str, period_number: int | None = None
+) -> str:
+    """Generate a label string for the given period.
+
     Parameters:
     - year (int): the reference year
     - period_type (str): One of 'year', 'halfyear', 'quarter', 'month', 'week'
     - period_number: the sub-period number, if applicable.
 
     Returns:
-    - period_label (str): a formatted string label 
+    - period_label (str): a formatted string label
 
     Examples:
       - year: p2024
