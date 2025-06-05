@@ -18,8 +18,7 @@ from ._labels import get_period_label
 
 
 class DateParameters(TypedDict):
-    """
-    Typed dictionary containing date parameters for a given event period.
+    """Typed dictionary containing date parameters for a given event period.
 
     Attributes:
     - year (int): The reference year.
@@ -32,6 +31,7 @@ class DateParameters(TypedDict):
     - wait_days (int): Number of days to wait before considering data complete.
     - wait_months (int): Number of months to wait before considering data complete.
     """
+
     year: int
     period_type: str
     period_number: int | None
