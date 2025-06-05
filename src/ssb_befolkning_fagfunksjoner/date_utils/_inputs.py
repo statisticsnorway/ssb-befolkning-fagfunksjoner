@@ -29,10 +29,9 @@ def _prompt_for_int(prompt_msg: str, valid_range: tuple[int, int] | None = None)
         return val
 
 
-def get_user_inputs(
-    specify_wait_period: bool = False,
-) -> tuple[int, str, int | None, int, int]:
+def get_user_inputs(specify_wait_period: bool = False) -> tuple[int, str, int | None, int, int]:
     """Prompt for input and return (year, period_type, period_number, wait_months, wait_days).
+    
     If specify_wait_period is False, the function won't prompt for wait months/days
     and will return default values (0, 7).
     """
