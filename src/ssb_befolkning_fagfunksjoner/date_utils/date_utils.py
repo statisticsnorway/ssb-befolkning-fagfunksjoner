@@ -9,7 +9,7 @@ Functions:
 
 import calendar
 from datetime import date
-from typing import TypedDict
+from typing import TypedDict, Any
 
 from ._date_utils import get_etterslep_dates
 from ._date_utils import get_period_dates
