@@ -1,9 +1,8 @@
-"""_labels.py
+"""This script contains the internal functions used in date_utils.py.
 
-This script contains the internal functions used in date_utils.py.
 In particular, that which creates labels from date parameters (year, period_type, period_number).
 
-get_labels (public)
+get_period_labels (public)
 └── get_period_label
 """
 

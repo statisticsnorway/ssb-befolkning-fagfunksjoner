@@ -1,6 +1,5 @@
-"""_date_utils.py
+"""This script contains the internal functions used in date_utils.py.
 
-This script contains the internal functions used in date_utils.py.
 In particular, those which convert date parameters into start and end dates.
 
 get_date_parameters (public)
@@ -8,7 +7,7 @@ get_date_parameters (public)
 │   ├── _get_year_dates
 │   ├── _get_month_dates
 │   └── ...
-└── get_etterslep_dates
+└── get_etterslep_dates 
     └── _add_wait_period
 """
 

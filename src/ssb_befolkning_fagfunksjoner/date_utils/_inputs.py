@@ -1,6 +1,5 @@
-"""_inputs.py
+"""This script contains the internal functions used in date_utils.py.
 
-This script contains the internal functions used in date_utils.py.
 In particular, those used to prompt user to input date parameters (year, period_type, period_number)
 
 get_date_parameters (public)
@@ -37,10 +36,8 @@ def get_user_inputs(
     If specify_wait_period is False, the function won't prompt for wait months/days
     and will return default values (0, 7).
     """
-    # Prompt for year
     year = _prompt_for_int("Year: ")
 
-    # Prompt for period type
     while True:
         period_type = input(
             "Enter period type (year/halfyear/quarter/month/week): "
