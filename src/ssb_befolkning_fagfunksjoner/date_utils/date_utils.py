@@ -1,22 +1,37 @@
-"""
-date_utils.py
+"""This script contains the "public" functions of the date_utils module.
 
-This script contains the "public" functions of the date_utils module. 
+Functions:
     - get_date_parameters()
     - get_period_labels()
     - get_last_day_of_next_month()
     - get_last_day_of_month()
 """
 
-from typing import TypedDict
-from datetime import date
 import calendar
-from ._date_utils import get_period_dates, get_etterslep_dates
+from datetime import date
+from typing import TypedDict
+
+from ._date_utils import get_etterslep_dates
+from ._date_utils import get_period_dates
 from ._inputs import get_user_inputs
 from ._labels import get_period_label
 
 
 class DateParameters(TypedDict):
+    """Typed dictionary containing date parameters for a given event period.
+
+    Attributes:
+    - year (int): The reference year.
+    - period_type (str): The period type.
+    - period_number (int | None): The specific period number.
+    - start_date (date): The start date of the period.
+    - end_date (date): The end date of the period.
+    - etterslep_start (date): The start date of the etterslep period.
+    - etterslep_end (date): The end date of the etterslep period.
+    - wait_days (int): Number of days to wait before considering data complete.
+    - wait_months (int): Number of months to wait before considering data complete.
+    """
+
     year: int
     period_type: str
     period_number: int | None
@@ -51,12 +66,12 @@ def get_date_parameters() -> DateParameters:
     }
 
 
-def get_period_labels(date_params: DateParameters, include_etterslep: bool = True) -> str | tuple[str, str]:
+def get_period_labels(
+    date_params: DateParameters, include_etterslep: bool = True
+) -> str | tuple[str, str]:
     """Returns a tuple of strings for period label and etterslep label for filename."""
     period_label = get_period_label(
-        date_params["year"],
-        date_params["period_type"],
-        date_params["period_number"]
+        date_params["year"], date_params["period_type"], date_params["period_number"]
     )
 
     if include_etterslep:
@@ -67,10 +82,7 @@ def get_period_labels(date_params: DateParameters, include_etterslep: bool = Tru
 
 
 def get_last_day_of_month(input_date: date) -> date:
-    """
-    Given a date object, return a new date object representing
-    the last day of that month.
-    """
+    """Given a date object, return a new date object representing the last day of that month."""
     year = input_date.year
     month = input_date.month
 
@@ -79,10 +91,7 @@ def get_last_day_of_month(input_date: date) -> date:
 
 
 def get_last_day_of_next_month(input_date: date) -> date:
-    """
-    Given a date object, return a new date object representing
-    the last day of the following month.
-    """
+    """Given a date object, return a new date object representing the last day of the following month."""
     year = input_date.year
     month = input_date.month
 

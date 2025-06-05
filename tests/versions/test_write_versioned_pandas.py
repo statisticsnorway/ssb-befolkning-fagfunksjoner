@@ -59,8 +59,7 @@ def test_write_unversioned(
     input_filepath: str,
     resolved_upath: UPath,
 ) -> None:
-    """Test that write_versioned_pandas writes only the unversioned file when no existing versions are present.
-    """
+    """Test that write_versioned_pandas writes only the unversioned file when no existing versions are present."""
     expected_write_path = resolved_upath.parent / f"{resolved_upath.stem}.parquet"
 
     mock_resolve_path.return_value = resolved_upath

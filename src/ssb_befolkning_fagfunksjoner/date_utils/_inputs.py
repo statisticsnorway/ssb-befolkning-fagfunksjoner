@@ -1,7 +1,5 @@
-"""
-_inputs.py
+"""This script contains the internal functions used in date_utils.py.
 
-This script contains the internal functions used in date_utils.py.
 In particular, those used to prompt user to input date parameters (year, period_type, period_number)
 
 get_date_parameters (public)
@@ -14,9 +12,7 @@ VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 
 
 def _prompt_for_int(prompt_msg: str, valid_range: tuple[int, int] | None = None) -> int:
-    """
-    Prompt user for an integer. Re-prompt if invalid or out of range.
-    """
+    """Prompt user for an integer. Re-prompt if invalid or out of range."""
     while True:
         val_str = input(prompt_msg).strip()
         if not val_str.isdigit():
@@ -36,15 +32,13 @@ def _prompt_for_int(prompt_msg: str, valid_range: tuple[int, int] | None = None)
 def get_user_inputs(
     specify_wait_period: bool = False,
 ) -> tuple[int, str, int | None, int, int]:
-    """
-    Prompt for input and return (year, period_type, period_number, wait_months, wait_days).
+    """Prompt for input and return (year, period_type, period_number, wait_months, wait_days).
+
     If specify_wait_period is False, the function won't prompt for wait months/days
     and will return default values (0, 7).
     """
-    # Prompt for year
     year = _prompt_for_int("Year: ")
 
-    # Prompt for period type
     while True:
         period_type = input(
             "Enter period type (year/halfyear/quarter/month/week): "
