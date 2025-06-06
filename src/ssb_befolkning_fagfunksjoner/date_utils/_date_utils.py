@@ -137,5 +137,5 @@ def _add_wait_period(date_dt: date, add_months: int, add_days: int) -> date:
     days_in_new_month = calendar.monthrange(date_dt.year, date_dt.month)[1]
     date_dt = date_dt.replace(day=days_in_new_month)
     date_dt += timedelta(days=add_days)
-    
+
     return date_dt
