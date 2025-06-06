@@ -2,20 +2,18 @@
 
 Functions:
     - get_date_parameters()
-    - get_period_labels()
+    - get_period_label()
     - get_last_day_of_next_month()
     - get_last_day_of_month()
 """
 
 import calendar
 from datetime import date
-from typing import Any
 from typing import TypedDict
 
 from ._date_utils import get_etterslep_dates
 from ._date_utils import get_period_dates
 from ._inputs import get_user_inputs
-from ._labels import get_period_label
 
 
 class DateParameters(TypedDict):
@@ -49,7 +47,7 @@ def get_date_parameters() -> DateParameters:
     year, period_type, period_number, wait_months, wait_days = get_user_inputs(
         specify_wait_period=True
     )
-    start_date, end_date, _ = get_period_dates(year, period_type, period_number)
+    start_date, end_date = get_period_dates(year, period_type, period_number)
     etterslep_start, etterslep_end = get_etterslep_dates(
         start_date, end_date, wait_months, wait_days
     )
@@ -67,19 +65,46 @@ def get_date_parameters() -> DateParameters:
     }
 
 
-def get_period_labels(
-    date_params: dict[str, Any], include_etterslep: bool = True
-) -> str | tuple[str, str]:
-    """Returns a tuple of strings for period label and etterslep label for filename."""
-    period_label = get_period_label(
-        date_params["year"], date_params["period_type"], date_params["period_number"]
-    )
+def get_period_label(
+    year: int, period_type: str, period_number: int | None = None
+) -> str:
+    """Generate a label string for the given period.
 
-    if include_etterslep:
-        etterslep_label = f"{date_params['wait_months']}m{date_params['wait_days']}d"
-        return period_label, etterslep_label
+    Parameters:
+    - year (int): the reference year
+    - period_type (str): One of 'year', 'halfyear', 'quarter', 'month', 'week'
+    - period_number: the sub-period number, if applicable.
 
-    return period_label
+    Returns:
+    - period_label (str): a formatted string label
+
+    Examples:
+      - year: p2024
+      - halfyear: p2024H1
+      - quarter: p2024-Q2
+      - month: p2024-05
+      - week: p2024W12
+    """
+    if period_type == "year":
+        return f"p{year}"
+    elif period_type == "halfyear":
+        if period_number is None:
+            raise ValueError("period_number must be provided for halfyear.")
+        return f"p{year}H{period_number}"
+    elif period_type == "quarter":
+        if period_number is None:
+            raise ValueError("period_number must be provided for quarter.")
+        return f"p{year}-Q{period_number}"
+    elif period_type == "month":
+        if period_number is None:
+            raise ValueError("period_number must be provided for month.")
+        return f"p{year}-{str(period_number).zfill(2)}"
+    elif period_type == "week":
+        if period_number is None:
+            raise ValueError("period_number must be provided for week.")
+        return f"p{year}W{str(period_number).zfill(2)}"
+    else:
+        raise ValueError(f"Invalid period type: {period_type}")
 
 
 def get_last_day_of_month(input_date: date) -> date:

@@ -22,7 +22,7 @@ VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 
 def get_period_dates(
     year: int, period_type: str, period_number: int | None = None
-) -> tuple[date, date, bool]:
+) -> tuple[date, date]:
     """Calculate the start and end dates of a given period.
 
     Parameters:
@@ -86,49 +86,49 @@ def get_etterslep_dates(
 # ------------------------------------------------------------------------------------------
 
 
-def _get_year_dates(year: int) -> tuple[date, date, bool]:
+def _get_year_dates(year: int) -> tuple[date, date]:
     start_date = date(year, 1, 1)
     end_date = start_date + relativedelta(years=1) - relativedelta(days=1)
-    include_late_reg = True
-    return start_date, end_date, include_late_reg
+
+    return start_date, end_date
 
 
-def _get_halfyear_dates(year: int, halfyear: int) -> tuple[date, date, bool]:
+def _get_halfyear_dates(year: int, halfyear: int) -> tuple[date, date]:
     if halfyear not in (1, 2):
         raise ValueError("Halfyear must be 1 or 2.")
     start_month = 1 if halfyear == 1 else 7
     start_date = date(year, start_month, 1)
     end_date = start_date + relativedelta(months=6) - relativedelta(days=1)
-    include_late_reg = True
-    return start_date, end_date, include_late_reg
+
+    return start_date, end_date
 
 
-def _get_quarter_dates(year: int, quarter: int) -> tuple[date, date, bool]:
+def _get_quarter_dates(year: int, quarter: int) -> tuple[date, date]:
     if quarter is None or not (1 <= quarter <= 4):
         raise ValueError("Quarter must be between 1 and 4.")
     start_month = (quarter - 1) * 3 + 1
     start_date = date(year, start_month, 1)
     end_date = start_date + relativedelta(months=3) - relativedelta(days=1)
-    include_late_reg = True
-    return start_date, end_date, include_late_reg
+
+    return start_date, end_date
 
 
-def _get_month_dates(year: int, month: int) -> tuple[date, date, bool]:
+def _get_month_dates(year: int, month: int) -> tuple[date, date]:
     if month is None or not (1 <= month <= 12):
         raise ValueError("Month must be between 1 and 12.")
     start_date = date(year, month, 1)
     end_date = start_date + relativedelta(months=1) - relativedelta(days=1)
-    include_late_reg = True
-    return start_date, end_date, include_late_reg
+
+    return start_date, end_date
 
 
-def _get_week_dates(year: int, week: int) -> tuple[date, date, bool]:
+def _get_week_dates(year: int, week: int) -> tuple[date, date]:
     if week is None or not (1 <= week <= 53):
         raise ValueError("Week must be between 1 and 53.")
     start_date = date.fromisocalendar(year, week, 1)
     end_date = start_date + timedelta(days=6)
-    include_late_reg = True
-    return start_date, end_date, include_late_reg
+
+    return start_date, end_date
 
 
 def _add_wait_period(date_dt: date, add_months: int, add_days: int) -> date:
@@ -137,4 +137,5 @@ def _add_wait_period(date_dt: date, add_months: int, add_days: int) -> date:
     days_in_new_month = calendar.monthrange(date_dt.year, date_dt.month)[1]
     date_dt = date_dt.replace(day=days_in_new_month)
     date_dt += timedelta(days=add_days)
+    
     return date_dt
