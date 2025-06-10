@@ -3,9 +3,18 @@
 Functions:
     - get_date_parameters()
     - get_period_label()
+    - get_period_dates()
     - get_last_day_of_next_month()
     - get_last_day_of_month()
 """
+
+__all__ = [
+    'get_date_parameters',
+    'get_period_label',
+    'get_period_dates',
+    'get_last_day_of_next_month',
+    'get_last_day_of_month'
+]
 
 import calendar
 from datetime import date
