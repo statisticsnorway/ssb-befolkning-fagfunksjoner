@@ -9,11 +9,11 @@ Functions:
 """
 
 __all__ = [
-    'get_date_parameters',
-    'get_period_label',
-    'get_period_dates',
-    'get_last_day_of_next_month',
-    'get_last_day_of_month'
+    "get_date_parameters",
+    "get_last_day_of_month",
+    "get_last_day_of_next_month",
+    "get_period_dates",
+    "get_period_label",
 ]
 
 import calendar
