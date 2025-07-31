@@ -33,10 +33,10 @@ VERDENSINNDELING_RECODING_RULES: dict[str, str] = {
 
 
 def load_fylkesett(reference_date: str) -> dict[str, str]:
-    """Load KLASS codelist for fylker."""
+    """Load KLASS codelist for regions."""
     year: str = reference_date[:4]
 
-    fylke_dict: dict = (
+    fylke_dict: dict[str, str] = (
         KlassClassification(FYLKE_ID).get_codes(from_date=f"{year}-01-01").to_dict()
     )
 
@@ -71,7 +71,7 @@ def load_grunnkrets(reference_date: str) -> dict[str, dict[str, str]]:
 
 
 def load_kommnr(reference_date: str) -> dict[str, str]:
-    """Load KLASS codelist for kommuner."""
+    """Load KLASS codelist for municipalities."""
     year: str = reference_date[:4]
 
     kommune_dict: dict[str, str] = (
@@ -86,12 +86,12 @@ def load_kommnr(reference_date: str) -> dict[str, str]:
 
 
 def load_kommnr_changes(
-    to_date, from_date="1980-01-01"
+    to_date: str, from_date: str = "1980-01-01"
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-
+    """Load KLASS changes for municipalities."""
     # Read kommnr changes from KLASS
     kommnr_changes: pd.DataFrame = (
-        KlassClassification("131")
+        KlassClassification(KOMMUNE_ID)
         .get_changes(from_date=from_date, to_date=to_date)[
             ["oldCode", "newCode", "changeOccurred"]
         ]
@@ -155,7 +155,7 @@ def load_verdensinndeling(reference_date: str) -> dict[str, str]:
     """Load and transform KLASS world division codes to regional groups."""
     year = reference_date[:4]
 
-    landkoder_dict = load_landkoder()
+    landkoder_dict: dict[str, str] = load_landkoder()  # type: ignore
 
     world_div_dict = (
         KlassClassification(VERDENSINNDELING_ID)
