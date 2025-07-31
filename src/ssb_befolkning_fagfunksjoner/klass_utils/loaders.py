@@ -163,7 +163,9 @@ def load_verdensinndeling(reference_date: str) -> dict[str, str]:
         .data[["code", "parentCode"]]
     )
 
-    world_div_dict: dict[str, str] = world_div_df.set_index("code")["parentCode"].str[-3:].to_dict()
+    world_div_dict: dict[str, str] = (
+        world_div_df.set_index("code")["parentCode"].str[-3:].to_dict()
+    )
 
     for key, value in world_div_dict.items():
         if key == "139":
