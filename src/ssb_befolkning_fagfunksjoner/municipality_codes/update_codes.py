@@ -1,8 +1,9 @@
-"""This module contains functions for updating municipality codes using KLASS codelists.
-"""
+"""This module contains functions for updating municipality codes using KLASS codelists."""
 
 import logging
+
 import pandas as pd
+
 from ..klass_utils.loaders import load_kommnr_changes
 from ._logging_utils import log_municipality_update
 from .validation import validate_municipality_codes
@@ -14,8 +15,7 @@ def update_municipality_codes(
     original_codes: pd.Series,
     year: int,
 ) -> pd.Series:
-    """
-    Update municipality codes based on KLASS change tables.
+    """Update municipality codes based on KLASS change tables.
 
     This function:
     - Applies recursive updates from the oldCode → newCode mappings until the latest code is reached.

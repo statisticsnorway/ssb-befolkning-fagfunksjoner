@@ -10,7 +10,8 @@ Includes support for:
 """
 
 import pandas as pd
-from klass import KlassClassification, KlassCorrespondence
+from klass import KlassClassification
+from klass import KlassCorrespondence
 
 # KLASS classification and correspondence IDs
 FYLKE_ID = "104"
@@ -33,17 +34,13 @@ VERDENSINNDELING_RECODING_RULES: dict[str, str] = {
 
 def load_fylkesett(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for fylker."""
-
     year: str = reference_date[:4]
 
     fylke_dict: dict = (
-        KlassClassification(FYLKE_ID)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        KlassClassification(FYLKE_ID).get_codes(from_date=f"{year}-01-01").to_dict()
     )
 
-    if "99" in fylke_dict:
-        del fylke_dict["99"]
+    fylke_dict.pop("99", None)
 
     fylke_dict["00"] = "Sperret adresse"
 
@@ -52,7 +49,6 @@ def load_fylkesett(reference_date: str) -> dict[str, str]:
 
 def load_grunnkrets(reference_date: str) -> dict[str, dict[str, str]]:
     """Load KLASS codelist for grunnkretser for current and following year."""
-
     year: str = reference_date[:4]
 
     gkrets: dict[str, str] = (
@@ -76,24 +72,22 @@ def load_grunnkrets(reference_date: str) -> dict[str, dict[str, str]]:
 
 def load_kommnr(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for kommuner."""
-
     year: str = reference_date[:4]
 
     kommune_dict: dict[str, str] = (
-        KlassClassification(KOMMUNE_ID)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        KlassClassification(KOMMUNE_ID).get_codes(from_date=f"{year}-01-01").to_dict()
     )
 
-    if "9999" in kommune_dict:
-        del kommune_dict["9999"]
+    kommune_dict.pop("9999", None)
 
     kommune_dict["0000"] = "Sperret adresse"
 
     return kommune_dict
 
 
-def load_kommnr_changes(to_date, from_date="1980-01-01") -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_kommnr_changes(
+    to_date, from_date="1980-01-01"
+) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     # Read kommnr changes from KLASS
     kommnr_changes: pd.DataFrame = (
@@ -123,8 +117,9 @@ def load_kommnr_changes(to_date, from_date="1980-01-01") -> tuple[pd.DataFrame, 
 
 def load_landkoder() -> dict[str, str | None]:
     """Load KLASS correspondence table for country codes."""
-
-    landkoder_dict: dict[str, str | None] = KlassCorrespondence(LANDKODER_CORRESPONDENCE_ID).to_dict()
+    landkoder_dict: dict[str, str | None] = KlassCorrespondence(
+        LANDKODER_CORRESPONDENCE_ID
+    ).to_dict()
 
     manual_updates: dict[str, str] = {
         "ANT": "656",
@@ -144,7 +139,6 @@ def load_landkoder() -> dict[str, str | None]:
 
 def load_sivilstand(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for marital status."""
-
     year = reference_date[:4]
 
     sivilstand_dict: dict[str, str] = (
@@ -159,7 +153,6 @@ def load_sivilstand(reference_date: str) -> dict[str, str]:
 
 def load_verdensinndeling(reference_date: str) -> dict[str, str]:
     """Load and transform KLASS world division codes to regional groups."""
-
     year = reference_date[:4]
 
     landkoder_dict = load_landkoder()

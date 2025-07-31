@@ -1,4 +1,5 @@
 import logging
+
 import pandas as pd
 from tabulate import tabulate
 
@@ -32,5 +33,5 @@ def log_municipality_update(original: pd.Series, updated: pd.Series) -> None:
         tablefmt="pretty",
         showindex=False,
     )
-    
+
     logger.info("Distribution of municipality code updates:\n" + table_str)
