@@ -153,17 +153,17 @@ def load_sivilstand(reference_date: str) -> dict[str, str]:
 
 def load_verdensinndeling(reference_date: str) -> dict[str, str]:
     """Load and transform KLASS world division codes to regional groups."""
-    year = reference_date[:4]
+    year: str = reference_date[:4]
 
     landkoder_dict: dict[str, str] = load_landkoder()  # type: ignore
 
-    world_div_dict = (
+    world_div_df: pd.DataFrame = (
         KlassClassification(VERDENSINNDELING_ID)
         .get_codes(from_date=f"{year}-01-01", select_level=4)
         .data[["code", "parentCode"]]
     )
 
-    world_div_dict = world_div_dict.set_index("code")["parentCode"].str[-3:].to_dict()
+    world_div_dict: dict[str, str] = world_div_df.set_index("code")["parentCode"].str[-3:].to_dict()
 
     for key, value in world_div_dict.items():
         if key == "139":
