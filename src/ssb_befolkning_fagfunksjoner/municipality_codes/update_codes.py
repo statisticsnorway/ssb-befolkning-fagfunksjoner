@@ -30,9 +30,6 @@ def update_municipality_codes(
 
     Returns:
         pd.Series[str]: A pandas Series containing the updated municipality codes.
-
-    Raises:
-        ValueError: If any codes are missing from the official KLASS list after mapping.
     """
     kommnr_changes, kommnr_splits = load_kommnr_changes(to_date=f"{year}-01-02")
     kommnr_changes_dict = kommnr_changes.set_index("oldCode").to_dict()["newCode"]
