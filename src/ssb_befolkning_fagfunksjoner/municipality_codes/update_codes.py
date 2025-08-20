@@ -29,6 +29,7 @@ def update_municipality_codes(
     Args:
         original_codes (pd.Series[str]): A pandas Series containing the original municipality codes.
         year (int): The year for which to apply the KLASS mappings.
+        validate (bool): Boolean flag which determines whether to run validation or not (default = True)
 
     Returns:
         pd.Series[str]: A pandas Series containing the updated municipality codes.
@@ -49,7 +50,10 @@ def update_municipality_codes(
 
     split_codes = set(updated_codes).intersection(set(kommnr_splits["oldCode"]))
     if split_codes:
-        warnings.warn(f"Municipality splits detected for codes: {sorted(split_codes)}")
+        warnings.warn(
+            f"Municipality splits detected for codes: {sorted(split_codes)}",
+            stacklevel=2
+        )
 
     # Verify municipality codes against KLASS
     if validate:
