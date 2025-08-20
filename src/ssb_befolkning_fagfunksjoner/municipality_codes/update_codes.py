@@ -52,7 +52,7 @@ def update_municipality_codes(
     if split_codes:
         warnings.warn(
             f"Municipality splits detected for codes: {sorted(split_codes)}",
-            stacklevel=2
+            stacklevel=2,
         )
 
     # Verify municipality codes against KLASS

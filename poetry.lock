@@ -3654,7 +3654,7 @@ version = "3.14.1"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev"]
+groups = ["main", "dev"]
 markers = "python_version <= \"3.11\" or python_version >= \"3.12\""
 files = [
     {file = "pytest_mock-3.14.1-py3-none-any.whl", hash = "sha256:178aefcd11307d874b4cd3100344e7e2d888d9791a6a1d9bfe90fbc1b74fd1d0"},
@@ -5611,4 +5611,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "97637f3f9df83ea0b481d071b54bc53667b5218f02f30c286b5de4d6dc1cd256"
+content-hash = "b30d4f65f5f895d2fc8ad9e0bc1ad80af89fdb78da9d3d6d143c0ab3bf175d31"

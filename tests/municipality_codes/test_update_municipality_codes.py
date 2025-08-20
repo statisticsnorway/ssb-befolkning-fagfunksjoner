@@ -1,4 +1,5 @@
 import pandas as pd
+from pytest_mock import MockerFixture
 import pytest
 
 from ssb_befolkning_fagfunksjoner.municipality_codes.update_codes import (
@@ -39,7 +40,7 @@ def mock_valid_codes() -> set[str]:
 
 
 def test_update_and_validate(
-    mocker,
+    mocker: MockerFixture,
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
@@ -70,7 +71,7 @@ def test_update_and_validate(
 
 
 def test_update_without_validation(
-    mocker, kommnr_changes: pd.DataFrame, kommnr_splits: pd.DataFrame
+    mocker: MockerFixture, kommnr_changes: pd.DataFrame, kommnr_splits: pd.DataFrame
 ) -> None:
     original = pd.Series(["0301", "5401", "4601", "1103", "3005", "1507"])
     expected = pd.Series(["0301", "5501", "4601", "1103", "3301", "1507"])
@@ -94,7 +95,7 @@ def test_update_without_validation(
 
 
 def test_validation_raises_invalid_code(
-    mocker,
+    mocker: MockerFixture,
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
@@ -118,7 +119,7 @@ def test_validation_raises_invalid_code(
 
 
 def test_na_filled_with_0000(
-    mocker,
+    mocker: MockerFixture,
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
@@ -139,7 +140,7 @@ def test_na_filled_with_0000(
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
-def test_recursive_mapping(mocker, empty_splits, mock_valid_codes) -> None:
+def test_recursive_mapping(mocker: MockerFixture, empty_splits: pd.DataFrame, mock_valid_codes: set[str]) -> None:
     kommnr_changes = pd.DataFrame(
         {
             "oldCode": ["1111", "2222"],
