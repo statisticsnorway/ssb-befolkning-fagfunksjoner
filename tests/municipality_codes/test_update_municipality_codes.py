@@ -1,6 +1,6 @@
 import pandas as pd
-from pytest_mock import MockerFixture
 import pytest
+from pytest_mock import MockerFixture
 
 from ssb_befolkning_fagfunksjoner.municipality_codes.update_codes import (
     update_municipality_codes,
@@ -140,7 +140,9 @@ def test_na_filled_with_0000(
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
-def test_recursive_mapping(mocker: MockerFixture, empty_splits: pd.DataFrame, mock_valid_codes: set[str]) -> None:
+def test_recursive_mapping(
+    mocker: MockerFixture, empty_splits: pd.DataFrame, mock_valid_codes: set[str]
+) -> None:
     kommnr_changes = pd.DataFrame(
         {
             "oldCode": ["1111", "2222"],
