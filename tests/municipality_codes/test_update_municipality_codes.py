@@ -7,7 +7,7 @@ from ssb_befolkning_fagfunksjoner.municipality_codes.update_codes import (
 
 
 @pytest.fixture
-def kommnr_changes():
+def kommnr_changes() -> pd.DataFrame:
     # Example mappings: 5401 -> 5501, 3005 -> 3301
     return pd.DataFrame(
         {
@@ -18,12 +18,12 @@ def kommnr_changes():
 
 
 @pytest.fixture
-def empty_splits():
+def empty_splits() -> pd.DataFrame:
     return pd.DataFrame({"oldCode": [], "newCode": []})
 
 
 @pytest.fixture
-def kommnr_splits():
+def kommnr_splits() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "oldCode": ["1507", "1507"],
@@ -33,7 +33,7 @@ def kommnr_splits():
 
 
 @pytest.fixture
-def mock_valid_codes():
+def mock_valid_codes() -> set[str]:
     # The KLASS list you want to be valid at the validation date
     return {"0301", "5501", "4601", "1103", "3301", "1508", "1580", "0000"}
 
@@ -43,7 +43,7 @@ def test_update_and_validate(
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
-):
+) -> None:
     original = pd.Series(["0301", "5401", "4601", "1103", "3005"])
     expected = pd.Series(["0301", "5501", "4601", "1103", "3301"])
 
@@ -71,7 +71,7 @@ def test_update_and_validate(
 
 def test_update_without_validation(
     mocker, kommnr_changes: pd.DataFrame, kommnr_splits: pd.DataFrame
-):
+) -> None:
     original = pd.Series(["0301", "5401", "4601", "1103", "3005", "1507"])
     expected = pd.Series(["0301", "5501", "4601", "1103", "3301", "1507"])
 
@@ -98,7 +98,7 @@ def test_validation_raises_invalid_code(
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
-):
+) -> None:
     original = pd.Series(["5401", "1111"])
 
     mocker.patch(
@@ -122,7 +122,7 @@ def test_na_filled_with_0000(
     kommnr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     mock_valid_codes: set[str],
-):
+) -> None:
     original = pd.Series(["0301", None])
     expected = pd.Series(["0301", "0000"])
 
@@ -139,7 +139,7 @@ def test_na_filled_with_0000(
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
-def test_recursive_mapping(mocker, empty_splits, mock_valid_codes):
+def test_recursive_mapping(mocker, empty_splits, mock_valid_codes) -> None:
     kommnr_changes = pd.DataFrame(
         {
             "oldCode": ["1111", "2222"],
