@@ -1,11 +1,12 @@
 """This module contains functions for updating municipality codes using KLASS codelists."""
 
 import logging
+import warnings
 
 import pandas as pd
+from tabulate import tabulate
 
 from ..klass_utils.loaders import load_kommnr_changes
-from ._logging_utils import log_municipality_update
 from .validation import validate_municipality_codes
 
 logger = logging.getLogger(name=__name__)
@@ -14,6 +15,7 @@ logger = logging.getLogger(name=__name__)
 def update_municipality_codes(
     original_codes: pd.Series,
     year: int,
+    validate: bool = True,
 ) -> pd.Series:
     """Update municipality codes based on KLASS change tables.
 
@@ -27,6 +29,7 @@ def update_municipality_codes(
     Args:
         original_codes (pd.Series[str]): A pandas Series containing the original municipality codes.
         year (int): The year for which to apply the KLASS mappings.
+        validate (bool): Boolean flag which determines whether to run validation or not (default = True)
 
     Returns:
         pd.Series[str]: A pandas Series containing the updated municipality codes.
@@ -43,14 +46,18 @@ def update_municipality_codes(
         lambda code: _get_latest_municipality_code(code, kommnr_changes_dict)
     )
 
-    log_municipality_update(original_codes, updated_codes)
+    _log_municipality_update(original_codes, updated_codes)
 
     split_codes = set(updated_codes).intersection(set(kommnr_splits["oldCode"]))
     if split_codes:
-        logger.warning(f"Municipality splits detected for codes: {sorted(split_codes)}")
+        warnings.warn(
+            f"Municipality splits detected for codes: {sorted(split_codes)}",
+            stacklevel=2,
+        )
 
     # Verify municipality codes against KLASS
-    validate_municipality_codes(updated_codes, year)
+    if validate:
+        validate_municipality_codes(updated_codes, year)
 
     return updated_codes
 
@@ -61,7 +68,7 @@ def update_municipality_codes(
 
 
 def _get_latest_municipality_code(code: str, kommnr_change_dict: dict[str, str]) -> str:
-    """Recursively find the latest municipality code using the kommnr_change_dict."""
+    """Recursively find the latest municipality code using a dict of municipality code changes."""
     # Traverse the dictionary to find the latest code after all updates
     try:
         while code in kommnr_change_dict.keys():
@@ -70,3 +77,34 @@ def _get_latest_municipality_code(code: str, kommnr_change_dict: dict[str, str])
     except Exception as e:
         logger.error(f"Error finding latest code for {code}: {e}")
         raise e
+
+
+def _log_municipality_update(original: pd.Series, updated: pd.Series) -> None:
+    """Log how many codes were updated and show distribution table."""
+    changes_mask = original.ne(updated)
+    updated_count = changes_mask.sum()
+    logger.info(f"{updated_count} municipality codes were updated.")
+
+    if updated_count == 0:
+        return
+
+    update_distr = (
+        pd.DataFrame(
+            {
+                "from": original[changes_mask],
+                "to": updated[changes_mask],
+            }
+        )
+        .value_counts()
+        .reset_index(name="count")
+        .sort_values("count", ascending=False)
+    )
+
+    table_str = tabulate(
+        update_distr.to_records(index=False),
+        headers="keys",
+        tablefmt="pretty",
+        showindex=False,
+    )
+
+    logger.info("Distribution of municipality code updates:\n" + table_str)
