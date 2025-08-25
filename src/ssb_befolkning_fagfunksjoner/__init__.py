@@ -15,6 +15,15 @@ from ssb_befolkning_fagfunksjoner.municipality_codes.validation import (
 )
 from ssb_befolkning_fagfunksjoner.versions.versions import get_next_version_number
 from ssb_befolkning_fagfunksjoner.versions.versions import write_versioned_pandas
+from ssb_befolkning_fagfunksjoner.klass_utils.loaders import (
+    load_fylkesett,
+    load_grunnkrets,
+    load_kommnr,
+    load_kommnr_changes,
+    load_landkoder,
+    load_sivilstand,
+    load_verdensinndeling,
+)
 
 __all__ = [
     "get_date_parameters",
@@ -26,4 +35,11 @@ __all__ = [
     "update_municipality_codes",
     "validate_municipality_codes",
     "write_versioned_pandas",
+    "load_fylkesett",
+    "load_grunnkrets",
+    "load_kommnr",
+    "load_kommnr_changes",
+    "load_landkoder",
+    "load_sivilstand",
+    "load_verdensinndeling",
 ]
