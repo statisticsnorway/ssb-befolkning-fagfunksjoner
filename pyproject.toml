@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ssb-befolkning-fagfunksjoner"
-version = "0.0.4"
+version = "0.0.5"
 description = "Befolkning Fagfunksjoner"
 authors = ["Stian Nergård <grd@ssb.no>"]
 license = "MIT"
