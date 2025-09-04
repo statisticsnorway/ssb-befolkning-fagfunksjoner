@@ -36,6 +36,7 @@ nox.options.sessions = (
     "docs-build",
 )
 
+
 def install_dependency_groups(session: Session, groups: Iterable[str]) -> None:
     """Manually parse the pyproject file to find group(s) of dependencies, then install."""
     pyproject_path = Path("pyproject.toml")
