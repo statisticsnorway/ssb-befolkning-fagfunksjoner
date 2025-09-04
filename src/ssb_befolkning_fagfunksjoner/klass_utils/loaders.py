@@ -352,11 +352,12 @@ def get_changes_mapping(
 
     target_version_id = int(target_version["version_id"])
 
+    reverse_graph = graph.reverse()
     koorespondanser: set[tuple[str, str]] = set()
     for target_code_point in filter(lambda n: n.version == target_version_id, graph):
         older_code_points = networkx.dfs_preorder_nodes(graph, target_code_point)
         newer_code_points = networkx.dfs_preorder_nodes(
-            graph.reverse(), target_code_point
+            reverse_graph, target_code_point
         )
 
         koorespondanser.update(
