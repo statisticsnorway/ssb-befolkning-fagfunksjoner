@@ -1,5 +1,6 @@
 """This module contains functions for updating municipality codes using KLASS codelists."""
 
+import datetime
 import logging
 import warnings
 
@@ -14,13 +15,13 @@ logger = logging.getLogger(name=__name__)
 
 def update_municipality_codes(
     original_codes: pd.Series,
-    year: int,
+    year: int | str,
     validate: bool = True,
 ) -> pd.Series:
     """Update municipality codes based on KLASS change tables.
 
     This function:
-    - Applies recursive updates from the oldCode → newCode mappings until the latest code is reached.
+    - Applies recursive updates from the old_code → new_code mappings until the latest code is reached.
     - Replaces missing values with '0000' and logs their count.
     - Logs the number of updated municipality codes and a distribution table.
     - Checks for municipality splits and logs warnings if any are found.
@@ -34,8 +35,10 @@ def update_municipality_codes(
     Returns:
         pd.Series[str]: A pandas Series containing the updated municipality codes.
     """
-    kommnr_changes, kommnr_splits = load_kommnr_changes(to_date=f"{year}-01-02")
-    kommnr_changes_dict = kommnr_changes.set_index("oldCode").to_dict()["newCode"]
+    kommnr_changes, kommnr_splits = load_kommnr_changes(
+        target_date=datetime.date(int(year), 1, 1)
+    )
+    kommnr_changes_dict = kommnr_changes.set_index("old_code").to_dict()["new_code"]
 
     original_codes = original_codes.fillna("0000")
     logger.info(
@@ -48,7 +51,7 @@ def update_municipality_codes(
 
     _log_municipality_update(original_codes, updated_codes)
 
-    split_codes = set(updated_codes).intersection(set(kommnr_splits["oldCode"]))
+    split_codes = set(updated_codes).intersection(set(kommnr_splits["old_code"]))
     if split_codes:
         warnings.warn(
             f"Municipality splits detected for codes: {sorted(split_codes)}",
