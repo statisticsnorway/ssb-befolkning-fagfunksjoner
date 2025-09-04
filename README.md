@@ -18,7 +18,6 @@
 [pypi status]: https://pypi.org/project/ssb-befolkning-fagfunksjoner/
 [documentation]: https://statisticsnorway.github.io/ssb-befolkning-fagfunksjoner
 [tests]: https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner/actions?workflow=Tests
-
 [sonarcov]: https://sonarcloud.io/summary/overall?id=statisticsnorway_ssb-befolkning-fagfunksjoner
 [sonarquality]: https://sonarcloud.io/summary/overall?id=statisticsnorway_ssb-befolkning-fagfunksjoner
 [pre-commit]: https://github.com/pre-commit/pre-commit
