@@ -48,6 +48,15 @@ myst-parser = { version = ">=0.16.1" }
 pytest-mock = "^3.14.1"
 pandas-stubs = "^2.2.3.250308"
 
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^8.2.3"
+sphinx-autodoc-typehints = "^3.2.0"
+sphinx-click = "^6.0.0"
+furo = "^2025.7.19"
+myst-parser = "^4.0.1"
+sphinx-autobuild = "^2025.8.25"
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
