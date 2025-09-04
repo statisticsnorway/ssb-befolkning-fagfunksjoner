@@ -11,15 +11,17 @@ Includes support for:
 
 import datetime
 import functools
-from itertools import chain, pairwise, product
-from typing import Counter, NamedTuple, cast
+from itertools import chain
+from itertools import pairwise
+from typing import NamedTuple
+from typing import cast
 
 import networkx
 import pandas as pd
-from klass import KlassClassification, KlassVersion
+from klass import KlassClassification
 from klass import KlassCorrespondence
-from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
-
+from klass import KlassVersion
+from klass.requests.klass_types import VersionPartType
 
 # KLASS classification and correspondence IDs
 FYLKE_ID = "104"
@@ -96,7 +98,7 @@ def load_kommnr(reference_date: str) -> dict[str, str]:
 def load_kommnr_changes(
     to_date: str | datetime.date | None = None,
     from_date: str | datetime.date = datetime.date(1980, 1, 1),
-    target_date: str | datetime.date | None = None
+    target_date: str | datetime.date | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load KLASS changes for municipalities."""
     # Read kommnr changes from KLASS
@@ -245,7 +247,9 @@ def _build_change_graph(
     versions: list[KlassVersion] = []
 
     for meta in versions_meta:
-        version_id = meta["version_id"]  # pyright: ignore[reportTypedDictNotRequiredAccess]
+        version_id = meta[
+            "version_id"
+        ]  # pyright: ignore[reportTypedDictNotRequiredAccess]
         versions_ids.add(version_id)
         start_dates[version_id] = _get_from_date(meta)
         version = classification.get_version(version_id, language="nb")
@@ -314,9 +318,13 @@ def get_changes_mapping(
         target_date: The date you want to normalize into.
         from_date: The oldest date in the dataset
         to_date: The newest date in the dataset
+
     Returns:
         A pandas series mapping existing to normalized codes, with existing codes as index labels, and normalized codes as values.
-        The index can contain duplicated labels
+        The index can contain duplicated labels.
+
+    Raises:
+        ValueError: if the target_date is older than the from_date or older than the Klass classifcation if no from_date is set.
     """
     if target_date is None:
         target_date = max(map(_get_from_date, classification.versions))
@@ -326,7 +334,7 @@ def get_changes_mapping(
 
     if target_date < from_date:
         raise ValueError(
-            "Target date older than target date, or older than Klass classifcation"
+            "Target date older than from date, or older than Klass classifcation"
         )
 
     graph = _build_change_graph(classification, from_date, to_date)
@@ -357,5 +365,9 @@ def get_changes_mapping(
         )
 
     values, index = zip(*koorespondanser, strict=True)
-    series = pd.Series(values, index=pd.Index(index, name="old_code"), name="new_code").sort_values().sort_index()
+    series = (
+        pd.Series(values, index=pd.Index(index, name="old_code"), name="new_code")
+        .sort_values()
+        .sort_index()
+    )
     return series

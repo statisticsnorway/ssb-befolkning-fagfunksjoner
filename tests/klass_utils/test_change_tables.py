@@ -1,10 +1,13 @@
 import datetime
-from klass import KlassClassification, KlassCorrespondence, KlassVersion
-import pandas as pd
-import pytest
 from unittest.mock import Mock
 
-from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
+import pandas as pd
+import pytest
+from klass import KlassClassification
+from klass import KlassCorrespondence
+from klass import KlassVersion
+from klass.requests.klass_types import CorrespondenceTablesType
+from klass.requests.klass_types import VersionPartType
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import get_changes_mapping
 
@@ -205,8 +208,6 @@ cases = [
             ],
         ),
     ),
-
-
 ]
 
 

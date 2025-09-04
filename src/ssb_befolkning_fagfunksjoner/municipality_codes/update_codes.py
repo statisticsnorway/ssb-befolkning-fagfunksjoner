@@ -35,7 +35,9 @@ def update_municipality_codes(
     Returns:
         pd.Series[str]: A pandas Series containing the updated municipality codes.
     """
-    kommnr_changes, kommnr_splits = load_kommnr_changes(target_date=datetime.date(int(year), 1, 1))
+    kommnr_changes, kommnr_splits = load_kommnr_changes(
+        target_date=datetime.date(int(year), 1, 1)
+    )
     kommnr_changes_dict = kommnr_changes.set_index("old_code").to_dict()["new_code"]
 
     original_codes = original_codes.fillna("0000")
