@@ -12,23 +12,23 @@ def kommnr_changes() -> pd.DataFrame:
     # Example mappings: 5401 -> 5501, 3005 -> 3301
     return pd.DataFrame(
         {
-            "oldCode": ["5401", "3005"],
-            "newCode": ["5501", "3301"],
+            "old_code": ["5401", "3005"],
+            "new_code": ["5501", "3301"],
         }
     )
 
 
 @pytest.fixture
 def empty_splits() -> pd.DataFrame:
-    return pd.DataFrame({"oldCode": [], "newCode": []})
+    return pd.DataFrame({"old_code": [], "new_code": []})
 
 
 @pytest.fixture
 def kommnr_splits() -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "oldCode": ["1507", "1507"],
-            "newCode": ["1508", "1580"],
+            "old_code": ["1507", "1507"],
+            "new_code": ["1508", "1580"],
         }
     )
 
@@ -145,8 +145,8 @@ def test_recursive_mapping(
 ) -> None:
     kommnr_changes = pd.DataFrame(
         {
-            "oldCode": ["1111", "2222"],
-            "newCode": ["2222", "3333"],  # 1111 -> 2222 -> 3333
+            "old_code": ["1111", "2222"],
+            "new_code": ["2222", "3333"],  # 1111 -> 2222 -> 3333
         }
     )
 
