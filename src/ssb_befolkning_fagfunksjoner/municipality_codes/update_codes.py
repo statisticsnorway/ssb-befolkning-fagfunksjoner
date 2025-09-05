@@ -54,7 +54,7 @@ def update_municipality_codes(
     split_codes = set(updated_codes).intersection(set(kommnr_splits["old_code"]))
     if split_codes:
         warnings.warn(
-            f"Municipality splits detected for codes: {sorted(split_codes)}",
+            f"Municipality splits detected for codes: {kommnr_splits[kommnr_splits['old_code'].isin(split_codes)]}",
             stacklevel=2,
         )
 
