@@ -28,16 +28,16 @@ def classification_mocker():
             "validTo": "2024-01-01",
         },
         {
-            "name": "Kommuneinndeling 2020",
-            "version_id": 2,
-            "validFrom": "2020-01-01",
-            "validTo": "2022-01-01",
-        },
-        {
             "name": "Kommuneinndeling 2019",
             "version_id": 1,
             "validFrom": "2019-01-01",
             "validTo": "2020-01-01",
+        },
+        {
+            "name": "Kommuneinndeling 2020",
+            "version_id": 2,
+            "validFrom": "2020-01-01",
+            "validTo": "2022-01-01",
         },
     ]  # pyright: ignore[reportAssignmentType]
     classification_mocker.versions = versions_meta
