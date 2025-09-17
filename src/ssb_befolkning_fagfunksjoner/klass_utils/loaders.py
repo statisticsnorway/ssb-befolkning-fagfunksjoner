@@ -257,6 +257,8 @@ def _build_change_graph(
 
     graph = networkx.DiGraph()
 
+    versions = sorted(versions, key=lambda version: start_dates[int(version.version_id)], reverse=False)
+
     for version1, version2 in pairwise(versions):
         version1_kodes = cast(
             set[str], set(item["code"] for item in version1.classificationItems)
@@ -352,11 +354,12 @@ def get_changes_mapping(
 
     target_version_id = int(target_version["version_id"])
 
+    reverse_graph = graph.reverse()
     koorespondanser: set[tuple[str, str]] = set()
     for target_code_point in filter(lambda n: n.version == target_version_id, graph):
         older_code_points = networkx.dfs_preorder_nodes(graph, target_code_point)
         newer_code_points = networkx.dfs_preorder_nodes(
-            graph.reverse(), target_code_point
+            reverse_graph, target_code_point
         )
 
         koorespondanser.update(

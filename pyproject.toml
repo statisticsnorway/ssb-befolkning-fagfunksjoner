@@ -1,5 +1,6 @@
 [project]
 name = "ssb-befolkning-fagfunksjoner"
+version = "0.0.10"
 description = "Befolkning Fagfunksjoner"
 license = "MIT"
 version = "0.0.7"
