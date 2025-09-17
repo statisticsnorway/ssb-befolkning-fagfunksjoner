@@ -3,7 +3,6 @@ name = "ssb-befolkning-fagfunksjoner"
 version = "0.0.10"
 description = "Befolkning Fagfunksjoner"
 license = "MIT"
-version = "0.0.7"
 readme = "README.md"
 authors = [{name = "Stian Nergård", email = "grd@ssb.no"}]
 requires-python = ">=3.11,<4.0"
