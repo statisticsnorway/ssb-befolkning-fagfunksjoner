@@ -9,7 +9,7 @@ requires-python = ">=3.11,<4.0"
 dependencies = [
     "click (>=8.0.1)", 
     "python-dateutil (>=2.9.0.post0,<3.0.0)", 
-    "dapla-toolbelt (>=3.2.2,<4.0.0)", 
+    "dapla-toolbelt (>=4.0.0,<5.0.0)", 
     "pandas (>=2.2.3,<3.0.0)", 
     "universal-pathlib (>=0.2.6,<0.3.0)", 
     "ipykernel (>=6.29.5,<7.0.0)", 
