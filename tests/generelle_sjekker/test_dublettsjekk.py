@@ -1,19 +1,18 @@
 import pandas as pd
-import numpy as np
 
-# Create a DataFrame with 10 rows and 2 columns
-data = {
-    "Name": [f"Person_{i}" for i in range(1, 14)],
-    "Score": np.random.randint(50, 100, size=13)
-}
+from ssb_befolkning_fagfunksjoner.generelle_sjekker.dublettsjekk import dublettsjekk
 
-testsett1 = pd.DataFrame(data)
-testsett1.loc[0, "Name"] = "Person_2"
-testsett1.loc[4, "Name"] = "Person_7"
-testsett1.loc[5, "Name"] = "Person_7"
-testsett1.loc[4, "Score"] = 25
-testsett1.loc[5, "Score"] = 25
-print(testsett1)
+
+import pandas as pd
+
+# 13 rows with duplicates:
+# - "person_2" appears twice
+# - "person_7" appears three times
+# - score "25" appears twice
+test_data = pd.DataFrame({
+    "name": [f"person_{i}" for i in range(1, 11)] + ["person_2"] + ["person_7"] * 2, 
+    "score": [88, 76, 64, 91, 70, 62, 55, 80, 67, 73, 25, 25, 84]
+})
 
 
 def test_dublettsjekk_series():

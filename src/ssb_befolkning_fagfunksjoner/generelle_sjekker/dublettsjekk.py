@@ -14,6 +14,9 @@ def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None 
     Parametre:
     - inndata (pd.DataFrame | pd.Series): Et datasett eller en serie som skal sjekkes for dubletter 
     - variabler (list[str]): Liste med variabler som skal sjekkes for dubletter, dersom inndata er DataFrame
+
+    Eksempel: 
+    
     """
 
     if isinstance(inndata, pd.DataFrame):
