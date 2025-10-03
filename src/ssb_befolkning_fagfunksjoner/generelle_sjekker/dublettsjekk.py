@@ -1,72 +1,19 @@
 import pandas as pd
-import numpy as np
-
-# Create a DataFrame with 10 rows and 2 columns
-data = {
-    "Name": [f"Person_{i}" for i in range(1, 14)],
-    "Score": np.random.randint(50, 100, size=13)
-}
-
-testsett1 = pd.DataFrame(data)
-testsett1.loc[0, "Name"] = "Person_2"
-testsett1.loc[4, "Name"] = "Person_7"
-testsett1.loc[5, "Name"] = "Person_7"
-testsett1.loc[4, "Score"] = 25
-testsett1.loc[5, "Score"] = 25
-print(testsett1)
 
 
+def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None):
+    """
+    Utfører en dublettsjekk på and pandas DataFrame eller Series.
 
+    Funksjonen:
+    - Printer antall unike verdier som forekommer to eller flere ganger.
+    - Printer hvor mange rader disse verdiene fordeler seg på.
+    - Returnerer en frekvenstabell med hvilke verdier det gjelder, antall forekomster.
+    - Sammenligner antall rader i parameter1 og parameter2 og printer differansen.
 
-def dublettsjekk(
-    inndata: pd.DataFrame | pd.Series,    
-    variabler=None):
-
-        """
-    Printer antall unike verdier som forekommer to eller flere ganger.
-    Printer hvor mange rader disse verdiene fordeler seg på.
-    Returnerer dub_frekvens med hvilke verdier det gjelder, og frekvens for hver verdi.
-
-    (Printer syntaks for å hente alle rader, med alle kolonner, som er representert )
-
-    Input kan være en serie:
-    dublettsjekk(inndata=testsett1, variabler=["Name"])
-    dublettsjekk(inndata=testsett1, variabler=["Name", "Score"])
-    dublettsjekk(inndata=testsett1["Name"])
-
-
-    - Teller og printer antall rader i parameter1
-    - Teller og printer antall rader i parameter2
-    - Printer differansen
-
-
-
-    Eksempler med testdata:
-    import pandas as pd
-    import numpy as np
-
-    # Create a DataFrame with 10 rows and 2 columns
-    data = {
-        "Name": [f"Person_{i}" for i in range(1, 14)],
-        "Score": np.random.randint(50, 100, size=13)
-    }
-
-    testsett1 = pd.DataFrame(data)
-    testsett1.loc[0, "Name"] = "Person_2"
-    testsett1.loc[4, "Name"] = "Person_7"
-    testsett1.loc[5, "Name"] = "Person_7"
-    testsett1.loc[4, "Score"] = 25
-    testsett1.loc[5, "Score"] = 25
-    print(testsett1)
-
-    Kjører på enkeltkolonne fra dataframe:
-    dublettsjekk(inndata=testsett1, variabler=["Name"])
-
-    Kjører på flere kolonner fra dataframe:
-    dublettsjekk(inndata=testsett1, variabler=["Name", "Score"])
-
-    Kjører på serie:
-    dublettsjekk(inndata=testsett1["Name"])
+    Parametre:
+    - inndata (pd.DataFrame | pd.Series): Et datasett eller en serie som skal sjekkes for dubletter 
+    - variabler (list[str]): Liste med variabler som skal sjekkes for dubletter, dersom inndata er DataFrame
     """
 
     if isinstance(inndata, pd.DataFrame):
@@ -93,15 +40,3 @@ def dublettsjekk(
     print("alle_dub = din_dataframe[din_dataframe.duplicated(subset=[din_variabelliste], keep=False)]")
 
     return dub_frekvens
-    
-
-dublettsjekk(inndata=testsett1, variabler=["Name"])
-dublettsjekk(inndata=testsett1, variabler=["Name", "Score"])
-dublettsjekk(inndata=testsett1["Name"])
-
-dub_frekvens.info()
-dub_frekvens
-
-    
-
-dub_frekvens
