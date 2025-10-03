@@ -1,38 +1,45 @@
-[tool.poetry]
+[project]
 name = "ssb-befolkning-fagfunksjoner"
-version = "0.0.10"
+version = "0.0.11"
 description = "Befolkning Fagfunksjoner"
-authors = ["Stian Nergård <grd@ssb.no>"]
 license = "MIT"
 readme = "README.md"
+authors = [{name = "Stian Nergård", email = "grd@ssb.no"}]
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "click (>=8.0.1)", 
+    "python-dateutil (>=2.9.0.post0,<3.0.0)", 
+    "dapla-toolbelt (>=4.0.0,<5.0.0)", 
+    "pandas (>=2.2.3,<3.0.0)", 
+    "universal-pathlib (>=0.2.6,<0.3.0)", 
+    "ipykernel (>=6.29.5,<7.0.0)", 
+    "ssb-klass-python (>=1.0.2,<2.0.0)", 
+    "tabulate (>=0.9.0,<0.10.0)", 
+    "networkx (<3.5)"
+    ]
+classifiers = ["Development Status :: 4 - Beta"]
+
+[project.urls]
 homepage = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner"
 repository = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner"
 documentation = "https://statisticsnorway.github.io/ssb-befolkning-fagfunksjoner"
-packages = [{ include = "ssb_befolkning_fagfunksjoner", from = "src" }]
-classifiers = ["Development Status :: 4 - Beta"]
-
-[tool.poetry.urls]
 Changelog = "https://github.com/statisticsnorway/ssb-befolkning-fagfunksjoner/releases"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-click = ">=8.0.1"
-python-dateutil = "^2.9.0.post0"
-dapla-toolbelt = "^3.2.2"
-pandas = "^2.2.3"
-universal-pathlib = "^0.2.6"
-ipykernel = "^6.29.5"
-ssb-klass-python = "^1.0.2"
-tabulate = "^0.9.0"
-types-tabulate = "^0.9.0.20241207"
-networkx = "<3.5"
+[project.scripts]
+ssb-befolkning-fagfunksjoner = "ssb_befolkning_fagfunksjoner.__main__:main"
+
+[tool.poetry]
+packages = [{ include = "ssb_befolkning_fagfunksjoner", from = "src" }]
+requires-poetry = '>=2.0.0'
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.9"
 
 [tool.poetry.group.dev.dependencies]
 pygments = ">=2.10.0"
 black = { extras = ["jupyter"], version = ">=23.1.0" }
 coverage = { extras = ["toml"], version = ">=6.2" }
 darglint = ">=1.8.1"
-furo = ">=2021.11.12"
 mypy = ">=0.930"
 pre-commit = ">=2.16.0"
 pre-commit-hooks = ">=4.1.0"
@@ -40,24 +47,22 @@ ruff = ">=0.0.284"
 pytest = "^8.4.1"
 typeguard = ">=2.13.3"
 xdoctest = { extras = ["colors"], version = ">=0.15.10" }
-myst-parser = { version = ">=0.16.1" }
 pytest-mock = "^3.14.1"
 pandas-stubs = "^2.2.3.250308"
+deptry = ">=0.23.0"
+types-tabulate = "^0.9.0.20241207"
 
 
 [tool.poetry.group.docs.dependencies]
 sphinx = ">=7.3,<8.0"
-sphinx-autodoc-typehints = "<3.0.1"
+sphinx-autodoc-typehints = "<3.1.0"
 sphinx-click = "^6.0.0"
-sphinx-autobuild = ">=2021.3.14"
 furo = "^2025.7.19"
 myst-parser = "^4.0.1"
+sphinx-autobuild = "<2025.8.25"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-
-[tool.poetry.scripts]
-ssb-befolkning-fagfunksjoner = "ssb_befolkning_fagfunksjoner.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -71,6 +76,9 @@ relative_files = true
 [tool.coverage.report]
 show_missing = true
 fail_under = 50
+
+[tool.deptry.per_rule_ignores]
+DEP001 = ["nox", "nox_poetry"]  # packages available by default
 
 [tool.mypy]
 strict = true
@@ -108,7 +116,7 @@ select = [
     "RUF",  # the ruff developer's own rules
 ]
 ignore = [
-    "ANN202", # Don't requiere return type annotation for private functions.
+    "ANN202", # Don't require return type annotation for private functions.
     "ANN401", # Allow type annotation with type Any.
     "D100",   # Supress undocumented-public-module. Only doc of public api required.
     "FBT001", # Allow boolean positional arguments in a function.
