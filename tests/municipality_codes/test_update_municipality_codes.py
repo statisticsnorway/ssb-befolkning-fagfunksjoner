@@ -86,7 +86,8 @@ def test_update_without_validation(
     )
 
     with pytest.warns(
-        UserWarning, match=r"Municipality splits detected for codes:   old_code new_code\n0     1507     1508\n1     1507     1580"
+        UserWarning,
+        match=r"Municipality splits detected for codes:   old_code new_code\n0     1507     1508\n1     1507     1580",
     ):
         result = update_municipality_codes(original, 2024, validate=False)
 

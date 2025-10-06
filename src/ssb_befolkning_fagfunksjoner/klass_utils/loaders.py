@@ -257,7 +257,11 @@ def _build_change_graph(
 
     graph = networkx.DiGraph()
 
-    versions = sorted(versions, key=lambda version: start_dates[int(version.version_id)], reverse=False)
+    versions = sorted(
+        versions,
+        key=lambda version: start_dates[int(version.version_id)],
+        reverse=False,
+    )
 
     for version1, version2 in pairwise(versions):
         version1_kodes = cast(
