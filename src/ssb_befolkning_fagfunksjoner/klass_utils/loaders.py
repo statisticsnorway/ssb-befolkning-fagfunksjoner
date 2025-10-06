@@ -8,16 +8,21 @@ Includes support for:
 - sivilstand
 - verdensinndeling
 """
+
 from __future__ import annotations
+
 import datetime
 import functools
-from itertools import chain, pairwise
-from typing import NamedTuple, cast
+from itertools import chain
+from itertools import pairwise
+from typing import NamedTuple
+from typing import cast
 
 import klass
 import networkx
 import pandas as pd
-from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
+from klass.requests.klass_types import CorrespondenceTablesType
+from klass.requests.klass_types import VersionPartType
 
 # KLASS classification and correspondence IDs
 FYLKE_ID = "104"
@@ -42,7 +47,9 @@ def load_fylkesett(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for regions."""
     year: str = reference_date[:4]
     fylke_dict: dict[str, str] = (
-        klass.KlassClassification(FYLKE_ID).get_codes(from_date=f"{year}-01-01").to_dict()
+        klass.KlassClassification(FYLKE_ID)
+        .get_codes(from_date=f"{year}-01-01")
+        .to_dict()
     )
     fylke_dict.pop("99", None)
     fylke_dict["00"] = "Sperret adresse"
@@ -73,7 +80,9 @@ def load_kommnr(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     year: str = reference_date[:4]
     kommune_dict: dict[str, str] = (
-        klass.KlassClassification(KOMMUNE_ID).get_codes(from_date=f"{year}-01-01").to_dict()
+        klass.KlassClassification(KOMMUNE_ID)
+        .get_codes(from_date=f"{year}-01-01")
+        .to_dict()
     )
     kommune_dict.pop("9999", None)
     kommune_dict["0000"] = "Sperret adresse"
@@ -86,14 +95,14 @@ def load_kommnr_changes(
     target_date: str | datetime.date | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load KLASS changes for municipalities.
-    
+
     Returns:
-    - singles (pd.DataFrame): 
+    - singles (pd.DataFrame):
         Rows where an old municipality code maps to exactly one new code.
         Columns: ['old_kommnr', 'new_kommnr'].
 
-    - splits (pd.DataFrame): 
-        Rows where an old municipality code maps to multiple new codes. 
+    - splits (pd.DataFrame):
+        Rows where an old municipality code maps to multiple new codes.
         Columns: ['old_kommnr', 'new_kommnr'].
     """
     # Normalise date-input
@@ -110,11 +119,16 @@ def load_kommnr_changes(
 
     # Read Series mapping old_code (index) -> new_code (value)
     kommnr_change_series = get_changes_mapping(
-        kommnr_classification, target_date=target_date, to_date=to_date, from_date=from_date
+        kommnr_classification,
+        target_date=target_date,
+        to_date=to_date,
+        from_date=from_date,
     )
 
     # Drop non-changes
-    kommnr_change_series = kommnr_change_series.loc[kommnr_change_series.index != kommnr_change_series]
+    kommnr_change_series = kommnr_change_series.loc[
+        kommnr_change_series.index != kommnr_change_series
+    ]
 
     # Identify splits and drop them from `changes`
     is_split = kommnr_change_series.index.duplicated(keep=False)
@@ -212,9 +226,7 @@ def _dates_overlap(
     from_date: datetime.date,
     to_date: datetime.date | None,
 ) -> bool:
-    """
-    Return True if VersionPartType's time period [v_from_date, v_to_date] overlaps with input [from_date, to_date].
-    """
+    """Return True if VersionPartType's time period [v_from_date, v_to_date] overlaps with input [from_date, to_date]."""
     v_from_date = _get_from_date(version)
     v_to_date = _get_to_date(version)
 
@@ -228,8 +240,7 @@ def _build_change_graph(
     from_date: datetime.date,
     to_date: datetime.date | None,
 ) -> networkx.DiGraph:
-    """
-    Construct a directed graph representing relations between municipality codes across KlassClassification versions.
+    """Construct a directed graph representing relations between municipality codes across KlassClassification versions.
 
     Parameters:
     - classification (KlassClassification): Classification object, typically ID = 131 for municipality codes.
@@ -237,7 +248,7 @@ def _build_change_graph(
     - to_date (datetime.date): Date for latest version to include in graph. If None, all later versions are included.
 
     Returns:
-    - networkx.DiGraph: Directed graph 
+    - networkx.DiGraph: Directed graph
     """
     # Filter on which versions to include in graph
     versions_meta = filter(
@@ -270,8 +281,12 @@ def _build_change_graph(
 
     # Create overlapping pairs of consecutive elements
     for version1, version2 in pairwise(versions):
-        version1_codes = cast(set[str], {item["code"] for item in version1.classificationItems})
-        version2_codes = cast(set[str], {item["code"] for item in version2.classificationItems})
+        version1_codes = cast(
+            set[str], {item["code"] for item in version1.classificationItems}
+        )
+        version2_codes = cast(
+            set[str], {item["code"] for item in version2.classificationItems}
+        )
 
         # Loop over codes in intersection and add edges `old_code -> new_code`
         for code in version1_codes & version2_codes:
@@ -281,25 +296,27 @@ def _build_change_graph(
             )
             graph.add_edge(*edge)
 
-
     # Get correspondence tables between filtered versions
     seen_change_tables_ides: set[int] = set()
     change_tables: list[klass.KlassCorrespondence] = []
 
     for version in versions:
         select_cts: list[CorrespondenceTablesType] = [
-            ct for ct in version.correspondenceTables
-            if int(ct["sourceId"]) in versions_ids and int(ct["targetId"]) in versions_ids  # type: ignore
+            ct
+            for ct in version.correspondenceTables
+            if int(ct["sourceId"]) in versions_ids and int(ct["targetId"]) in versions_ids
         ]
         for change_table_meta in select_cts:
-            change_table_id = int(change_table_meta["id"])  # type: ignore
+            change_table_id = int(change_table_meta["id"])
             if change_table_id not in seen_change_tables_ides:
                 seen_change_tables_ides.add(change_table_id)
                 change_tables.append(version.get_correspondence(change_table_id))
 
     for change_table in change_tables:
         # Check direction of correspondence
-        backwards = (start_dates[change_table.sourceId] > start_dates[change_table.targetId])
+        backwards = (
+            start_dates[change_table.sourceId] > start_dates[change_table.targetId]
+        )
 
         # Read changes from correspondence tables and add edges
         for change in change_table.correspondence:
@@ -361,7 +378,7 @@ def get_changes_mapping(
             classification.versions,
         )
     )
-    target_version_id = int(target_version["version_id"])  # type: ignore
+    target_version_id = int(target_version["version_id"])
 
     # Reverse graph to `new_code -> old_code`
     reverse_graph = graph.reverse()
@@ -379,7 +396,9 @@ def get_changes_mapping(
         # For the target node, relate it to all its connected codes across time
         correspondences.update(
             (target_cp.code, source_cp.code)
-            for source_cp in chain(descendant_cps, ancestor_cps)  # iterator over descendant_cps + ancestor_cps
+            for source_cp in chain(
+                descendant_cps, ancestor_cps
+            )  # iterator over descendant_cps + ancestor_cps
         )
 
     # Construct Series from correspondences
