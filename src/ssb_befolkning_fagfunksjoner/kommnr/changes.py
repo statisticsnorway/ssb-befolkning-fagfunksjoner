@@ -52,8 +52,8 @@ def get_kommnr_changes(
     is_split = kommnr_change_series.index.duplicated(keep=False)
 
     def _as_df(s: pd.Series) -> pd.DataFrame:
-        df = s.rename("new_kommnr").reset_index()
-        df = df.rename(columns={"index": "old_kommnr"})
+        df = s.rename("new_code").reset_index()
+        df = df.rename(columns={"index": "old_code"})
         return df
 
     kommnr_splits: pd.DataFrame = _as_df(kommnr_change_series[is_split])

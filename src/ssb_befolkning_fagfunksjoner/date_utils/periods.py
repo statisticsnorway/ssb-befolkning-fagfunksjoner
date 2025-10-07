@@ -21,23 +21,35 @@ def get_standardised_period_label(
       - month: p2024-05
       - week: p2024W12
     """
+    VALID_PERIODS = {"year", "halfyear", "quarter", "month", "week"}
+    
+    if period_type not in VALID_PERIODS:
+        raise ValueError(f"Invalid period type: '{period_type}'.")
+
     if period_type == "year":
         return f"p{year}"
-    elif period_type == "halfyear":
-        if period_number is None:
-            raise ValueError("period_number must be provided for halfyear.")
+
+    if period_number is None:
+        raise ValueError(f"'period_number' must be provided for '{period_type}'.")
+
+    if period_type == "halfyear":
+        if not 1 <= period_number <= 2:
+            raise ValueError("halfyear must be 1 or 2.")
         return f"p{year}-H{period_number}"
+    
     elif period_type == "quarter":
-        if period_number is None:
-            raise ValueError("period_number must be provided for quarter.")
+        if not 1 <= period_number <= 4:
+            raise ValueError("quarter must be between 1 and 4.")
         return f"p{year}-Q{period_number}"
+
     elif period_type == "month":
-        if period_number is None:
-            raise ValueError("period_number must be provided for month.")
+        if not 1 <= period_number <= 12:
+            raise ValueError("month must be between 1 and 12.")
         return f"p{year}-{str(period_number).zfill(2)}"
+
     elif period_type == "week":
-        if period_number is None:
-            raise ValueError("period_number must be provided for week.")
+        if not 1 <= period_number <= 53:
+            raise ValueError("week must be between 1 and 53.")
         return f"p{year}W{str(period_number).zfill(2)}"
-    else:
-        raise ValueError(f"Invalid period type: {period_type}")
+
+    raise ValueError(f"Unhandled period type: {period_type}")

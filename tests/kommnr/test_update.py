@@ -2,9 +2,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
-from ssb_befolkning_fagfunksjoner.municipality_codes.update_codes import (
-    update_municipality_codes,
-)
+from ssb_befolkning_fagfunksjoner.kommnr.update import update_kommnr
 
 
 @pytest.fixture
@@ -49,20 +47,20 @@ def test_update_and_validate(
     expected = pd.Series(["0301", "5501", "4601", "1103", "3301"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.load_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_kommnr_changes",
         return_value=(kommnr_changes, empty_splits),
     )
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.validation.load_kommnr",
+        "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
         return_value={code: {} for code in mock_valid_codes},
     )
 
     mock_validate_municipality_codes = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.validate_municipality_codes",
+        "ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr",
     )
 
-    result = update_municipality_codes(
+    result = update_kommnr(
         original_codes=original, year=2024, validate=True
     )
 
@@ -77,19 +75,19 @@ def test_update_without_validation(
     expected = pd.Series(["0301", "5501", "4601", "1103", "3301", "1507"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.load_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_kommnr_changes",
         return_value=(kommnr_changes, kommnr_splits),
     )
 
     mock_validate_municipality_codes = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.validate_municipality_codes",
+        "ssb_befolkning_fagfunksjoner.kommnr.validate.validate_kommnr",
     )
 
     with pytest.warns(
         UserWarning,
         match=r"Municipality splits detected for codes:   old_code new_code\n0     1507     1508\n1     1507     1580",
     ):
-        result = update_municipality_codes(original, 2024, validate=False)
+        result = update_kommnr(original, 2024, validate=False)
 
     pd.testing.assert_series_equal(result, expected, check_names=False)
     mock_validate_municipality_codes.assert_not_called()
@@ -104,19 +102,19 @@ def test_validation_raises_invalid_code(
     original = pd.Series(["5401", "1111"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.load_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_kommnr_changes",
         return_value=(kommnr_changes, empty_splits),
     )
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.validation.load_kommnr",
+        "ssb_befolkning_fagfunksjoner.kommnr.validation.load_kommnr",
         return_value={code: {} for code in mock_valid_codes},
     )
 
     with pytest.raises(
         ValueError, match=r"Invalid municipality codes found: \['1111'\]"
     ):
-        update_municipality_codes(original, 2024, validate=True)
+        update_kommnr(original, 2024, validate=True)
 
 
 def test_na_filled_with_0000(
@@ -129,15 +127,15 @@ def test_na_filled_with_0000(
     expected = pd.Series(["0301", "0000"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.load_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_kommnr_changes",
         return_value=(kommnr_changes, empty_splits),
     )
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.validation.load_kommnr",
+        "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
         return_value={code: {} for code in mock_valid_codes},
     )
 
-    result = update_municipality_codes(original, 2024, validate=True)
+    result = update_kommnr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
@@ -152,16 +150,16 @@ def test_recursive_mapping(
     )
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.update_codes.load_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_kommnr_changes",
         return_value=(kommnr_changes, empty_splits),
     )
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.municipality_codes.validation.load_kommnr",
-        return_value={code: {} for code in mock_valid_codes.union({"3333"})},
+        "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
+        return_value={code: {} for code in mock_valid_codes},
     )
 
     original = pd.Series(["1111"])
     expected = pd.Series(["3333"])
 
-    result = update_municipality_codes(original, 2024, validate=True)
+    result = update_kommnr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
