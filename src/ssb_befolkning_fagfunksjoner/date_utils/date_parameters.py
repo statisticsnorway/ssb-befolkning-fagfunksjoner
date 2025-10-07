@@ -1,14 +1,60 @@
-"""This script contains the internal functions used in date_utils.py.
+from datetime import date
+from typing import TypedDict
 
-In particular, those used to prompt user to input date parameters (year, period_type, period_number)
-
-get_date_parameters (public)
-├── get_user_inputs
-│   └── _prompt_for_int
-
-"""
+from .dates import get_period_dates, get_etterslep_dates
 
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
+
+__all__ = ["get_date_parameters"]
+
+
+class DateParameters(TypedDict):
+    """Typed dictionary containing date parameters for a given event period.
+
+    Attributes:
+    - year (int): The reference year.
+    - period_type (str): The period type.
+    - period_number (int | None): The specific period number.
+    - start_date (date): The start date of the period.
+    - end_date (date): The end date of the period.
+    - etterslep_start (date): The start date of the etterslep period.
+    - etterslep_end (date): The end date of the etterslep period.
+    - wait_days (int): Number of days to wait before considering data complete.
+    - wait_months (int): Number of months to wait before considering data complete.
+    """
+
+    year: int
+    period_type: str
+    period_number: int | None
+    start_date: date
+    end_date: date
+    etterslep_start: date
+    etterslep_end: date
+    wait_days: int
+    wait_months: int
+
+
+def get_date_parameters() -> DateParameters:
+    """Return a dictionary of query parameters for the specified event."""
+    year, period_type, period_number, wait_months, wait_days = _get_user_inputs(
+        specify_wait_period=True
+    )
+    start_date, end_date = get_period_dates(year, period_type, period_number)
+    etterslep_start, etterslep_end = get_etterslep_dates(
+        start_date, end_date, wait_months, wait_days
+    )
+
+    return {
+        "year": year,
+        "period_type": period_type,
+        "period_number": period_number,
+        "start_date": start_date,
+        "end_date": end_date,
+        "etterslep_start": etterslep_start,
+        "etterslep_end": etterslep_end,
+        "wait_days": wait_days,
+        "wait_months": wait_months,
+    }
 
 
 def _prompt_for_int(prompt_msg: str, valid_range: tuple[int, int] | None = None) -> int:
@@ -29,7 +75,7 @@ def _prompt_for_int(prompt_msg: str, valid_range: tuple[int, int] | None = None)
         return val
 
 
-def get_user_inputs(
+def _get_user_inputs(
     specify_wait_period: bool = False,
 ) -> tuple[int, str, int | None, int, int]:
     """Prompt for input and return (year, period_type, period_number, wait_months, wait_days).
