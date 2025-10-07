@@ -6,39 +6,6 @@ import re
 from upath import UPath
 
 
-def resolve_path(filepath: str) -> UPath:
-    """Normalize the input path string to a form that can be safely passed to UPath.
-
-    Supported formats:
-    - 'gs://ssb-<dapla-name>-<bucket>-data-<env>/...' (GCS path with prefix)
-    - 'ssb-<dapla-name>-<bucket>-data-<env>/...' (GCS path without prefix)
-    - '/buckets/<bucket>/...' (local path on mounted filesystem)
-
-    Args:
-        filepath (str): The input path to normalize. Can be a GCS path (with or without 'gs://')
-                        or a local bucket path on the mounted filesystem.
-
-    Returns:
-        UPath: Fully resolved GCS path (starting with 'gs://') or an absolute local path.
-
-    Raises:
-        ValueError: If the path format is not supported or if a local bucket path is not mounted.
-    """
-    if filepath.startswith("gs://"):
-        return UPath(filepath)
-    elif filepath.startswith("/buckets"):
-        try:
-            return UPath(filepath)
-        except FileNotFoundError as e:
-            raise ValueError(
-                f"Local bucket path '{filepath} must be mounted in DaplaLab."
-            ) from e
-    elif filepath.startswith("ssb-"):
-        return UPath(f"gs://{filepath}")
-    else:
-        raise ValueError(f"Usupported path format: {filepath}")
-
-
 def get_glob_pattern(filepath: UPath) -> str:
     """Returns a glob pattern (string) with base filename without specified version."""
     stem = filepath.stem
