@@ -12,6 +12,8 @@ import networkx
 import pandas as pd
 from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
 
+__all__ = ["get_klass_change_mapping"]
+
 
 class _CodePoint(NamedTuple):
     code: str
@@ -141,7 +143,7 @@ def _build_change_graph(
     return graph
 
 
-def get_changes_mapping(
+def get_klass_change_mapping(
     classification: klass.KlassClassification,
     target_date: datetime.date | None = None,
     from_date: datetime.date | None = None,
@@ -169,7 +171,7 @@ def get_changes_mapping(
         from_date = min(map(_get_from_date, classification.versions))
     if target_date < from_date:
         raise ValueError(
-            "Target date older than from date, or older than Klass classifcation"
+            "Target date older than from date, or older than KLASS classifcation"
         )
 
     # Get directed graph `old_code -> new_code`
