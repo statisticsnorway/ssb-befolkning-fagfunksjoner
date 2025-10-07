@@ -1,6 +1,6 @@
-from .versions import write_new_version, get_latest_version_number
+from .versions import write_versioned_pandas, get_latest_version_number
 
 __all__ = [
     "get_latest_version_number",
-    "write_new_version"
+    "write_versioned_pandas"
 ]
