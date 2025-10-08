@@ -8,8 +8,8 @@ __all__ = ["get_kommnr_changes"]
 
 
 def get_kommnr_changes(
-    to_date: str | datetime.date | None = None,
     from_date: str | datetime.date = datetime.date(1980, 1, 1),
+    to_date: str | datetime.date | None = None,
     target_date: str | datetime.date | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load KLASS changes for municipalities.
@@ -23,6 +23,17 @@ def get_kommnr_changes(
         Rows where an old municipality code maps to multiple new codes.
         Columns: ['old_kommnr', 'new_kommnr'].
     """
+    # Input validation
+    for name, val in {
+        "from_date": from_date,
+        "to_date": to_date,
+        "target_date": target_date,
+    }.items():
+        if val is not None and not isinstance(val, (str, datetime.date)):
+            raise ValueError(
+                f"Invalid type for {name}: {type(val).__name__}. Expected str or datetime.date."
+            )
+
     # Normalise date-input
     if isinstance(to_date, str):
         to_date = datetime.date.fromisoformat(to_date)
