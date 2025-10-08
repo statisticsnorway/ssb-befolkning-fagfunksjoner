@@ -15,7 +15,7 @@ def promote_unversioned_to_v1(parent: UPath, stem: str) -> None:
         raise
 
 
-def write_new_version(
+def create_versioned_file(
     df: pd.DataFrame, parent: UPath, stem: str, version: int
 ) -> None:
     versioned_path: UPath = parent / f"{stem}_v{version}.parquet"

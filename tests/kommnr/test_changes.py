@@ -8,7 +8,7 @@ from ssb_befolkning_fagfunksjoner.kommnr.changes import get_kommnr_changes
 
 
 # ------------------------------------------------------------------------
-# Common fixtures (used by multiple tests)
+# Common fixtures
 # ------------------------------------------------------------------------
 
 @pytest.fixture

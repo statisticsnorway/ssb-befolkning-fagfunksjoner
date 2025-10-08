@@ -6,7 +6,7 @@ from upath import UPath
 
 from ._numbering import get_latest_version_number
 from ._path import resolve_path
-from ._writers import promote_unversioned_to_v1, write_new_version, update_latest_file
+from ._writers import promote_unversioned_to_v1, create_versioned_file, update_latest_file
 
 __all__ = ["write_versioned_pandas", "get_next_version_number"]
 
@@ -72,7 +72,7 @@ def write_versioned_pandas(
 
     versioned_path: UPath = parent / f"{stem}_v{next_version_number}.parquet"
     logging.info(f"Detected change — writing version {next_version_number} to {versioned_path}")
-    write_new_version(df=df, parent=parent, stem=stem, version=next_version_number)
+    create_versioned_file(df=df, parent=parent, stem=stem, version=next_version_number)
     update_latest_file(df=df, parent=parent, stem=stem)
 
 
