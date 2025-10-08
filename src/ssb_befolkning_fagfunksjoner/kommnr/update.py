@@ -13,7 +13,7 @@ logger = logging.getLogger(name=__name__)
 __all__ = ["update_kommnr"]
 
 
-def _get_latest_municipality_code(code: str, kommnr_change_dict: dict[str, str]) -> str:
+def _get_latest_kommnr(code: str, kommnr_change_dict: dict[str, str]) -> str:
     """Recursively find the latest municipality code using a dict of municipality code changes."""
     # Traverse the dictionary to find the latest code after all updates
     try:
@@ -89,7 +89,7 @@ def update_kommnr(
     )
 
     updated_codes = original_codes.map(
-        lambda code: _get_latest_municipality_code(code, kommnr_changes_dict)
+        lambda code: _get_latest_kommnr(code, kommnr_changes_dict)
     )
 
     _log_municipality_update(original_codes, updated_codes)
