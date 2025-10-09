@@ -11,7 +11,7 @@ def resolve_path(filepath: str | UPath) -> UPath:
     - UPath objects
 
     Parameters:
-    - filepath (str | UPath): The input path to normalize. 
+    - filepath (str | UPath): The input path to normalize.
 
     Returns:
         UPath: Fully resolved GCS path (starting with 'gs://') or an absolute local path.
@@ -21,16 +21,18 @@ def resolve_path(filepath: str | UPath) -> UPath:
     """
     if isinstance(filepath, UPath):
         return filepath
-    
+
     if filepath.startswith("gs://"):
         return UPath(filepath)
-    
+
     elif filepath.startswith("/buckets"):
         try:
             return UPath(filepath)
         except FileNotFoundError as e:
-            raise ValueError(f"Local bucket path '{filepath}' must be mounted in DaplaLab.") from e
-    
+            raise ValueError(
+                f"Local bucket path '{filepath}' must be mounted in DaplaLab."
+            ) from e
+
     elif filepath.startswith("ssb-"):
         return UPath(f"gs://{filepath}")
 

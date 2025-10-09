@@ -6,9 +6,11 @@ from upath import UPath
 
 from ._numbering import get_latest_version_number
 from ._path import resolve_path
-from ._writers import promote_unversioned_to_v1, create_versioned_file, update_latest_file
+from ._writers import create_versioned_file
+from ._writers import promote_unversioned_to_v1
+from ._writers import update_latest_file
 
-__all__ = ["write_versioned_pandas", "get_next_version_number"]
+__all__ = ["get_next_version_number", "write_versioned_pandas"]
 
 
 def write_versioned_pandas(
@@ -45,7 +47,7 @@ def write_versioned_pandas(
         return
 
     latest_exists: bool = latest_path.exists()
-    
+
     if next_version_number == 2 and not latest_exists:
         raise ValueError(f"Expected '{latest_path}' to exist, but was not found.")
 
@@ -54,7 +56,9 @@ def write_versioned_pandas(
         try:
             existing_df = pd.read_parquet(latest_path)
         except Exception as e:
-            raise ValueError(f"Failed to read existing version at '{latest_path}'") from e
+            raise ValueError(
+                f"Failed to read existing version at '{latest_path}'"
+            ) from e
 
         if existing_df.equals(df):
             logging.info("No changes detected; skipping write.")

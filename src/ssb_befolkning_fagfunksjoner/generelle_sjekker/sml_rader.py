@@ -1,10 +1,8 @@
+import pandas as pd
 
-def sml_rader(
-    dataframe1 = pd.DataFrame,
-    dataframe2 = pd.DataFrame):
 
-    """
-    Sjekker om to datasett har likt antall rader. Til å sjekke at f.eks. joins ikke har skapt flere rader ved et uhell.
+def sml_rader(dataframe1: pd.DataFrame, dataframe2: pd.DataFrame) -> None:
+    """Sjekker om to datasett har likt antall rader. Til å sjekke at f.eks. joins ikke har skapt flere rader ved et uhell.
 
     - Teller og printer antall rader i parameter1
     - Teller og printer antall rader i parameter2
@@ -41,16 +39,10 @@ def sml_rader(
 
 
     """
-
     row_count1 = len(dataframe1)
     row_count2 = len(dataframe2)
     smldiff = row_count2 - row_count1
 
-    row_count1
-    row_count2
-    smldiff
-
     print(f"Rader i {dataframe1}: {row_count1}")
     print(f"Rader i {dataframe2}: {row_count2}")
-
     print(f"Endring: {smldiff}")

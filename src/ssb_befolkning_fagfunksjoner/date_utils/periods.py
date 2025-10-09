@@ -22,7 +22,7 @@ def get_standardised_period_label(
       - week: p2024W12
     """
     VALID_PERIODS = {"year", "halfyear", "quarter", "month", "week"}
-    
+
     if period_type not in VALID_PERIODS:
         raise ValueError(f"Invalid period type: '{period_type}'.")
 
@@ -36,7 +36,7 @@ def get_standardised_period_label(
         if not 1 <= period_number <= 2:
             raise ValueError("halfyear must be 1 or 2.")
         return f"p{year}-H{period_number}"
-    
+
     elif period_type == "quarter":
         if not 1 <= period_number <= 4:
             raise ValueError("quarter must be between 1 and 4.")

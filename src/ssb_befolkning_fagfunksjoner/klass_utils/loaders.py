@@ -6,9 +6,7 @@ def load_fylkesett(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for regions."""
     year: str = reference_date[:4]
     fylke_dict: dict[str, str] = (
-        klass.KlassClassification(104)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        klass.KlassClassification(104).get_codes(from_date=f"{year}-01-01").to_dict()
     )
     fylke_dict.pop("99", None)
     fylke_dict["00"] = "Sperret adresse"
@@ -39,9 +37,7 @@ def load_kommnr(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     year: str = reference_date[:4]
     kommune_dict: dict[str, str] = (
-        klass.KlassClassification(131)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-01").to_dict()
     )
     kommune_dict.pop("9999", None)
     kommune_dict["0000"] = "Sperret adresse"
@@ -70,9 +66,7 @@ def load_sivilstand(reference_date: str) -> dict[str, str]:
     """Load KLASS codelist for marital status."""
     year = reference_date[:4]
     sivilstand_dict: dict[str, str] = (
-        klass.KlassClassification(19)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        klass.KlassClassification(19).get_codes(from_date=f"{year}-01-01").to_dict()
     )
     sivilstand_dict["0"] = "Ukjent/uoppgitt"
     return sivilstand_dict
@@ -86,6 +80,7 @@ VERDENSINNDELING_RECODING_RULES: dict[str, str] = {
     "911": "5",
     "921": "5",
 }
+
 
 def load_verdensinndeling(reference_date: str) -> dict[str, str]:
     """Load and transform KLASS world division codes to regional groups."""

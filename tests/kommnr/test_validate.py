@@ -1,19 +1,19 @@
+from contextlib import nullcontext as does_not_raise
+
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
-from contextlib import nullcontext as does_not_raise
 
 from ssb_befolkning_fagfunksjoner.kommnr.validate import validate_kommnr
-
 
 # ------------------------------------------------------------------------
 # Common fixtures (used by multiple tests)
 # ------------------------------------------------------------------------
 
+
 @pytest.fixture
 def mock_valid_codes() -> dict[str, str]:
-    """
-    Minimal valid KLASS dict that validate_kommnr expects from _load_kommnr().
+    """Minimal valid KLASS dict that validate_kommnr expects from _load_kommnr().
     Keys are codes; values are descriptions.
     """
     return {
@@ -32,19 +32,19 @@ def mock_valid_codes() -> dict[str, str]:
 # Test 1: check validity
 # ------------------------------------------------------------------------
 cases = [
-    (
-        pd.Series(["0301", "5501", "4601", "1103", "3301"]),
-        does_not_raise()
-    ),
+    (pd.Series(["0301", "5501", "4601", "1103", "3301"]), does_not_raise()),
     (
         pd.Series(["0301", "5501", "4601", "1103", "9998"]),
-        pytest.raises(ValueError, match=r"Invalid municipality codes found: \['9998'\]")
+        pytest.raises(
+            ValueError, match=r"Invalid municipality codes found: \['9998'\]"
+        ),
     ),
     (
         pd.Series(["0301", None]),
-        pytest.raises(ValueError, match=r"Invalid municipality codes found: \[None\]")
-    )
+        pytest.raises(ValueError, match=r"Invalid municipality codes found: \[None\]"),
+    ),
 ]
+
 
 @pytest.mark.parametrize("codes, expect_error", cases)
 def test_validate_kommnr_all_valid(
@@ -66,12 +66,11 @@ def test_validate_kommnr_all_valid(
 # Test 2: verify _load_kommnr is invoked with the expected year argument
 # ------------------------------------------------------------------------
 
+
 def test_validate_kommnr_calls_loader_with_year(
-    mocker: MockerFixture,
-    mock_valid_codes: dict[str, str]
+    mocker: MockerFixture, mock_valid_codes: dict[str, str]
 ) -> None:
-    """
-    validate_kommnr passes a 'year' argument through to _load_kommnr.
+    """validate_kommnr passes a 'year' argument through to _load_kommnr.
     This test asserts the call value. If you change how the year is passed,
     update the expectation accordingly.
     """
@@ -83,4 +82,6 @@ def test_validate_kommnr_calls_loader_with_year(
 
     validate_kommnr(s, year=2024)
 
-    mock_load_kommnr.assert_called_once_with("2024-01-02")  # matches current implementation
+    mock_load_kommnr.assert_called_once_with(
+        "2024-01-02"
+    )  # matches current implementation

@@ -4,10 +4,10 @@ from pytest_mock import MockerFixture
 
 from ssb_befolkning_fagfunksjoner.kommnr.update import update_kommnr
 
+# ------------------------------------------------------------------------
+# Common fixtures
+# ------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------
-# Common fixtures 
-# ------------------------------------------------------------------------
 
 @pytest.fixture
 def kommnr_changes() -> pd.DataFrame:
@@ -19,6 +19,7 @@ def kommnr_changes() -> pd.DataFrame:
         }
     )
 
+
 @pytest.fixture
 def kommnr_splits() -> pd.DataFrame:
     return pd.DataFrame(
@@ -27,6 +28,7 @@ def kommnr_splits() -> pd.DataFrame:
             "new_code": ["1508", "1580"],
         }
     )
+
 
 @pytest.fixture
 def empty_splits() -> pd.DataFrame:
@@ -51,6 +53,7 @@ cases = [
     ),
 ]
 
+
 @pytest.mark.parametrize("original, expected, validate, expect_called", cases)
 def test_update_kommnr_and_validate(
     mocker: MockerFixture,
@@ -59,7 +62,7 @@ def test_update_kommnr_and_validate(
     original: pd.Series,
     expected: pd.Series,
     validate: bool,
-    expect_called: bool
+    expect_called: bool,
 ) -> None:
     """Updates are applied; validation is invoked only when requested."""
     # Patch functions called in update_kommnr()
@@ -83,6 +86,7 @@ def test_update_kommnr_and_validate(
 # ------------------------------------------------------------------------
 # Test 2: splits - unchanged split codes + warning
 # ------------------------------------------------------------------------
+
 
 def test_update_without_validation(
     mocker: MockerFixture,
@@ -114,6 +118,7 @@ def test_update_without_validation(
 # Test 3: recursive mapping
 # ------------------------------------------------------------------------
 
+
 @pytest.fixture
 def recursive_changes() -> pd.DataFrame:
     return pd.DataFrame({"old_code": ["1111", "2222"], "new_code": ["2222", "3333"]})
@@ -142,9 +147,11 @@ def test_recursive_mapping(
 # Test 4: NA handling - missing filled with "0000" to match Klass
 # ------------------------------------------------------------------------
 
+
 @pytest.fixture
 def empty_changes() -> pd.DataFrame:
     return pd.DataFrame({"old_code": [], "new_code": []})
+
 
 def test_na_filled_with_0000(
     mocker: MockerFixture,

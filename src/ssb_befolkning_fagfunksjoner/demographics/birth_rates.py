@@ -4,10 +4,10 @@
 # Lag rate for alle aldersgrupper
 # Sum av ratene er samlet fruktbarhetstall
 
-# På lavere nivå, aggreger på 5 års aldersgrupper 
+# På lavere nivå, aggreger på 5 års aldersgrupper
 
 # tre inputs: dataframe start, dataframe slutt, fødte, tidsperiode, aggregeringsvariabel (geo, fødeland, landbakgrunn, utdanning, etc.)
-# - kjønn, alder 
+# - kjønn, alder
 # valg av aldersinndelingsnivå (1år, 5år) - hvis på kommunenivå må det kanskje være 5år
 
 # perioder: måned, kvartal, år, 5-års intervall
@@ -16,4 +16,3 @@
 
 # validering: rater innafor forventet spenn
 # logging: min, max, median (viser outliers som kan hjelpe med valg av aggregering)
-

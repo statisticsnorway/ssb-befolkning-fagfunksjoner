@@ -1,15 +1,16 @@
 import calendar
 from datetime import date
-from dateutil.relativedelta import relativedelta
 from datetime import timedelta
+
+from dateutil.relativedelta import relativedelta
 
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 
 __all__ = [
+    "get_etterslep_dates",
     "get_last_day_of_month",
     "get_last_day_of_next_month",
     "get_period_dates",
-    "get_etterslep_dates"
 ]
 
 
@@ -53,7 +54,9 @@ def get_period_dates(
     - (start_date: date, end_date: date, include_late_reg: bool)
     """
     if period_type not in VALID_PERIOD_TYPES:
-        raise ValueError(f"Invalid period type: '{period_type}'. Can only parse one of: {VALID_PERIOD_TYPES}")
+        raise ValueError(
+            f"Invalid period type: '{period_type}'. Can only parse one of: {VALID_PERIOD_TYPES}"
+        )
 
     if period_type == "year":
         return _get_year_dates(year)

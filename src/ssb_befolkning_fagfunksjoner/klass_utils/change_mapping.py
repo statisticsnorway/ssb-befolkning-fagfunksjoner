@@ -10,7 +10,8 @@ from typing import cast
 import klass
 import networkx
 import pandas as pd
-from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
+from klass.requests.klass_types import CorrespondenceTablesType
+from klass.requests.klass_types import VersionPartType
 
 __all__ = ["get_klass_change_mapping"]
 
@@ -114,7 +115,8 @@ def _build_change_graph(
         select_cts: list[CorrespondenceTablesType] = [
             ct
             for ct in version.correspondenceTables
-            if int(ct["sourceId"]) in versions_ids and int(ct["targetId"]) in versions_ids
+            if int(ct["sourceId"]) in versions_ids
+            and int(ct["targetId"]) in versions_ids
         ]
         for change_table_meta in select_cts:
             change_table_id = int(change_table_meta["id"])

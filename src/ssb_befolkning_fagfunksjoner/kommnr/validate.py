@@ -1,7 +1,7 @@
 import logging
 
-import pandas as pd
 import klass
+import pandas as pd
 
 logger = logging.getLogger(name=__name__)
 
@@ -11,9 +11,7 @@ __all__ = ["validate_kommnr"]
 def _load_kommnr(year: int | str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     kommune_dict: dict[str, str] = (
-        klass.KlassClassification(131)
-        .get_codes(from_date=f"{year}-01-01")
-        .to_dict()
+        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-01").to_dict()
     )
 
     # Handle missing values

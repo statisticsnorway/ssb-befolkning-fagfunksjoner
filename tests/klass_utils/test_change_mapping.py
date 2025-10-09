@@ -1,12 +1,15 @@
 import datetime
 from unittest.mock import Mock
 
+import klass
 import pandas as pd
 import pytest
-import klass
-from klass.requests.klass_types import CorrespondenceTablesType, VersionPartType
+from klass.requests.klass_types import CorrespondenceTablesType
+from klass.requests.klass_types import VersionPartType
 
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import (
+    get_klass_change_mapping,
+)
 
 
 @pytest.fixture()

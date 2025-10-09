@@ -1,7 +1,8 @@
 from datetime import date
 from typing import TypedDict
 
-from .dates import get_period_dates, get_etterslep_dates
+from .dates import get_etterslep_dates
+from .dates import get_period_dates
 
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
 

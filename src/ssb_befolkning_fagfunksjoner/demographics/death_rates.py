@@ -1,4 +1,4 @@
-# dødlighetstabell - statbanktabell 
+# dødlighetstabell - statbanktabell
 # dokumentert: ligger i "om statistikken"
 
 # forventa levealder
@@ -7,16 +7,16 @@
 # håndverk: de eldste (arbitrært satt grense (de over grensa strykes))
 
 # SAS kode: døde området i prod
-# loop: flytt flatfil til linux, oppdaterer en annen fil 
-# 
+# loop: flytt flatfil til linux, oppdaterer en annen fil
+#
 # Regneark: ligger i prodsona
-# 
+#
 
-# nasjonale bruker dødssannsynlighet for landet på gruppenivå 
+# nasjonale bruker dødssannsynlighet for landet på gruppenivå
 
-# produkter: 
+# produkter:
 # forventa gjenstående levealder
-# tabell (07902) - nerdetabell 
+# tabell (07902) - nerdetabell
 # levende ved alder x, andel døde i alder x til x+1, dødssannsynlighet -> forventet gjenstående levetid
 
 # forventa gjenstående levealder (enkel)
