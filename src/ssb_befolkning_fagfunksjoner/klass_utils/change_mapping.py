@@ -121,9 +121,11 @@ def _build_change_graph(
         ]
         for change_table_meta in select_cts:
             change_table_id = int(change_table_meta["id"])
-            if change_table_id not in seen_change_tables_ides:
-                seen_change_tables_ides.add(change_table_id)
-                change_tables.append(version.get_correspondence(change_table_id))
+            if change_table_id in seen_change_tables_ides:
+                continue
+
+            seen_change_tables_ides.add(change_table_id)
+            change_tables.append(version.get_correspondence(change_table_id))
 
     for change_table in change_tables:
         # Check direction of correspondence

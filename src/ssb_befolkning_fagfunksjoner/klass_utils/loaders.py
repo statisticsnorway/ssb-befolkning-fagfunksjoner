@@ -85,7 +85,7 @@ VERDENSINNDELING_RECODING_RULES: dict[str, str] = {
 def load_verdensinndeling(reference_date: str) -> dict[str, str]:
     """Load and transform KLASS world division codes to regional groups."""
     year: str = reference_date[:4]
-    landkoder_dict: dict[str, str] = load_landkoder()  # type: ignore
+    landkoder_dict: dict[str, str | None] = load_landkoder()
     world_div_df: pd.DataFrame = (
         klass.KlassClassification(545)
         .get_codes(from_date=f"{year}-01-01", select_level=4)
@@ -104,7 +104,7 @@ def load_verdensinndeling(reference_date: str) -> dict[str, str]:
             world_div_dict[key] = "4"
 
     for value in landkoder_dict.values():
-        if value not in world_div_dict:
+        if value not in world_div_dict and value is not None:
             world_div_dict[value] = "4"
 
     return world_div_dict

@@ -1,5 +1,5 @@
 from datetime import date
-
+from typing import Any
 import klass
 import pandas as pd
 import pytest
@@ -120,8 +120,8 @@ cases = [
 def test_date_parsing_and_default(
     mocker: MockerFixture,
     mock_klass_change_series: pd.Series,
-    inputs: list,
-    expected_output: list,
+    inputs: list[Any],
+    expected_output: list[Any],
     errors: bool,
 ) -> None:
     """Verify normalisation/defaulting of from_date/to_date/target_date in get_kommnr_changes."""
