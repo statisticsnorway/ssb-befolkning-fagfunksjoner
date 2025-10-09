@@ -12,14 +12,14 @@ test_data = pd.DataFrame(
 )
 
 
-def test_dublettsjekk_series():
+def test_dublettsjekk_series() -> None:
     """Kjører på serie:
     dublettsjekk(inndata=testsett1["Name"])
     """
     pass
 
 
-def test_dublettsjekk_dataframe():
+def test_dublettsjekk_dataframe() -> None:
     """Kjører på enkeltkolonne fra dataframe:
     dublettsjekk(inndata=testsett1, variabler=["Name"])
 

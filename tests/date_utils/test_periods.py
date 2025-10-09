@@ -16,7 +16,7 @@ valid_cases: list[tuple[list[Any], str]] = [
 
 
 @pytest.mark.parametrize("inputs, expected", valid_cases)
-def test_get_standardised_period_label_valid(inputs: list, expected: str) -> None:
+def test_get_standardised_period_label_valid(inputs: list[Any], expected: str) -> None:
     assert get_standardised_period_label(*inputs) == expected
 
 

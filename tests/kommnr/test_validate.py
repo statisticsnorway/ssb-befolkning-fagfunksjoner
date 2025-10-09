@@ -1,4 +1,5 @@
 from contextlib import nullcontext as does_not_raise
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -14,6 +15,7 @@ from ssb_befolkning_fagfunksjoner.kommnr.validate import validate_kommnr
 @pytest.fixture
 def mock_valid_codes() -> dict[str, str]:
     """Minimal valid KLASS dict that validate_kommnr expects from _load_kommnr().
+
     Keys are codes; values are descriptions.
     """
     return {
@@ -51,7 +53,7 @@ def test_validate_kommnr_all_valid(
     mocker: MockerFixture,
     mock_valid_codes: dict[str, str],
     codes: pd.Series,
-    expect_error,
+    expect_error: Any,
 ) -> None:
     mocker.patch(
         "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
@@ -71,6 +73,7 @@ def test_validate_kommnr_calls_loader_with_year(
     mocker: MockerFixture, mock_valid_codes: dict[str, str]
 ) -> None:
     """validate_kommnr passes a 'year' argument through to _load_kommnr.
+
     This test asserts the call value. If you change how the year is passed,
     update the expectation accordingly.
     """

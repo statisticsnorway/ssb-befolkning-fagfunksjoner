@@ -6,7 +6,7 @@ from tabulate import tabulate
 logger = logging.getLogger(__name__)
 
 
-def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None):
+def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None) -> pd.DataFrame:
     """Utfører en dublettsjekk på and pandas DataFrame eller Series.
 
     Funksjonen:

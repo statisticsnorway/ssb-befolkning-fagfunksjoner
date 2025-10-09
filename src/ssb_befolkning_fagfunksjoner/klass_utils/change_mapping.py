@@ -50,7 +50,7 @@ def _build_change_graph(
     classification: klass.KlassClassification,
     from_date: datetime.date,
     to_date: datetime.date | None,
-) -> networkx.DiGraph:
+) -> networkx.DiGraph[_CodePoint]:
     """Construct a directed graph representing relations between municipality codes across KlassClassification versions.
 
     Parameters:
@@ -81,7 +81,7 @@ def _build_change_graph(
         versions.append(version)
 
     # Initialise directed graph
-    graph: networkx.DiGraph = networkx.DiGraph()
+    graph: networkx.DiGraph[_CodePoint] = networkx.DiGraph()
 
     # Sort versions by start dates using start_dates mapping version_id -> validFrom date
     versions = sorted(
@@ -119,7 +119,7 @@ def _build_change_graph(
             and int(ct["targetId"]) in versions_ids
         ]
         for change_table_meta in select_cts:
-            change_table_id = int(change_table_meta["id"])
+            change_table_id = int(change_table_meta["id"])  # type: ignore
             if change_table_id not in seen_change_tables_ides:
                 seen_change_tables_ides.add(change_table_id)
                 change_tables.append(version.get_correspondence(change_table_id))
@@ -215,7 +215,7 @@ def get_klass_change_mapping(
 
     # Construct Series from correspondences
     values, index = zip(*correspondences, strict=True)
-    series = (
+    series: pd.Series[str] = (
         pd.Series(values, index=pd.Index(index, name="old_code"), name="new_code")
         .sort_values()
         .sort_index()

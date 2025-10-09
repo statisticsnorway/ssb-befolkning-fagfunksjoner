@@ -123,9 +123,8 @@ def test_second_write_latest_missing_raises(
 def test_second_write_identical_skips(
     mocker: MockerFixture,
     mock_df: pd.DataFrame,
-    mock_diff_df: pd.DataFrame,
     mock_writers: dict[str, MockType],
-):
+) -> None:
     mocker.patch(
         "ssb_befolkning_fagfunksjoner.versions.versions.get_next_version_number",
         return_value=2,
@@ -158,7 +157,7 @@ def test_second_write_different(
     mock_df: pd.DataFrame,
     mock_diff_df: pd.DataFrame,
     mock_writers: dict[str, MockType],
-):
+) -> None:
     mocker.patch(
         "ssb_befolkning_fagfunksjoner.versions.versions.get_next_version_number",
         return_value=2,
@@ -262,7 +261,7 @@ def test_subsequent_write_identical_skips(
 def test_subsequent_write_different_creates_and_updates(
     mocker: MockerFixture,
     mock_df: pd.DataFrame,
-    mock_df_diff: pd.DataFrame,
+    mock_diff_df: pd.DataFrame,
     mock_writers: dict[str, MockType],
 ) -> None:
     next_version = 3
@@ -279,7 +278,7 @@ def test_subsequent_write_different_creates_and_updates(
     resolved: UPath = mock_resolve_path.return_value
 
     mocker.patch.object(type(resolved), "exists", return_value=True)
-    mocker.patch("pandas.read_parquet", return_value=mock_df_diff)
+    mocker.patch("pandas.read_parquet", return_value=mock_diff_df)
 
     write_versioned_pandas(df=mock_df, filepath=input_path)
 
