@@ -1,7 +1,13 @@
 import pandas as pd
+import logging
+from tabulate import tabulate
+
+logger = logging.getLogger(__name__)
 
 
-def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None):
+def dublettsjekk(
+    inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None
+):
     """
     Utfører en dublettsjekk på and pandas DataFrame eller Series.
 
@@ -18,28 +24,49 @@ def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None 
     Eksempel: 
     
     """
-
-    if isinstance(inndata, pd.DataFrame):
-        alle_dub = inndata[inndata.duplicated(subset=variabler, keep=False)]
-        dub_frekvens = alle_dub.groupby(variabler).size().reset_index(name="antall")
-        dub_frekvens = dub_frekvens.sort_values(by="antall", ascending=False).reset_index(drop=True)
-
-    if isinstance(inndata, pd.Series):
-        mask = inndata.duplicated(keep=False)
-        alle_dub = inndata[mask]
-        dub_frekvens = alle_dub.value_counts(ascending=False)
-        dub_frekvens = dub_frekvens.reset_index()
-        dub_frekvens.rename(columns={dub_frekvens.columns[1]: "antall"}, inplace=True)
-    # "alle_dub" er alle linjer som er dublettert, hver for seg
-
-    ant_rader_med_dub_verdier = len(alle_dub)
-    ant_unike_dub_verdier = len(dub_frekvens)
-
-    print(f"Distinkte dublett-verdier: {ant_unike_dub_verdier}")
-    print(f"Fordelt på antall rader: {ant_rader_med_dub_verdier}")
-    
-    print("\nReturnert serie med unike dublettkombinasjoner: dub_frekvens")
-    print("\nAlle rader i original-settet med dublettforekomster returneres ikke automatisk pga. diskplass, men kan lages slik utenfor funksjonen:")
-    print("alle_dub = din_dataframe[din_dataframe.duplicated(subset=[din_variabelliste], keep=False)]")
+    dub_frekvens = _dublett_frekvens_pandas(inndata, variabler)
+    _log_dublett_frekvens(dub_frekvens)
 
     return dub_frekvens
+
+
+def _dublett_frekvens_pandas(
+    inndata: pd.DataFrame | pd.Series, variabler: list[str] | str | None = None
+) -> pd.DataFrame:
+    """Beregner frekvenstabell for dubletter i en pandas Series eller DataFrame.
+    """
+    # Tell opp dubletter for Series 
+    if isinstance(inndata, pd.Series):
+        if isinstance(variabler, (list, str)):
+            raise ValueError("Forventer ikke 'variabler' sammen med en serie.")
+        return inndata[inndata.duplicated(keep=False)].value_counts(ascending=False).reset_index(name="antall")
+
+    # Tell opp dubletter for DataFrame 
+    if isinstance(inndata, pd.DataFrame):
+        if variabler is None:
+            variabler = inndata.columns.tolist()
+        
+        # Validering av variabelnavn i DataFrame
+        missing = [v for v in variabler if v not in inndata.columns]
+        if missing:
+            raise ValueError(f"Variabler {missing} finnes ikke i DataFrame.")
+
+        return inndata[inndata.duplicated(subset=variabler, keep=False)].value_counts(ascending=False).reset_index(name="antall")
+
+
+def _log_dublett_frekvens(count: pd.DataFrame) -> None:
+    """Log how many duplicated rows and show distribution table."""
+    logger.info(f"Antall dublett-verdier = {count['antall'].sum()}")
+    logger.info(f"Antall rader med dubletter = {len(count)}")
+
+    if count["antall"].sum() == 0:
+        return
+    
+    freq_table = tabulate(
+        count.to_records(index=False),
+        headers="keys",
+        tablefmt="pretty",
+        showindex=False
+    )
+
+    logger.info("Frekvenstabell for dubletter:\n" + freq_table)
