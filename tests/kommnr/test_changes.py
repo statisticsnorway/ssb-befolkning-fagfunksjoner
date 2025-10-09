@@ -101,15 +101,15 @@ cases = [
         [date(1980, 1, 1), date(2020, 1, 1), date(2020, 1, 1)],
         False,
     ),
-    # invalid date string → ValueError
+    # invalid from_date string → ValueError
     (
         ["2000-13-40", None, None],
         [],
         True,
     ),
-    # non-date value (int) for to_date; target_date=None → to/target remain the int;
+    # invalid to_date; target_date=None → to/target remain the int;
     (
-        ["1980-01-01", 123, None],
+        ["1980-01-01", "123", None],
         [],
         True,
     ),
