@@ -13,15 +13,13 @@ test_data = pd.DataFrame(
 
 
 def test_dublettsjekk_series() -> None:
-    """Kjører på serie:
-    dublettsjekk(inndata=testsett1["Name"])
+    """Kjører på serie: dublettsjekk(inndata=testsett1["Name"]).
     """
     pass
 
 
 def test_dublettsjekk_dataframe() -> None:
-    """Kjører på enkeltkolonne fra dataframe:
-    dublettsjekk(inndata=testsett1, variabler=["Name"])
+    """Kjører på enkeltkolonne fra dataframe: dublettsjekk(inndata=testsett1, variabler=["Name"]).
 
     Kjører på flere kolonner fra dataframe:
     dublettsjekk(inndata=testsett1, variabler=["Name", "Score"])

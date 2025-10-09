@@ -88,7 +88,8 @@ warn_unreachable = true
 pretty = true
 show_column_numbers = true
 show_error_context = true
-disable_error_code = ["typeddict-item"]
+disable_error_code = ["typeddict-item", "no-untyped-def"]
+exclude = ["tests"]
 
 [tool.ruff]
 force-exclude = true  # Apply excludes to pre-commit

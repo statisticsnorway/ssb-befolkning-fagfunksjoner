@@ -1,3 +1,5 @@
+"""Date utility subpackage for date logic in population statistics."""
+
 from .date_parameters import get_date_parameters
 from .dates import get_etterslep_dates
 from .dates import get_last_day_of_month

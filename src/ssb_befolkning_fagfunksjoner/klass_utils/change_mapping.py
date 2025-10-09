@@ -5,6 +5,7 @@ import functools
 from itertools import chain
 from itertools import pairwise
 from typing import NamedTuple
+from collections.abc import Iterable
 from typing import cast
 
 import klass
@@ -119,7 +120,7 @@ def _build_change_graph(
             and int(ct["targetId"]) in versions_ids
         ]
         for change_table_meta in select_cts:
-            change_table_id = int(change_table_meta["id"])  # type: ignore
+            change_table_id = int(change_table_meta["id"])
             if change_table_id not in seen_change_tables_ides:
                 seen_change_tables_ides.add(change_table_id)
                 change_tables.append(version.get_correspondence(change_table_id))
@@ -134,7 +135,7 @@ def _build_change_graph(
         for change in change_table.correspondence:
             if change["sourceCode"] is None or change["targetCode"] is None:
                 continue
-            edge = (
+            edge: Iterable[_CodePoint] = (
                 _CodePoint(change["sourceCode"], change_table.sourceId),
                 _CodePoint(change["targetCode"], change_table.targetId),
             )

@@ -30,7 +30,7 @@ def get_kommnr_changes(
         "to_date": to_date,
         "target_date": target_date,
     }.items():
-        if val is not None and not isinstance(val, (str, datetime.date)):
+        if val is not None and not isinstance(val, str | datetime.date):
             raise ValueError(
                 f"Invalid type for {name}: {type(val).__name__}. Expected str or datetime.date."
             )

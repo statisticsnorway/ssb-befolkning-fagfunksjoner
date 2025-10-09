@@ -6,7 +6,9 @@ from tabulate import tabulate
 logger = logging.getLogger(__name__)
 
 
-def dublettsjekk(inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None) -> pd.DataFrame:
+def dublettsjekk(
+    inndata: pd.DataFrame | pd.Series, variabler: list[str] | None = None
+) -> pd.DataFrame:
     """Utfører en dublettsjekk på and pandas DataFrame eller Series.
 
     Funksjonen:
@@ -34,7 +36,7 @@ def _dublett_frekvens_pandas(
     """Beregner frekvenstabell for dubletter i en pandas Series eller DataFrame."""
     # Tell opp dubletter for Series
     if isinstance(inndata, pd.Series):
-        if isinstance(variabler, (list, str)):
+        if isinstance(variabler, list | str):
             raise ValueError("Forventer ikke 'variabler' sammen med en serie.")
         return (
             inndata[inndata.duplicated(keep=False)]
