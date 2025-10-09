@@ -46,15 +46,3 @@ def get_latest_version_number(filepath: UPath) -> int:
     ]
     numeric_versions: list[int] = [(v if v is not None else 1) for v in version_numbers]
     return max(numeric_versions)
-
-
-def get_next_version_number(filepath: UPath) -> int:
-    """Determine the next version number for a given file according to SSB versioning conventions.
-
-    If the file already has versioned filenames available (e.g., '_v1', '_v2', etc.),
-    it returns one greater than the latest existing version. If no versioned files exist yet,
-    it defaults to 1.
-    """
-    latest_version_number: int = get_latest_version_number(filepath=filepath)
-
-    return latest_version_number + 1
