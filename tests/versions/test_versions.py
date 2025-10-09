@@ -43,36 +43,18 @@ def mock_existing_df() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "id": ["A", "B", "C"],
-            "value": [1, 2, 3],
+            "value": [2, 4, 6],
         }
     )
 
 @pytest.fixture
-def mock_resolved_path(mocker: MockerFixture) -> UPath:
-    resolved = UPath("gs://my-bucket/folder/file.parquet")
-    mocker.patch(
-        "ssb_befolkning_fagfunksjoner.versions.versions.resolve_path",
-        return_value=resolved
-    )
-    return resolved
+def mock_writers(mocker: MockerFixture) -> dict[str, MockType]:
+    return {
+        "promote": mocker.patch("ssb_befolkning_fagfunksjoner.versions.versions.promote_unversioned_to_v1"),
+        "create": mocker.patch("ssb_befolkning_fagfunksjoner.versions.versions.create_versioned_file"),
+        "update": mocker.patch("ssb_befolkning_fagfunksjoner.versions.versions.update_latest_file"),
+    }
 
-@pytest.fixture
-def mock_promote_unversioned_to_v1(mocker: MockerFixture) -> MockType:
-    return mocker.patch(
-        "ssb_befolkning_fagfunksjoner.versions.versions.promote_unversioned_to_v1"
-    )
-
-@pytest.fixture
-def mock_create_versioned_file(mocker: MockerFixture) -> MockType:
-    return mocker.patch(
-        "ssb_befolkning_fagfunksjoner.versions.versions.create_versioned_file"
-    )
-
-@pytest.fixture
-def mock_update_latest_file(mocker: MockerFixture) -> MockType:
-    return mocker.patch(
-        "ssb_befolkning_fagfunksjoner.versions.versions.update_latest_file"
-    )
 
 # ------------------------------------------------------------------------
 # Test 1: function triggers 'update_latest_file' and nothing else if next_version_number = 1
@@ -81,10 +63,7 @@ def mock_update_latest_file(mocker: MockerFixture) -> MockType:
 def test_write_versioned_pandas_first_write(
     mocker: MockerFixture,
     mock_df: pd.DataFrame,
-    mock_resolved_path: UPath,
-    mock_promote_unversioned_to_v1: MockType,
-    mock_create_versioned_file: MockType,
-    mock_update_latest_file: MockType,
+    mock_writers: dict[str, MockType],
 ) -> None:
     """If no other file exists in write path, then 'next_version_number' = 1 and file is written as-is."""
     # Patch functions called in write_versioned_pandas()
@@ -92,11 +71,89 @@ def test_write_versioned_pandas_first_write(
         "ssb_befolkning_fagfunksjoner.versions.versions.get_next_version_number",
         return_value=1
     )
-    
-    write_versioned_pandas(df=mock_df, filepath="bucket/folder/file.parquet")
 
-    mock_update_latest_file.assert_called_once_with(
-        df=mock_df, parent=mock_resolved_path.parent, stem=mock_resolved_path.stem
+    input_path = "bucket/folder/file.parquet"
+    mock_resolve_path = mocker.patch(
+        "ssb_befolkning_fagfunksjoner.versions.versions.resolve_path",
+        return_value=UPath(input_path)
     )
-    mock_create_versioned_file.assert_not_called()
-    mock_promote_unversioned_to_v1.assert_not_called()
+    resolved_path: UPath = mock_resolve_path.return_value
+
+    write_versioned_pandas(df=mock_df, filepath=input_path)
+    mock_resolve_path.assert_called_once_with(input_path)
+    
+    mock_writers["update"].assert_called_once_with(df=mock_df, parent=resolved_path.parent, stem=resolved_path.stem)
+    mock_writers["create"].assert_not_called()
+    mock_writers["promote"].assert_not_called()
+
+
+# ------------------------------------------------------------------------
+# Test 2: function triggers promote_unversioned_to_v1, create_versioned_file, and update_latest_file when unequal existing df exists and next_version_number = 2
+# ------------------------------------------------------------------------
+
+def test_write_versioned_pandas_second_write(
+    mocker: MockerFixture,
+    mock_df: pd.DataFrame,
+    mock_writers: dict[str, MockType],
+) -> None:
+    mocker.patch(
+        "ssb_befolkning_fagfunksjoner.versions.versions.get_next_version_number",
+        return_value=2
+    )
+
+    input_path = "bucket/folder/file.parquet"
+    mock_resolve_path = mocker.patch(
+        "ssb_befolkning_fagfunksjoner.versions.versions.resolve_path",
+        return_value=UPath(input_path)
+    )
+    resolved_path: UPath = mock_resolve_path.return_value
+    latest_path: UPath = resolved_path.parent / f"{resolved_path.stem}.parquet"
+
+    def exists_side_effect(self: UPath) -> bool:
+        return self == latest_path
+
+    mocker.patch("upath.UPath.exists", side_effect=exists_side_effect)
+
+    with pytest.raises(ValueError, match=r"Expected '.*\.parquet' to exist"):
+        write_versioned_pandas(df=mock_df, filepath=input_path)
+
+    mock_writers["update"].assert_not_called()
+    mock_writers["create"].assert_not_called()
+    mock_writers["promote"].assert_not_called()
+
+
+# ------------------------------------------------------------------------
+# Test 3: 
+# ------------------------------------------------------------------------
+
+def test_write_versioned_pandas_identical_skip(
+    mocker: MockerFixture,
+    mock_df,
+    mock_writers,
+):
+    mocker.patch(
+        "ssb_befolkning_fagfunksjoner.versions.versions.get_next_version_number",
+        return_value=2
+    )
+
+    
+
+
+# ------------------------------------------------------------------------
+# Test 3: Throws error if version in input filepath
+# ------------------------------------------------------------------------
+
+def test_write_versioned_pandas_version_error(
+    mocker: MockerFixture,
+    mock_df: pd.DataFrame,
+) -> None:
+
+    input_path = "bucket/folder/file_v1.parquet"
+    mock_resolve_path = mocker.patch(
+        "ssb_befolkning_fagfunksjoner.versions.versions.resolve_path",
+        return_value=UPath(input_path)
+    )
+ 
+    with pytest.raises(ValueError):
+        write_versioned_pandas(df=mock_df, filepath=input_path)
+    mock_resolve_path.assert_called_once_with(input_path)

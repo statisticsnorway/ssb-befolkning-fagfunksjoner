@@ -25,9 +25,9 @@ def write_versioned_pandas(
 
     - The newest file is always accessible as `<base_filename>.parquet`.
     """
-    normalised_filepath: UPath = resolve_path(filepath)
-    parent: UPath = normalised_filepath.parent
-    stem: str = normalised_filepath.stem
+    normalised: UPath = resolve_path(filepath)
+    parent: UPath = normalised.parent
+    stem: str = normalised.stem
 
     if re.search(r"_v\d+$", stem):  # Case when input filepath has version number
         raise ValueError(
@@ -35,43 +35,35 @@ def write_versioned_pandas(
             "Use the basename (without version suffix) and the function will handle versioning. "
         )
 
-    next_version_number = get_next_version_number(
-        filepath=normalised_filepath
-    )
     latest_path: UPath = parent / f"{stem}.parquet"
+    next_version_number = get_next_version_number(filepath=normalised)
 
     # --- CASE 1: First write to directory ---
     if next_version_number == 1:
-        logging.info("No existing versions of DataFrame found.")
+        logging.info("No existing versions found; writing latest only.")
         update_latest_file(df=df, parent=parent, stem=stem)
         return
 
+    latest_exists: bool = latest_path.exists()
+    
+    if next_version_number == 2 and not latest_exists:
+        raise ValueError(f"Expected '{latest_path}' to exist, but was not found.")
+
     # Compare df to existing file
-    if latest_path.exists():
+    if latest_exists:
         try:
             existing_df = pd.read_parquet(latest_path)
-            if existing_df.equals(df):
-                logging.info(
-                    f"No changes detected in {latest_path}. Skipping write to path."
-                )
-                return
         except Exception as e:
-            logging.error(
-                f"Failed to read existing version at {latest_path} for comparison: {e}"
-            )
-            raise
-    else:
-        if next_version_number == 2:
-            raise RuntimeError(
-                f"Expected {latest_path} to exist for rename to _v1, but it was not found."
-            )
+            raise ValueError(f"Failed to read existing version at '{latest_path}'") from e
+
+        if existing_df.equals(df):
+            logging.info("No changes detected; skipping write.")
+            return
 
     # --- CASE 2: Writing versioned file ---
     if next_version_number == 2:
         promote_unversioned_to_v1(parent=parent, stem=stem)
 
-    versioned_path: UPath = parent / f"{stem}_v{next_version_number}.parquet"
-    logging.info(f"Detected change — writing version {next_version_number} to {versioned_path}")
     create_versioned_file(df=df, parent=parent, stem=stem, version=next_version_number)
     update_latest_file(df=df, parent=parent, stem=stem)
 
