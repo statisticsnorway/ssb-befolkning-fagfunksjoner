@@ -89,7 +89,7 @@ pretty = true
 show_column_numbers = true
 show_error_context = true
 disable_error_code = ["typeddict-item", "no-untyped-def"]
-exclude = ["tests"]
+exclude = "tests"
 
 [tool.ruff]
 force-exclude = true  # Apply excludes to pre-commit

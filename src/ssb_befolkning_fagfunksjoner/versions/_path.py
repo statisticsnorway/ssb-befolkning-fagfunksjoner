@@ -11,7 +11,7 @@ def resolve_path(filepath: str | UPath) -> UPath:
     - UPath objects
 
     Parameters:
-    - filepath (str | UPath): The input path to normalize.
+        filepath (str | UPath): The input path to normalize.
 
     Returns:
         UPath: Fully resolved GCS path (starting with 'gs://') or an absolute local path.

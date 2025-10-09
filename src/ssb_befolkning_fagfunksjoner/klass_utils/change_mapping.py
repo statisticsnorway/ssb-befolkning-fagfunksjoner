@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import datetime
 import functools
+from collections.abc import Iterable
 from itertools import chain
 from itertools import pairwise
 from typing import NamedTuple
-from collections.abc import Iterable
 from typing import cast
 
 import klass

@@ -22,7 +22,7 @@ def mock_klass_classification(mocker: MockerFixture):
 
 @pytest.fixture
 def mock_klass_change_series() -> pd.Series:
-    """Mocks klass change mapping with:
+    """Mocks klass change.
     
         - one split ("1507" -> "1508"/"1580"),
         - two changes ("5401" -> "5501"; "3005" -> "3301"),

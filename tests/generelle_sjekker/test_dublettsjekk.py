@@ -13,8 +13,7 @@ test_data = pd.DataFrame(
 
 
 def test_dublettsjekk_series() -> None:
-    """Kjører på serie: dublettsjekk(inndata=testsett1["Name"]).
-    """
+    """Kjører på serie: dublettsjekk(inndata=testsett1["Name"])."""
     pass
 
 
