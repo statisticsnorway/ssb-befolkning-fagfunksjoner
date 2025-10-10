@@ -1,20 +1,20 @@
 import datetime
 from unittest.mock import Mock
 
+import klass
 import pandas as pd
 import pytest
-from klass import KlassClassification
-from klass import KlassCorrespondence
-from klass import KlassVersion
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
 
-from ssb_befolkning_fagfunksjoner.klass_utils.loaders import get_changes_mapping
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import (
+    get_klass_change_mapping,
+)
 
 
 @pytest.fixture()
-def classification_mocker():
-    classification_mocker = Mock(spec=KlassClassification)
+def classification_mocker() -> Mock:
+    classification_mocker = Mock(spec=klass.KlassClassification)
     versions_meta: list[VersionPartType] = [
         {
             "name": "Kommuneinndeling 2024",
@@ -76,7 +76,7 @@ def classification_mocker():
         [change_meta[2]],
     ]
 
-    versions_codes: list[list[dict]] = [
+    versions_codes: list[list[dict[str, str]]] = [
         [
             {"code": "1508"},
             {"code": "1580"},
@@ -94,7 +94,7 @@ def classification_mocker():
         ],
     ]
 
-    correspondence: list[list[dict]] = [
+    correspondence: list[list[dict[str, str]]] = [
         [
             {"sourceCode": "1508", "targetCode": "1507"},
             {"sourceCode": "1580", "targetCode": "1507"},
@@ -108,7 +108,7 @@ def classification_mocker():
     ]
 
     change_table_mock = [
-        Mock(spec=KlassCorrespondence) for _ in range(len(change_meta))
+        Mock(spec=klass.KlassCorrespondence) for _ in range(len(change_meta))
     ]
 
     for mock, meta, corr in zip(
@@ -118,11 +118,11 @@ def classification_mocker():
         mock.targetId = meta["targetId"]
         mock.correspondence = corr
 
-    def _get_change_table(correspondence_id, *args, **kwargs):
+    def _get_change_table(correspondence_id: int, *args, **kwargs) -> Mock:
         return change_table_mock[correspondence_id - 1]
 
-    version_mockers: list[KlassVersion] = [
-        Mock(spec=KlassVersion) for _ in range(len(corr_meta))
+    version_mockers: list[klass.KlassVersion] = [
+        Mock(spec=klass.KlassVersion) for _ in range(len(corr_meta))
     ]
 
     for mock, v_id, meta, codes in zip(
@@ -212,6 +212,6 @@ cases = [
 
 
 @pytest.mark.parametrize("target_date, expected", cases)
-def test_get_changes_mapping(classification_mocker, target_date, expected):
-    result = get_changes_mapping(classification_mocker, target_date=target_date)
+def test_get_changes_mapping(classification_mocker, target_date, expected) -> None:
+    result = get_klass_change_mapping(classification_mocker, target_date=target_date)
     pd.testing.assert_series_equal(expected, result, check_names=False)

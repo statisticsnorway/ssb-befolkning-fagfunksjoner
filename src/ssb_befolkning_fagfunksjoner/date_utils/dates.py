@@ -1,16 +1,3 @@
-"""This script contains the internal functions used in date_utils.py.
-
-In particular, those which convert date parameters into start and end dates.
-
-get_date_parameters (public)
-├── get_period_dates
-│   ├── _get_year_dates
-│   ├── _get_month_dates
-│   └── ...
-└── get_etterslep_dates
-    └── _add_wait_period
-"""
-
 import calendar
 from datetime import date
 from datetime import timedelta
@@ -18,6 +5,38 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
 VALID_PERIOD_TYPES: set[str] = {"year", "halfyear", "quarter", "month", "week"}
+
+__all__ = [
+    "get_etterslep_dates",
+    "get_last_day_of_month",
+    "get_last_day_of_next_month",
+    "get_period_dates",
+]
+
+
+def get_last_day_of_month(input_date: date) -> date:
+    """Given a date object, return a new date object representing the last day of that month."""
+    year = input_date.year
+    month = input_date.month
+
+    last_day = calendar.monthrange(year, month)[1]
+    return input_date.replace(day=last_day)
+
+
+def get_last_day_of_next_month(input_date: date) -> date:
+    """Given a date object, return a new date object representing the last day of the following month."""
+    year = input_date.year
+    month = input_date.month
+
+    if month == 12:
+        next_month_year = year + 1
+        next_month = 1
+    else:
+        next_month_year = year
+        next_month = month + 1
+
+    last_day_next_month = calendar.monthrange(next_month_year, next_month)[1]
+    return date(next_month_year, next_month, last_day_next_month)
 
 
 def get_period_dates(
@@ -35,7 +54,9 @@ def get_period_dates(
     - (start_date: date, end_date: date, include_late_reg: bool)
     """
     if period_type not in VALID_PERIOD_TYPES:
-        raise ValueError(f"Invalid period type: '{period_type}'.")
+        raise ValueError(
+            f"Invalid period type: '{period_type}'. Can only parse one of: {VALID_PERIOD_TYPES}"
+        )
 
     if period_type == "year":
         return _get_year_dates(year)
@@ -79,11 +100,6 @@ def get_etterslep_dates(
         etterslep_end = end_date + timedelta(days=wait_days)
 
     return etterslep_start, etterslep_end
-
-
-# ------------------------------------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------------------------------------
 
 
 def _get_year_dates(year: int) -> tuple[date, date]:
