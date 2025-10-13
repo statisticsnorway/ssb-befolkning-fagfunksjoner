@@ -24,6 +24,8 @@
 [black]: https://github.com/psf/black
 [poetry]: https://python-poetry.org/
 
+Collection of python functions used in statistics production in the Division for Population Statistics at Statistics Norway.
+
 ## Features
 
 - TODO
@@ -33,16 +35,38 @@
 - TODO
 
 ## Installation
-
-You can install _Befolkning Fagfunksjoner_ via [pip] from [PyPI]:
-
-```console
-pip install ssb-befolkning-fagfunksjoner
+```bash
+poetry add ssb-befolkning-fagfunksjoner
 ```
 
 ## Usage
 
-Please see the [Reference Guide] for details.
+### Date utils
+Get a dictionary of date parameters from period inputs
+```python
+from ssb_befolkning_fagfunksjoner import get_date_parameters
+
+date_param = get_date_parameters()  # Follow input instructions
+```
+```bash
+{
+    "year": 2025,
+    "period_type": "halfyear",
+    "period_number": 1,
+    "start_date": dt.date(2025, 1, 1),
+    "end_date": dt.date(2025, 6, 30),
+}
+```
+
+### Demographics
+
+### Generelle sjekker
+
+### KLASS utils
+
+### Kommnr
+
+### Versioning
 
 ## Contributing
 
