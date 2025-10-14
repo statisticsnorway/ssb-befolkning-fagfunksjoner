@@ -25,7 +25,16 @@ def beregn_foedselsrate(
     Rå fødselsrate = (antall fødsler i perioden) / (middelfolkemengde) * 1000
     Aldersspesifikk fødselsrate = (antall fødsler for kvinner i alder x) / (middelfolkemengde for alder x) * 1000
     """
-    pass
+    # Beregn middelfolkemengde
+    mfm = _beregn_middelfolkemengde(
+        df_start=df_start,
+        df_slutt=df_slutt,
+        aldersgruppering=aldersgruppering,
+        grupperingsvariabler=grupperingsvariabler,
+        aldersgruppe_col=aldersgruppe_col,
+        alder_col=alder_col,
+        kjoenn_col=kjoenn_col
+    )
 
 
 
@@ -173,8 +182,8 @@ def _prep_folketall(
 # Testing the functions
 # ------------------------------------------------------------------------
 
-df_start = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatte_p2024-12-31.parquet")
-df_slutt = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2025/bosatte_p2025-01-01.parquet")
+df_start = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatte_p2024-01-01.parquet")
+df_slutt = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatte_p2024-12-31.parquet")
 
 # Hvordan funker _beregn_middelfolkemengde()
 
@@ -183,7 +192,7 @@ df_start = _prep_folketall(
     df=df_start,
     aldersgruppering = 5,
     aldersgruppe_col="aldersgruppe",
-    alder_col="alderu",
+    alder_col="alder",
     kjoenn_col="kjoenn"
 )
 
@@ -191,7 +200,7 @@ df_slutt = _prep_folketall(
     df=df_slutt,
     aldersgruppering = 5,
     aldersgruppe_col="aldersgruppe",
-    alder_col="alderu",
+    alder_col="alder",
     kjoenn_col="kjoenn"
 )
 df_start
@@ -231,7 +240,7 @@ mfm = _beregn_middelfolkemengde(
     df_slutt,
     5,
     "aldersgruppe",
-    "alderu",
+    "alder",
     "kjoenn",
 )
 mfm
