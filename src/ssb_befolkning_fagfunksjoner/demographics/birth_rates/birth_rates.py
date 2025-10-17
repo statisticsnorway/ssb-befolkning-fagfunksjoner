@@ -1,10 +1,118 @@
+from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 
 
-# ------------------------------------------------------------------------
+@dataclass
+class BirthRates:
+    # Init kolonnenavn
+    aldersgruppe_col: str
+    alder_col: str
+    kjoenn_col: str
+
+    # Init konfig parametre
+    aldersgruppering: int
+    min_alder: int
+    max_alder: int
+    beregn_for_menn: bool
+
+
+    def beregn_middelfolkemngde(
+        self,
+        df_start: pd.DataFrame,
+        df_slutt: pd.DataFrame,
+        grupperingsvariabler: None | str | list[str]
+    ) -> pd.DataFrame:
+        """Beregner middelfolkemengde, gruppert på aldersgruppe og utvalgte grupperingsvariabler."""
+        # Normaliser grupperingsvariabler
+        grupperingsvariabler = self._normaliser_grupperingsvariabler(grupperingsvariabler)
+
+        df_start = self._prep_folketall(df_start)
+        df_slutt = self._prep_folketall(df_slutt)
+
+        # Valider at grupperingskolonner finnes i datasettene
+        self._valider_grupperingsvariabler(df_start, grupperingsvariabler, "df_start")
+        self._valider_grupperingsvariabler(df_slutt, grupperingsvariabler, "df_slutt")
+
+        # Tell opp antall personer per gruppe
+        a = df_start.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_start")
+        b = df_slutt.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_slutt")
+
+        # Beregner middelfolkemengde per gruppe
+        mfm = pd.concat([a, b], axis=1).fillna(0)
+        mfm["middelfolkemengde"] = (mfm["n_df_start"] + mfm["n_df_slutt"]) / 2
+
+        return mfm.reset_index()
+
+    @staticmethod
+    def _valider_grupperingsvariabler(
+        df: pd.DataFrame,
+        grupperingsvariabler: list[str],
+        navn_df: str
+    ) -> None:
+        mangler = [col for col in grupperingsvariabler if col not in df.columns]
+        if mangler:
+            raise ValueError(f"Datasett '{navn_df}' mangler grupperingskolonner: {mangler}.")
+
+
+    def _normaliser_grupperingsvariabler(
+        self,
+        grupperingsvariabler: None | str | list[str]
+    ) -> list[str]:
+        """Normaliserer grupperingsvariabler, inkluderer alltid aldersgruppe_col."""
+        if grupperingsvariabler is None:
+            norm_grupperingsvariabler: list[str] = []
+        elif isinstance(grupperingsvariabler, str):
+            norm_grupperingsvariabler = [grupperingsvariabler]
+        else:
+            norm_grupperingsvariabler = list(grupperingsvariabler)
+        
+        norm_grupperingsvariabler = [col for col in norm_grupperingsvariabler if col != self.aldersgruppe_col]
+
+        return [*norm_grupperingsvariabler, self.aldersgruppe_col]
+
+
+    def _prep_folketall(
+        self,
+        df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Filtrerer folketall til kun kvinner (med mindre beregn_for_menn er satt til True), mellom 'min_alder' og 'max_alder', og lager aldersgrupper."""
+        # Validerer parametre
+        if self.alder_col not in df.columns:
+            raise ValueError(f"Kolonnen '{self.alder_col}' finnes ikke i datasettet.")
+
+        if self.kjoenn_col not in df.columns:
+            raise ValueError(f"Kolonnen '{self.kjoenn_col}' finnes ikke i datasettet.")
+
+        if self.aldersgruppering < 1:
+            raise ValueError("Parameteret 'aldersgruppering' må være minst 1.")
+
+        # Filtrer på kjoenn
+        if self.beregn_for_menn:
+            df = df.loc[df[self.kjoenn_col] == "1"].copy()
+        else:
+            df = df.loc[df[self.kjoenn_col] == "2"].copy()
+
+        # Filtrer på alder
+        df = df.loc[(df[self.alder_col] >= self.min_alder) & (df[self.alder_col] <= self.max_alder)].copy()
+
+        # Beregn nedre og øvre grense for hver aldersgruppe
+        lower = ((df[self.alder_col] - self.min_alder) // self.aldersgruppering) * self.aldersgruppering + self.min_alder
+        upper = lower + self.aldersgruppering - 1
+
+        # Lag aldersgruppe kolonne
+        df[self.aldersgruppe_col] = np.where(
+            self.aldersgruppering == 1,
+            lower.astype(str),  # Hvis aldersgruppering = 1, bruk alder som aldersgruppe
+            lower.astype(str) + "-" + upper.astype(str)
+        )
+
+        return df
+
+
+# -----------------------------------------------------
 # Main functions
-# ------------------------------------------------------------------------
+# -----------------------------------------------------
 
 def beregn_foedselsrate(
     df_start: pd.DataFrame,
@@ -25,17 +133,7 @@ def beregn_foedselsrate(
     Rå fødselsrate = (antall fødsler i perioden) / (middelfolkemengde) * 1000
     Aldersspesifikk fødselsrate = (antall fødsler for kvinner i alder x) / (middelfolkemengde for alder x) * 1000
     """
-    # Beregn middelfolkemengde
-    mfm = _beregn_middelfolkemengde(
-        df_start=df_start,
-        df_slutt=df_slutt,
-        aldersgruppering=aldersgruppering,
-        grupperingsvariabler=grupperingsvariabler,
-        aldersgruppe_col=aldersgruppe_col,
-        alder_col=alder_col,
-        kjoenn_col=kjoenn_col
-    )
-
+    pass
 
 
 def beregn_samlet_fruktbarhetstall(
@@ -55,127 +153,6 @@ def beregn_samlet_fruktbarhetstall(
     Samlet fruktbarhetstall er summen av fødselsrater.
     """
     pass
-
-
-# ------------------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------------------
-
-def _norm_group_by_cols(
-    group_by: list[str] | str | None, 
-    aldersgruppe_col: str,
-) -> list[str]:
-    """Normaliserer grupperingsvariabler, inkluderer alltid aldersgruppe_col."""
-    if group_by is None:
-        grupperingsvariabler: list[str] = []
-    elif isinstance(group_by, str):
-        grupperingsvariabler = [group_by]
-    else:
-        grupperingsvariabler = list(group_by)
-    
-    grupperingsvariabler = [col for col in grupperingsvariabler if col != aldersgruppe_col]
-
-    return [*grupperingsvariabler, aldersgruppe_col]
-
-
-def _valider_grupperingsvariabler(
-    df: pd.DataFrame,
-    grupperingsvariabler: list[str], navn_df: str
-) -> None:
-    mangler = [col for col in grupperingsvariabler if col not in df.columns]
-    if mangler:
-        raise ValueError(f"Datasett '{navn_df}' mangler grupperingskolonner: {mangler}.")
-
-
-def _beregn_middelfolkemengde(
-    df_start: pd.DataFrame,
-    df_slutt: pd.DataFrame,
-    aldersgruppering: int,
-    aldersgruppe_col: str,
-    alder_col: str,
-    kjoenn_col: str,
-    *,
-    grupperingsvariabler: None | str | list[str] = None,
-) -> pd.DataFrame:
-    """Beregner middelfolkemengde, gruppert på aldersgruppe og gitte grupperingsvariabler."""
-    df_start = _prep_folketall(
-        df_start,
-        aldersgruppering,
-        aldersgruppe_col,
-        alder_col,
-        kjoenn_col
-    )
-    df_slutt = _prep_folketall(
-        df_slutt,
-        aldersgruppering,
-        aldersgruppe_col,
-        alder_col,
-        kjoenn_col,
-    )
-
-    # Normaliser grupperingsvariabler
-    grupperingsvariabler = _norm_group_by_cols(grupperingsvariabler, aldersgruppe_col)
-
-    # Valider at grupperingskolonner finnes i datasettene
-    _valider_grupperingsvariabler(df_start, grupperingsvariabler, "df_start")
-    _valider_grupperingsvariabler(df_slutt, grupperingsvariabler, "df_slutt")
-
-    # Tell opp antall personer per gruppe
-    a = df_start.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_start")
-    b = df_slutt.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_slutt")
-
-    # Beregner middelfolkemengde per gruppe
-    mfm = pd.concat([a, b], axis=1).fillna(0)
-    mfm["middelfolkemengde"] = (mfm["n_df_start"] + mfm["n_df_slutt"]) / 2
-
-    return mfm.reset_index()
-
-
-def _prep_folketall(
-    df: pd.DataFrame,
-    aldersgruppering: int,
-    aldersgruppe_col: str,
-    alder_col: str,
-    kjoenn_col: str,
-    min_alder: int = 15,
-    max_alder: int = 49,
-) -> pd.DataFrame:
-    """
-    Filtrerer folketall til kun kvinner mellom 'min_alder' og 'max_alder', og lager aldersgrupper.
-    
-    Standard 'min_alder' = 15, og 'max_alder' = 49
-    """
-    # Valider parametre
-    if alder_col not in df.columns:
-        raise ValueError(f"Kolonnen '{alder_col}' finnes ikke i datasettet.")
-    
-    if kjoenn_col not in df.columns:
-        raise ValueError(f"Kolonnen '{kjoenn_col}' finnes ikke i datasettet.")
-
-    if aldersgruppering < 1:
-        raise ValueError("Parameteret 'aldersgruppering' må være minst 1.")
-
-    # Filtrer på kjoenn
-    df = df.loc[df[kjoenn_col] == "2"].copy()
-
-    # Filtrer på alder
-    df = df.loc[
-        (df[alder_col] >= min_alder)
-        & (df[alder_col] <= max_alder)
-    ].copy()
-
-    # Beregn nedre og øvre grense for hver aldersgruppe 
-    nedre = ((df[alder_col] - min_alder) // aldersgruppering) * aldersgruppering + min_alder
-    oevre = nedre + aldersgruppering - 1
-
-    # Lag aldersgruppe kolonne
-    df[aldersgruppe_col] = np.where(
-        aldersgruppering == 1,
-        nedre.astype(str),  # Hvis aldersgruppering er = 1 bruk alder som aldersgruppe
-        nedre.astype(str) + "-" + oevre.astype(str)
-    )
-
-    return df
 
 
 # ------------------------------------------------------------------------
@@ -244,3 +221,18 @@ mfm = _beregn_middelfolkemengde(
     "kjoenn",
 )
 mfm
+
+# -------------------------------------------------------------------
+# Class examples
+# -------------------------------------------------------------------
+
+# at the bottom of script
+# birthrates = BirthRates()
+
+# how to use 
+# from ssb_befolkning_fagfunksjoner import birthrates
+# birthrates.beregn...
+
+# from ssb_befolkning_fagfunksjoner import BirthRates
+# birthrates = BirthRates()
+# birthrates.beregn...
