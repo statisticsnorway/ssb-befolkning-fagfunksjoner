@@ -17,33 +17,6 @@ class BirthRates:
     beregn_for_menn: bool
 
 
-    def beregn_middelfolkemngde(
-        self,
-        df_start: pd.DataFrame,
-        df_slutt: pd.DataFrame,
-        grupperingsvariabler: None | str | list[str]
-    ) -> pd.DataFrame:
-        """Beregner middelfolkemengde, gruppert på aldersgruppe og utvalgte grupperingsvariabler."""
-        # Normaliser grupperingsvariabler
-        grupperingsvariabler = self._normaliser_grupperingsvariabler(grupperingsvariabler)
-
-        df_start = self._prep_folketall(df_start)
-        df_slutt = self._prep_folketall(df_slutt)
-
-        # Valider at grupperingskolonner finnes i datasettene
-        self._valider_grupperingsvariabler(df_start, grupperingsvariabler, "df_start")
-        self._valider_grupperingsvariabler(df_slutt, grupperingsvariabler, "df_slutt")
-
-        # Tell opp antall personer per gruppe
-        a = df_start.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_start")
-        b = df_slutt.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_slutt")
-
-        # Beregner middelfolkemengde per gruppe
-        mfm = pd.concat([a, b], axis=1).fillna(0)
-        mfm["middelfolkemengde"] = (mfm["n_df_start"] + mfm["n_df_slutt"]) / 2
-
-        return mfm.reset_index()
-
     @staticmethod
     def _valider_grupperingsvariabler(
         df: pd.DataFrame,
@@ -110,54 +83,77 @@ class BirthRates:
         return df
 
 
-# -----------------------------------------------------
-# Main functions
-# -----------------------------------------------------
+    def beregn_middelfolkemngde(
+        self,
+        df_start: pd.DataFrame,
+        df_slutt: pd.DataFrame,
+        grupperingsvariabler: None | str | list[str]
+    ) -> pd.DataFrame:
+        """Beregner middelfolkemengde, gruppert på aldersgruppe og utvalgte grupperingsvariabler."""
+        # Normaliser grupperingsvariabler
+        grupperingsvariabler = self._normaliser_grupperingsvariabler(grupperingsvariabler)
 
-def beregn_foedselsrate(
-    df_start: pd.DataFrame,
-    df_slutt: pd.DataFrame,
-    df_foedsler: pd.DataFrame,
-    *,
-    aldersgruppering: int = 1,
-    grupperingsvariabler: str | list[str] | None = None,
-    aldersgruppe_col: str = "aldersgruppe",
-    alder_col: str = "alder",
-    kjoenn_col: str = "kjoenn",
-):
-    """
-    Regner ut fødselsrater etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
+        df_start = self._prep_folketall(df_start)
+        df_slutt = self._prep_folketall(df_slutt)
 
-    Fødselsraten er antall fødsler i forhold til middelfolkemengden i en gitt periode.
+        # Valider at grupperingskolonner finnes i datasettene
+        self._valider_grupperingsvariabler(df_start, grupperingsvariabler, "df_start")
+        self._valider_grupperingsvariabler(df_slutt, grupperingsvariabler, "df_slutt")
 
-    Rå fødselsrate = (antall fødsler i perioden) / (middelfolkemengde) * 1000
-    Aldersspesifikk fødselsrate = (antall fødsler for kvinner i alder x) / (middelfolkemengde for alder x) * 1000
-    """
-    pass
+        # Tell opp antall personer per gruppe
+        a = df_start.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_start")
+        b = df_slutt.groupby(grupperingsvariabler, dropna=False).size().rename("n_df_slutt")
+
+        # Beregner middelfolkemengde per gruppe
+        mfm = pd.concat([a, b], axis=1).fillna(0)
+        mfm["middelfolkemengde"] = (mfm["n_df_start"] + mfm["n_df_slutt"]) / 2
+
+        return mfm.reset_index()
 
 
-def beregn_samlet_fruktbarhetstall(
-    df_start: pd.DataFrame,
-    df_slutt: pd.DataFrame,
-    df_foedsler: pd.DataFrame,
-    *,
-    aldersgruppering: int = 1,
-    grupperingsvariabler: str | list[str] | None = None,
-    aldersgruppe_col: str = "aldersgruppe",
-    alder_col: str = "alder",
-    kjoenn_col: str = "kjoenn",
-):
-    """
-    Regner ut samlet fruktbarhetstall etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
+    def beregn_foedselsrate(
+        self,
+        df_start: pd.DataFrame,
+        df_slutt: pd.DataFrame,
+        df_foedsler: pd.DataFrame,
+        grupperingsvariabler: None | str | list[str] = None
+    ):
+        """
+        Regner ut fødselsrater etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
 
-    Samlet fruktbarhetstall er summen av fødselsrater.
-    """
-    pass
+        Fødselsraten er antall fødsler i forhold til middelfolkemengden i en gitt periode.
+        """
+        mfm = self.beregn_middelfolkemngde(df_start, df_slutt, grupperingsvariabler)
+
+
+    def beregn_samlet_fruktbarhetstall(
+        self,
+        df_start,
+        df_slutt,
+        df_foedsler,
+        grupperingsvariabler,
+    ):
+        """
+        Regner ut samlet fruktbarhetstall etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
+
+        Samlet fruktbarhetstall er summen av fødselsrater.
+        """
+
 
 
 # ------------------------------------------------------------------------
 # Testing the functions
 # ------------------------------------------------------------------------
+
+birthrates = BirthRates(
+    aldersgruppe_col="aldersgruppe",
+    alder_col="alder",
+    kjoenn_col="kjoenn",
+    aldersgruppering=5,
+    min_alder=15,
+    max_alder=49,
+    beregn_for_menn=False
+)
 
 df_start = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatte_p2024-01-01.parquet")
 df_slutt = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatte_p2024-12-31.parquet")
@@ -165,40 +161,26 @@ df_slutt = pd.read_parquet("/buckets/produkt/bosatte/klargjorte-data/2024/bosatt
 # Hvordan funker _beregn_middelfolkemengde()
 
 # Steg 1: prepp folketall data
-df_start = _prep_folketall(
-    df=df_start,
-    aldersgruppering = 5,
-    aldersgruppe_col="aldersgruppe",
-    alder_col="alder",
-    kjoenn_col="kjoenn"
-)
-
-df_slutt = _prep_folketall(
-    df=df_slutt,
-    aldersgruppering = 5,
-    aldersgruppe_col="aldersgruppe",
-    alder_col="alder",
-    kjoenn_col="kjoenn"
-)
+df_start = birthrates._prep_folketall(df=df_start)
+df_slutt = birthrates._prep_folketall(df=df_slutt)
 df_start
 
 # Steg 2: normalisere grupperingsvariabler
 grupperingsvariabler_0 = None 
-norm_0 = _norm_group_by_cols(grupperingsvariabler_0, aldersgruppe_col="aldersgruppe")
-norm_0
+norm_0 = birthrates._normaliser_grupperingsvariabler(grupperingsvariabler_0)
 
 grupperingsvariabler_1 = "komm_nr"
-norm_1 = _norm_group_by_cols(grupperingsvariabler_1, aldersgruppe_col="aldersgruppe")
+norm_1 = birthrates._normaliser_grupperingsvariabler(grupperingsvariabler_1)
 norm_1
 
 grupperingsvariabler_2 = ["sivilstand", "landkode"]
-norm_2 = _norm_group_by_cols(grupperingsvariabler_2, aldersgruppe_col="aldersgruppe")
+norm_2 = birthrates._normaliser_grupperingsvariabler(grupperingsvariabler_2)
 norm_2
 
 
 # Steg 3: validere at kolonnene finnes
-_valider_grupperingsvariabler(df_start, norm_1, "df_start")
-_valider_grupperingsvariabler(df_start, norm_2, "df_start")  # skal feile fordi landkode ikke finnes
+birthrates._valider_grupperingsvariabler(df_start, norm_1, "df_start")
+birthrates._valider_grupperingsvariabler(df_start, norm_2, "df_start")  # skal feile fordi landkode ikke finnes
 
 # Steg 4: tell opp antall personer per gruppe
 a = df_start.groupby(norm_1, dropna=False).size().rename("n_df_start")
@@ -212,13 +194,10 @@ mfm["middelfolkemengde"] = (mfm["n_df_start"] + mfm["n_df_slutt"]) / 2
 mfm.reset_index()
 
 # I alt
-mfm = _beregn_middelfolkemengde(
+mfm = birthrates.beregn_middelfolkemngde(
     df_start,
     df_slutt,
-    5,
-    "aldersgruppe",
-    "alder",
-    "kjoenn",
+    grupperingsvariabler=None
 )
 mfm
 
