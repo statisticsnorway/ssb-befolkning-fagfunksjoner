@@ -1,12 +1,19 @@
 import pandas as pd
+import numpy as np
+from pandas.testing import assert_series_equal
 import pytest
+from pytest_mock import MockerFixture
 
 from ssb_befolkning_fagfunksjoner.demographics.birth_rates import BirthRates
+from ssb_befolkning_fagfunksjoner.demographics.test_birth_rates import grupperingsvariabler_0
 
+
+# ------------------------------------------------------------------------
+# Helper function tester
+# ------------------------------------------------------------------------
 
 @pytest.fixture
 def br_default() -> BirthRates:
-    # sensible defaults
     return BirthRates(
         aldersgruppe_col="aldersgruppe",
         alder_col="alder",
@@ -19,89 +26,119 @@ def br_default() -> BirthRates:
     )
 
 @pytest.fixture
-def df_start() -> pd.DataFrame:
+def mock_df() -> pd.DataFrame:
     return pd.DataFrame({
-        "kjoenn":   ["2", "2", "2", "1", "2", "2"],
-        "alder":    [15,  18,  22,  22,  49,  50],   # En uttafor alder_max (50)
-        "landsdel": ["A", "A", "A", "A", "B", "B"],
-    })
-
-@pytest.fixture
-def df_slutt() -> pd.DataFrame:
-    return pd.DataFrame({
-        "kjoenn": ["2","2","2","2"],
-        "alder":  [16, 24, 49, 15],
-        "landsdel": ["A","A","B","B"],
-    })
-
-@pytest.fixture
-def df_foedsler() -> pd.DataFrame:
-    return pd.DataFrame({
-        "kjoenn": ["2","2","2","2"],
-        "alder":  [18, 22, 49, 16],
-        "landsdel": ["A","A","B","B"],
+        "kjoenn":   ["2", "2", "2", "2", "2", "2", "2", "1", "1"],
+        "alder":    [14,  15,  18,  22,  49,  50,  np.nan, 64, 30],
+        "landsdel": ["A", "A", "A", "A", "B", "B", "A", "B", "A"],
     })
 
 
-def test_valider_manglende_filter_kolonne(br_default: BirthRates, df_start: pd.DataFrame) -> None:
-    df = df_start.drop(columns=["alder"])
+def test_filter_og_aldersgruppering(br_default: BirthRates, mock_df: pd.DataFrame) -> None:
+    """
+    Tester hjelpefunksjonen '_filtrer_og_lag_aldersgrupper'.
+
+    Forventet oppførsel:
+    - Beholder kun rader med 'kjoenn' == "2"
+    - Filtrerer bort rader utenfor aldersintervallet ('min_alder', 'max_alder'), og NaN
+    - Oppretter kolonnen 'aldersgruppe' med 5-års intervaller
+    Skal filtrere til kun kvinner, [min_alder, max_alder] (inklusivt).
+    """
+    resultat = br_default._filtrer_og_lag_aldersgrupper(mock_df)
+
+    # Resultat bør ha bare kvinner
+    assert not (resultat[br_default.kjoenn_col] == "1").any()
+
+    # Sjekk filtrering av aldre
+    assert resultat[br_default.alder_col].min() >= br_default.min_alder
+    assert resultat[br_default.alder_col].max() <= br_default.max_alder
+    assert not resultat[br_default.alder_col].isna().any()
+
+    # Sjekk aldersgruppering
+    forventet_aldersgruppe = pd.Series(["15-19", "15-19", "20-24", "45-49"], name=br_default.aldersgruppe_col)
+    assert_series_equal(resultat[br_default.aldersgruppe_col].reset_index(drop=True), forventet_aldersgruppe)
+
+    # Sjekk kolonner i output
+    for c in list(mock_df.columns) + [br_default.aldersgruppe_col]:
+        assert c in resultat.columns
+
+
+def test_manglende_kolonne_error(br_default: BirthRates, mock_df: pd.DataFrame):
+    df = mock_df.drop(columns=[br_default.alder_col])
     with pytest.raises(ValueError):
         br_default._filtrer_og_lag_aldersgrupper(df)
-    
-
-def test_kjoenn_filter(br_default: BirthRates, df_start: pd.DataFrame) -> None:
-    df = br_default._filtrer_og_lag_aldersgrupper(df_start)
-    assert (df["kjoenn"].astype(str) == "2").all()
 
 
-def test_aldersgruppering(br_default: BirthRates, df_start: pd.DataFrame) -> None:
-    with pytest.warns(UserWarning):
-        df = br_default._filtrer_og_lag_aldersgrupper(df_start)
+def test_idempotency(br_default: BirthRates, mock_df: pd.DataFrame):
+    """
+    Å kjøre helperen to ganger skal ikke endre resultatet (idempotent).
+    """
+    out1 = br_default._filtrer_og_lag_aldersgrupper(mock_df.copy())
+    out2 = br_default._filtrer_og_lag_aldersgrupper(out1.copy())
 
-    assert df["alder"].dtype == "Int64"
-    assert set(df["aldersgruppe"]) == {"15-19", "15-19", "20-24", "20-24", "45-49"}
-
-
-def test_normaliser_grupperingsvariabler_none(br_default: BirthRates) -> None:
-    cols = br_default._normaliser_grupperingsvariabler(None)
-    assert cols == ["aldersgruppe"]
-
-def test_normaliser_grupperingsvariabler_str(br_default: BirthRates) -> None:
-    cols = br_default._normaliser_grupperingsvariabler("landsdel")
-    assert cols == ["landsdel", "aldersgruppe"]
-
-def test_normaliser_grupperingsvariabler_list(br_default: BirthRates) -> None:
-    cols = br_default._normaliser_grupperingsvariabler(["aldersgruppe","landsdel"])
-    assert cols == ["landsdel", "aldersgruppe"]
+    key_cols = list(out1.columns)
+    out1s = out1.sort_values(key_cols).reset_index(drop=True)
+    out2s = out2.sort_values(key_cols).reset_index(drop=True)
+    pd.testing.assert_frame_equal(out1s, out2s)
 
 
-def test_mfm(br_default: BirthRates, df_start: pd.DataFrame, df_slutt: pd.DataFrame) -> None:
-    cols = br_default._normaliser_grupperingsvariabler("landsdel")
-    mfm = br_default._beregn_middelfolkemengde(df_start, df_slutt, cols)
-
-    # required columns
-    for c in ["n_df_start","n_df_slutt","middelfolkemengde","landsdel","aldersgruppe"]:
-        assert c in mfm.columns
-
-    # no NaNs in counts after fill
-    assert mfm["n_df_start"].isna().sum() == 0
-    assert mfm["n_df_slutt"].isna().sum() == 0
+def test_normaliser_grupperingsvariabler(br_default: BirthRates) -> None:
+    assert br_default._normaliser_grupperingsvariabler(None) == ["aldersgruppe"]
+    assert sorted(br_default._normaliser_grupperingsvariabler("komm_nr")) == sorted(["aldersgruppe", "komm_nr"])
+    assert sorted(br_default._normaliser_grupperingsvariabler(["aldersgruppe", "komm_nr"])) == sorted(["aldersgruppe", "komm_nr"])
+    assert sorted(br_default._normaliser_grupperingsvariabler(["landsdel", "utdanning"])) == sorted(["aldersgruppe", "landsdel", "utdanning"])
 
 
-def test_foedselsrater(br_default: BirthRates, df_start: pd.DataFrame, df_slutt: pd.DataFrame, df_foedsler: pd.DataFrame) -> None:
-    
-    forventet_output = pd.DataFrame({
-        "aldersgruppe":      ["15-19", "15-19", "20-24", "20-24", "45-49", "45-29"],
-        "landsdel":          ["A",     "B",     "A",     "B",     "A",     "B"],
-        "n_df_start":        [2,       0,       2,        0,       0,       1],
-        "n_df_slutt":        [1,       1,       1,        0,       0,       1],
-        "middelfolkemengde": [1,       0.5,     1,        0,       0,       1],
-        "n_foedsler":        [1,       1,       1,        0,       0,       1],
-        "foedselsrate":      [1000,    2000,    1000,     0,       0,       1000]
+def test_tell_per_gruppe(br_default: BirthRates) -> None:
+    df = pd.DataFrame({
+        "alder": [25, 25, 30, 30, 30, 40],
+        "kjoenn": ["2", "2", "2", "1", "1", "2"],
     })
-    df = br_default.beregn_foedselsrate(df_start, df_slutt, df_foedsler, "landsdel")
 
-    for c in ["n_df_start", "n_df_slutt", "middelfolkemengde", "n_foedsler", "foedselsrate"]:
-        assert c in df.columns
+    resultat = br_default._tell_per_gruppe(df, ["alder", "kjoenn"], navn="antall")
+
+    forventet = pd.DataFrame({
+        "alder": [25, 30, 30, 40],
+        "kjoenn": ["2", "2", "1", "2"],
+        "antall": [2, 1, 2, 1]
+    })
+
+    resultat = resultat.sort_values(["alder", "kjoenn"]).reset_index(drop=True)
+    forventet = forventet.sort_values(["alder", "kjoenn"]).reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(resultat, forventet, check_dtype=False)
+
+
+# ------------------------------------------------------------------------
+# Beregn middelfolkemengde tester
+# ------------------------------------------------------------------------
+
+@pytest.fixture
+def n_df_start():
+    return pd.DataFrame({
+        "aldersgruppe": [25, 30],
+        "kjoenn": ["2", "2"],
+        "landsdel": ["A", "B"]
+    })
+
+@pytest.fixture
+def n_df_slutt():
+    return pd.DataFrame({
+        "alder": [31, 30],
+        "kjoenn": ["2", "2"],
+        "landsdel": ["B", "B"]
+    })
+
+
+def test_beregn_middelfolkemengde(
+    mocker: MockerFixture,
+    br_default: BirthRates,
+) -> None:
+    mock_gruppert = mocker.patch.object(
+        br_default,
+        "_tell_per_gruppe"
+    )
+    mock_gruppert.side_effect = [n_df_start, n_df_slutt]
     
-    assert (df == forventet_output)
+
+

@@ -1,5 +1,5 @@
 import pandas as pd
-from src.ssb_befolkning_fagfunksjoner.demographics.birth_rates.birth_rates import BirthRates
+from ssb_befolkning_fagfunksjoner.demographics.birth_rates import BirthRates
 
 # ------------------------------------------------------------------------
 # Testing the functions
