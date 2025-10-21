@@ -58,6 +58,6 @@ mfm.reset_index()
 mfm = birthrates._beregn_middelfolkemengde(
     df_start,
     df_slutt,
-    grupperingsvariabler=[]
+    grupperingsvariabler=["aldersgruppe"]
 )
 mfm

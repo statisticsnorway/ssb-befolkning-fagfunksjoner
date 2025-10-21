@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 import warnings
 
+__all__ = ["foedselsrate"]
 
 @dataclass
 class BirthRates:
