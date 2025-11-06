@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Any
+
 import klass
 import pandas as pd
 import pytest
