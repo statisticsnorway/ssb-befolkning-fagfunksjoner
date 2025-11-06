@@ -53,13 +53,13 @@ def _find_index_and_label(
     index_or_label: int | str, version: klass.KlassVersion
 ) -> tuple[int, str]:
     if isinstance(index_or_label, str):
-        levelname2index = cast(
+        level_label2index = cast(
             dict[str, int],
             {level["levelName"]: level["levelNumber"] for level in version.levels},
         )
 
         try:
-            index = levelname2index[index_or_label]
+            index = level_label2index[index_or_label]
         except KeyError:
             pass
         else:
@@ -71,24 +71,24 @@ def _find_index_and_label(
         except ValueError as e:
             error_message = (
                 f"{index_or_label} is not a valid label in the Klass version.\n"
-                f"Has labels {list(levelname2index.keys())}."
+                f"Has labels {list(level_label2index.keys())}."
             )
             raise ValueError(error_message) from e
 
     else:
         index = index_or_label
 
-    levelindex2name = cast(
+    level_index2label = cast(
         dict[int, str],
         {level["levelNumber"]: level["levelName"] for level in version.levels},
     )
 
     try:
-        label = levelindex2name[index]
+        label = level_index2label[index]
     except KeyError as e:
         error_message = (
-            f"Klass version don't have a level with id {index}.\n"
-            f"Has level {list(levelindex2name.keys())}."
+            f"Klass version don't have a level with index {index}.\n"
+            f"Has index {list(level_index2label.keys())}."
         )
         raise ValueError(error_message) from e
 

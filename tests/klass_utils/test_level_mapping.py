@@ -160,8 +160,8 @@ def test_level_map_with_classifcation(
 
 invalid_level = [
     ("LAU 1", r"^LAU 1 is not a valid label in the Klass version\."),
-    (4, r"^Klass version don't have a level with id 4\."),
-    ("4", r"^Klass version don't have a level with id 4\."),
+    (4, r"^Klass version don't have a level with index 4\."),
+    ("4", r"^Klass version don't have a level with index 4\."),
 ]
 
 
