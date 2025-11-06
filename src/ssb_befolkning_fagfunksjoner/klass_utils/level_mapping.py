@@ -37,14 +37,16 @@ def _build_level_graph(
     data = version.data
     graph: networkx.DiGraph[_Code] = networkx.DiGraph()
 
-    for code, level in zip(data["code"], data["level"], strict=False):
-        graph.add_node(code, level=int(level))
+    graph.add_nodes_from(
+        (code, {"level": int(level)})
+        for code, level in zip(data["code"], data["level"], strict=False)
+    )
 
-    for code, parent_code in zip(data["code"], data["parentCode"], strict=False):
-        if not parent_code:
-            continue
-
-        graph.add_edge(parent_code, code)
+    graph.add_edges_from(
+        (parent_code, code)
+        for code, parent_code in zip(data["code"], data["parentCode"], strict=False)
+        if parent_code
+    )
 
     return graph
 
@@ -174,20 +176,20 @@ def get_klass_level_map(
     date: datetime.date | None = None,
 ) -> pd.Series:
     """Creates a mapping to a level in a Klass version, from all children codes.
-    
-    Params:
+
+    Parameters:
         to_level: The level you want to aggregate up to. Either a index (like "1") or a label (like "NUTS 3").
         version: The Klass version you want to use, or
         classification: the Klass classification you want to use, and
         date: a date where the Klass version you want to use is valid.
 
-    Return:
+    Returns:
         A series where the index contains children codes, and the values contains the targeted parent code.
 
     Raises:
         ValueError: If neither a Klass version is given or a class classification and a date is given.
                     If no Klass version is valid at the given date.
-                    If the selected level is not found.          
+                    If the selected level is not found.
     """
     if not version:
         if classification is None or date is None:
@@ -235,8 +237,8 @@ def aggregate_codes(
     keep_others: bool = False,
 ) -> pd.Series:
     """Aggregates codes to selected level with Klass.
-    
-    Params:
+
+    Parameters:
         codes: A series with codes, that you want to aggregate.
         to_level: The level you want to aggregate up to. Either a index (like "1") or a label (like "NUTS 3").
         version: The Klass version you want to use, or
@@ -244,13 +246,13 @@ def aggregate_codes(
         date: a date where the klass version you want to use is valid.
         keep_others: Do you want to keep codes that are above level you want to aggregate to or sentinel values?
 
-    Return:
+    Returns:
         A series where the values are aggregated to the select level.
 
     Raises:
         ValueError: If neither a Klass version is given or a class classification and a date is given.
                     If no Klass version is valid at the given date.
-                    If the selected level is not found.             
+                    If the selected level is not found.
     """
     if not version:
         if classification is None or date is None:

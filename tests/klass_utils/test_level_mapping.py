@@ -134,9 +134,7 @@ def test_level_map_with_version(
     expected_mapping: pd.Series,
     version_nuts2024_mocker: Mock,
 ):
-    mapping = get_klass_level_map(
-        level_index_or_label, version=version_nuts2024_mocker
-    )
+    mapping = get_klass_level_map(level_index_or_label, version=version_nuts2024_mocker)
     pd.testing.assert_series_equal(mapping, expected_mapping, check_names=False)
 
 
