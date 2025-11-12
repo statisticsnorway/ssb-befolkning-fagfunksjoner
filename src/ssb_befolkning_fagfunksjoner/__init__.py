@@ -9,6 +9,7 @@ from . import kommnr
 from . import versions
 from .generelle_sjekker import dublettsjekk
 from .generelle_sjekker import sml_rader
+from .klass_utils import aggregate_codes
 from .kommnr import get_kommnr_changes
 from .kommnr import update_kommnr
 from .kommnr import validate_kommnr
@@ -18,6 +19,7 @@ from .versions import get_next_version_number
 from .versions import write_versioned_pandas
 
 __all__ = [
+    "aggregate_codes",
     "date_utils",
     "demographics",
     "dublettsjekk",
