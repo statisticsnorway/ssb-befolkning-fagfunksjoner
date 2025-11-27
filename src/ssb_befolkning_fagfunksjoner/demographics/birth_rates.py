@@ -4,6 +4,7 @@ import warnings
 
 __all__ = ["foedselsrate"]
 
+
 @dataclass
 class BirthRates:
     # Init kolonnenavn

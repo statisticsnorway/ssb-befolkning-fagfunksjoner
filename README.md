@@ -42,31 +42,52 @@ poetry add ssb-befolkning-fagfunksjoner
 ## Usage
 
 ### Date utils
-Get a dictionary of date parameters from period inputs
-```python
-from ssb_befolkning_fagfunksjoner import get_date_parameters
+`EventParams` conatins logic for:
+- Prompting and validating event periods
+- Creating Dapla-standard period labels
+- Computing calendar window for the chosen period
+- Exposing event parameters for parameterising SQL queries
 
-date_param = get_date_parameters()  # Follow input instructions
+Supported period types are:
+- `year`
+- `halfyear` (1-2)
+- `quarter` (1-4)
+- `month` (1-12)
+- `week` (ISO week, 1-53)
+
+Creating an `EventParams` instance
+The class can be constructed with explicit arguments in code:
+```python
+from ssb_befolkning_fagfunksjoner import EventParams
+
+# Example: March 2024, with default wait period (1 month, 0 days)
+params = EventParams(
+    year=2024,
+    period_type="month",
+    period_number=3,
+    specify_wait_period=False,  # default; can be omitted
+)
 ```
-```bash
-{
-    "year": 2025,
-    "period_type": "halfyear",
-    "period_number": 1,
-    "start_date": dt.date(2025, 1, 1),
-    "end_date": dt.date(2025, 6, 30),
-}
+
+If input arguments are omitted, the user will be prompted:
+- `year`: prompts for an integer between 1900 and current year
+- `period_type`: prompts for a valid period type
+    - Accepts both full names (`"quarter"`, `"month"`, etc.) and single-letter abbreviations (`"q"`, `"m"`, etc.)
+- `period_number`: prompted only when needed, with appropriate range checks (e.g. 1-12 for months)
+```python
+from ssb_befolkning_fagfunksjoner import EventParams
+
+# Will ask the user for missing values in the terminal
+params = EventParams()
 ```
+
+
 
 ### Demographics
-
-### Generelle sjekker
 
 ### KLASS utils
 
 ### Kommnr
-
-### Versioning
 
 ## Contributing
 
