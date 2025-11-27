@@ -1,5 +1,6 @@
 import warnings
 from dataclasses import dataclass
+from typing import cast
 
 import pandas as pd
 
@@ -251,7 +252,7 @@ class BirthRates:
         foedselsrater = self.beregn_foedselsrate(
             df_start, df_slutt, df_foedsler, grupperingsvariabler
         )
-        samlet_fruktbarhet = foedselsrater["foedselsrate"].sum()
+        samlet_fruktbarhet = cast(int, foedselsrater["foedselsrate"].sum())
 
         return samlet_fruktbarhet
 

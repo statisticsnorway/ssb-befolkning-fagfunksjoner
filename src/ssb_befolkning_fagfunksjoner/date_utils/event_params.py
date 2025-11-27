@@ -11,6 +11,14 @@ PeriodType: TypeAlias = Literal["year", "halfyear", "quarter", "month", "week"]
 
 
 class EventParams:
+    """
+    Class for handling event periods.
+
+    - Prompts and validates event periods
+    - Creates period labels (Dapla-standard) 
+    - Computes calendar windows for period
+    - Exposes event parameters for parameterising SQL queries
+    """
     VALID_PERIOD_TYPES: tuple[PeriodType, ...] = (
         "year",
         "halfyear",
@@ -88,9 +96,9 @@ class EventParams:
 
         return wait_months, wait_days
 
-    @staticmethod
+    @classmethod
     def _prompt_period_type(
-        msg: str, valid_choices: tuple[PeriodType, ...]
+        cls: type[Self], msg: str, valid_choices: tuple[PeriodType, ...]
     ) -> PeriodType:
         """Prompt user for an valid period type, with instant feedback.
         Accepts full names and single-letter abbreviations (e.g., 'q' → 'quarter').
@@ -106,12 +114,16 @@ class EventParams:
             if value in abbreviations:
                 return abbreviations[value]
 
-            if value in valid_choices:
+            if cls._is_valid_choice(value, valid_choices):
                 return value
 
             print(
                 f"'{value}' is not a valid option. Please choose one of: {valid_choices_str}."
             )
+
+    @staticmethod
+    def _is_valid_choice(value: str, valid_choices: tuple[PeriodType, ...]) -> TypeIs[PeriodType]:
+        return value in valid_choices
 
     @staticmethod
     def _prompt_int_in_range(
