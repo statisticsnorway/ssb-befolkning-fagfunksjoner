@@ -1,7 +1,7 @@
-import pandas as pd
 import numpy as np
-from pandas.testing import assert_series_equal
+import pandas as pd
 import pytest
+from pandas.testing import assert_series_equal
 
 from ssb_befolkning_fagfunksjoner.demographics.birth_rates import BirthRates
 
@@ -19,18 +19,22 @@ def br_default() -> BirthRates:
         beregn_for_menn=False,  # kvinner
     )
 
+
 @pytest.fixture
 def mock_df() -> pd.DataFrame:
-    return pd.DataFrame({
-        "kjoenn":   ["2", "2", "2", "2", "2", "2", "2", "1", "1"],
-        "alder":    [14,  15,  18,  22,  49,  50,  np.nan, 64, 30],
-        "landsdel": ["A", "A", "A", "A", "B", "B", "A", "B", "A"],
-    })
+    return pd.DataFrame(
+        {
+            "kjoenn": ["2", "2", "2", "2", "2", "2", "2", "1", "1"],
+            "alder": [14, 15, 18, 22, 49, 50, np.nan, 64, 30],
+            "landsdel": ["A", "A", "A", "A", "B", "B", "A", "B", "A"],
+        }
+    )
 
 
-def test_filter_og_aldersgruppering(br_default: BirthRates, mock_df: pd.DataFrame) -> None:
-    """
-    Tester hjelpefunksjonen '_filtrer_og_lag_aldersgrupper'.
+def test_filter_og_aldersgruppering(
+    br_default: BirthRates, mock_df: pd.DataFrame
+) -> None:
+    """Tester hjelpefunksjonen '_filtrer_og_lag_aldersgrupper'.
 
     Forventet oppførsel:
     - Beholder kun rader med 'kjoenn' == "2"
@@ -49,8 +53,13 @@ def test_filter_og_aldersgruppering(br_default: BirthRates, mock_df: pd.DataFram
     assert not resultat[br_default.alder_col].isna().any()
 
     # Sjekk aldersgruppering
-    forventet_aldersgruppe = pd.Series(["15-19", "15-19", "20-24", "45-49"], name=br_default.aldersgruppe_col)
-    assert_series_equal(resultat[br_default.aldersgruppe_col].reset_index(drop=True), forventet_aldersgruppe)
+    forventet_aldersgruppe = pd.Series(
+        ["15-19", "15-19", "20-24", "45-49"], name=br_default.aldersgruppe_col
+    )
+    assert_series_equal(
+        resultat[br_default.aldersgruppe_col].reset_index(drop=True),
+        forventet_aldersgruppe,
+    )
 
     # Sjekk kolonner i output
     for c in list(mock_df.columns) + [br_default.aldersgruppe_col]:
@@ -64,9 +73,7 @@ def test_manglende_kolonne_error(br_default: BirthRates, mock_df: pd.DataFrame):
 
 
 def test_idempotency(br_default: BirthRates, mock_df: pd.DataFrame):
-    """
-    Å kjøre helperen to ganger skal ikke endre resultatet (idempotent).
-    """
+    """Å kjøre helperen to ganger skal ikke endre resultatet (idempotent)."""
     out1 = br_default._filtrer_og_lag_aldersgrupper(mock_df.copy())
     out2 = br_default._filtrer_og_lag_aldersgrupper(out1.copy())
 
@@ -78,24 +85,34 @@ def test_idempotency(br_default: BirthRates, mock_df: pd.DataFrame):
 
 def test_normaliser_grupperingsvariabler(br_default: BirthRates) -> None:
     assert br_default._normaliser_grupperingsvariabler(None) == ["aldersgruppe"]
-    assert sorted(br_default._normaliser_grupperingsvariabler("komm_nr")) == sorted(["aldersgruppe", "komm_nr"])
-    assert sorted(br_default._normaliser_grupperingsvariabler(["aldersgruppe", "komm_nr"])) == sorted(["aldersgruppe", "komm_nr"])
-    assert sorted(br_default._normaliser_grupperingsvariabler(["landsdel", "utdanning"])) == sorted(["aldersgruppe", "landsdel", "utdanning"])
+    assert sorted(br_default._normaliser_grupperingsvariabler("komm_nr")) == sorted(
+        ["aldersgruppe", "komm_nr"]
+    )
+    assert sorted(
+        br_default._normaliser_grupperingsvariabler(["aldersgruppe", "komm_nr"])
+    ) == sorted(["aldersgruppe", "komm_nr"])
+    assert sorted(
+        br_default._normaliser_grupperingsvariabler(["landsdel", "utdanning"])
+    ) == sorted(["aldersgruppe", "landsdel", "utdanning"])
 
 
 def test_tell_per_gruppe(br_default: BirthRates) -> None:
-    df = pd.DataFrame({
-        "alder": [25, 25, 30, 30, 30, 40],
-        "kjoenn": ["2", "2", "2", "1", "1", "2"],
-    })
+    df = pd.DataFrame(
+        {
+            "alder": [25, 25, 30, 30, 30, 40],
+            "kjoenn": ["2", "2", "2", "1", "1", "2"],
+        }
+    )
 
     resultat = br_default._tell_per_gruppe(df, ["alder", "kjoenn"], navn="antall")
 
-    forventet = pd.DataFrame({
-        "alder": [25, 30, 30, 40],
-        "kjoenn": ["2", "2", "1", "2"],
-        "antall": [2, 1, 2, 1]
-    })
+    forventet = pd.DataFrame(
+        {
+            "alder": [25, 30, 30, 40],
+            "kjoenn": ["2", "2", "1", "2"],
+            "antall": [2, 1, 2, 1],
+        }
+    )
 
     resultat = resultat.sort_values(["alder", "kjoenn"]).reset_index(drop=True)
     forventet = forventet.sort_values(["alder", "kjoenn"]).reset_index(drop=True)
