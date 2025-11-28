@@ -1,3 +1,4 @@
+import itertools
 import warnings
 from dataclasses import dataclass
 from typing import cast
@@ -21,6 +22,7 @@ class BirthRates:
     max_alder: int
     beregn_for_menn: bool
 
+
     @staticmethod
     def _valider_grupperingsvariabler(
         df: pd.DataFrame, grupperingsvariabler: list[str], navn_df: str
@@ -31,6 +33,7 @@ class BirthRates:
             raise ValueError(
                 f"Datasett '{navn_df}' mangler grupperingskolonner: {mangler}."
             )
+
 
     def _sjekk_smaa_grupper(self, gruppert_antall: pd.Series, terskel: int) -> None:
         """Gir advarsel dersom minste gruppe har færre observasjoner enn terskelverdien."""
@@ -45,6 +48,7 @@ class BirthRates:
                 "eller aggregere grupperingsvariabler.",
                 stacklevel=1,
             )
+
 
     def _normaliser_grupperingsvariabler(
         self, grupperingsvariabler: None | str | list[str]
@@ -62,6 +66,7 @@ class BirthRates:
         ]
 
         return [*norm_grupperingsvariabler, self.aldersgruppe_col]
+
 
     def _lag_aldersgrupper(self, alder: pd.Series) -> pd.Series:
         """Lager aldersgrupper av kolonne med aldre.
@@ -84,16 +89,14 @@ class BirthRates:
         if self.aldersgruppering < 1:
             raise ValueError("Aldersgruppering må være minst 1.")
 
-        # Beregn nedre og øvre grense
-        lower = (
-            (alder - self.min_alder) // self.aldersgruppering
-        ) * self.aldersgruppering + self.min_alder
-        upper = (lower + self.aldersgruppering - 1).clip(upper=self.max_alder)
-
         if self.aldersgruppering == 1:
-            return lower.astype(str)
+            return alder.astype("string")
+        
+        bins = list(range(self.min_alder, self.max_alder, self.aldersgruppering)) + [self.max_alder + 1]
+        labels = [f"{min}-{max - 1}" for min, max in itertools.pairwise(bins)]
 
-        return lower.astype(str) + "-" + upper.astype(str)
+        return pd.cut(x=alder, bins=bins, right=False, labels=labels, include_lowest=True).astype("string")
+
 
     def _filtrer_og_lag_aldersgrupper(
         self,
@@ -136,6 +139,7 @@ class BirthRates:
 
         return df
 
+
     def _tell_per_gruppe(
         self, df: pd.DataFrame, grupperingsvariabler: list[str], navn: str
     ) -> pd.DataFrame:
@@ -143,6 +147,7 @@ class BirthRates:
         return (
             df.groupby(grupperingsvariabler, dropna=False).size().reset_index(name=navn)
         )
+
 
     def _beregn_middelfolkemengde(
         self,
@@ -175,6 +180,7 @@ class BirthRates:
         self._sjekk_smaa_grupper(mfm["middelfolkemengde"], 30)
 
         return mfm.sort_values(grupperingsvariabler).reset_index(drop=True)
+
 
     def beregn_foedselsrate(
         self,
@@ -239,6 +245,7 @@ class BirthRates:
         ) * self.skala
 
         return df_foedselsrater.sort_values(grupperingsvariabler).reset_index(drop=True)
+
 
     def beregn_samlet_fruktbarhetstall(
         self,
