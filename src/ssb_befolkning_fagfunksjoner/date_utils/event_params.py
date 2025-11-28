@@ -243,6 +243,8 @@ class EventParams:
         if boundary == "start":
             return d + relativedelta(months=months, days=days)
         elif boundary == "end":
+            if months == 0:
+                return d + relativedelta(days=days)
             added_months = d + relativedelta(months=months)
             last_day_of_month = calendar.monthrange(
                 added_months.year, added_months.month
