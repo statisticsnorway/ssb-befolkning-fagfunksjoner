@@ -98,7 +98,7 @@ Get a dict used for parameterising SQL-queries:
 ```python
 sql_param = params.to_query_params()
 # {
-#   "start_date": datetime.date(2024, 3, 1), 
+#   "start_date": datetime.date(2024, 3, 1),
 #   "end_date": datetime.date(2024, 3, 31),
 #   "etterslep_start": datetime.date(2024, 4, 1),
 #   "etterslep_end": datetime.date(2024, 4, 30)

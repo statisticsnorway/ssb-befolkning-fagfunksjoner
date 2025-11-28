@@ -11,14 +11,14 @@ PeriodType: TypeAlias = Literal["year", "halfyear", "quarter", "month", "week"]
 
 
 class EventParams:
-    """
-    Class for handling event periods.
+    """Class for handling event periods.
 
     - Prompts and validates event periods
-    - Creates period labels (Dapla-standard) 
+    - Creates period labels (Dapla-standard)
     - Computes calendar windows for period
     - Exposes event parameters for parameterising SQL queries
     """
+
     VALID_PERIOD_TYPES: tuple[PeriodType, ...] = (
         "year",
         "halfyear",
@@ -120,7 +120,9 @@ class EventParams:
             )
 
     @staticmethod
-    def _prompt_int_in_range(msg: str, valid_range: tuple[int, int] | None = None) -> int:
+    def _prompt_int_in_range(
+        msg: str, valid_range: tuple[int, int] | None = None
+    ) -> int:
         """Prompt user for a valid integer within a range, with immediate feedback."""
         if valid_range is not None:
             low, high = valid_range
@@ -150,7 +152,6 @@ class EventParams:
         """Prompt user for valid year between 1900 and current year, with instant feedback."""
         current_year = date.today().year
         return cls._prompt_int_in_range("Enter year", (1900, current_year))
-
 
     # --------------------------------------------------------------------
     # Properties
