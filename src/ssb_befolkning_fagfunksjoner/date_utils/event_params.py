@@ -11,14 +11,14 @@ PeriodType: TypeAlias = Literal["year", "halfyear", "quarter", "month", "week"]
 
 
 class EventParams:
-    """
-    Class for handling event periods.
+    """Class for handling event periods.
 
     - Prompts and validates event periods
-    - Creates period labels (Dapla-standard) 
+    - Creates period labels (Dapla-standard)
     - Computes calendar windows for period
     - Exposes event parameters for parameterising SQL queries
     """
+
     VALID_PERIOD_TYPES: tuple[PeriodType, ...] = (
         "year",
         "halfyear",
@@ -37,7 +37,7 @@ class EventParams:
         year, period_type, period_number = self._prompt_missing_values(
             year, period_type, period_number
         )
-
+        """Initialise an EventParams instance."""
         self.year: int = year
         self.period_type: PeriodType = period_type
         self.period_number: int | None = period_number
@@ -59,14 +59,12 @@ class EventParams:
         period_type: str | None,
         period_number: int | None,
     ) -> tuple[int, PeriodType, int | None]:
-        """Prompt user for missing values."""
+        """Prompt user for missing input arguments."""
         if year is None:
             year = cls._prompt_year()
 
         if period_type is None or not cls._check_period_type(period_type):
-            period_type = cls._prompt_period_type(
-                "Enter period type", cls.VALID_PERIOD_TYPES
-            )
+            period_type = cls._prompt_period_type("Enter period type")
 
         # Only prompt period number when relevant
         if period_type == "year":
@@ -86,27 +84,28 @@ class EventParams:
         return year, period_type, period_number
 
     @classmethod
-    def _check_period_type(cls: type[Self], period_type: str) -> TypeIs[PeriodType]:
-        return period_type in cls.VALID_PERIOD_TYPES
+    def _check_period_type(cls: type[Self], value: str) -> TypeIs[PeriodType]:
+        """Returns TRUE if 'value' is in VALID_PERIOD_TYPES."""
+        return value in cls.VALID_PERIOD_TYPES
 
     @classmethod
     def _prompt_etterslep_values(cls: type[Self]) -> tuple[int, int]:
+        """Prompt user for wait period values."""
         wait_months = cls._prompt_int_in_range("Enter wait months")
         wait_days = cls._prompt_int_in_range("Enter wait days")
 
         return wait_months, wait_days
 
     @classmethod
-    def _prompt_period_type(
-        cls: type[Self], msg: str, valid_choices: tuple[PeriodType, ...]
-    ) -> PeriodType:
-        """Prompt user for an valid period type, with instant feedback.
+    def _prompt_period_type(cls: type[Self], msg: str) -> PeriodType:
+        """Prompt user for period type, with instant validity feedback.
+
         Accepts full names and single-letter abbreviations (e.g., 'q' → 'quarter').
         """
         abbreviations: dict[str, PeriodType] = {
-            c[0]: c for c in valid_choices
+            c[0]: c for c in cls.VALID_PERIOD_TYPES
         }  # e.g. {"m": "month", "q": "quarter"}
-        valid_choices_str = "/".join(valid_choices)
+        valid_choices_str = "/".join(cls.VALID_PERIOD_TYPES)
 
         while True:
             value = input(f"{msg} ({valid_choices_str}): ").strip().lower()
@@ -114,16 +113,12 @@ class EventParams:
             if value in abbreviations:
                 return abbreviations[value]
 
-            if cls._is_valid_choice(value, valid_choices):
+            if cls._check_period_type(value):
                 return value
 
             print(
                 f"'{value}' is not a valid option. Please choose one of: {valid_choices_str}."
             )
-
-    @staticmethod
-    def _is_valid_choice(value: str, valid_choices: tuple[PeriodType, ...]) -> TypeIs[PeriodType]:
-        return value in valid_choices
 
     @staticmethod
     def _prompt_int_in_range(
@@ -185,6 +180,7 @@ class EventParams:
     @property
     def etterslep_label(self) -> str:
         """Returns a wait period label string formatted like: '1m0d'.
+
         Defaults to '1m0d' if specify_wait_period' is False.
         """
         return f"{self.wait_months}m{self.wait_days}d"
@@ -192,6 +188,7 @@ class EventParams:
     @property
     def window(self) -> tuple[date, date]:
         """Returns the start date and end date for the given period, as a tuple.
+
         Both dates are within the period, so 'end_date' is the last day of the period. E.g. end of the month.
         """
         y = self.year
@@ -210,40 +207,36 @@ class EventParams:
                 "'period_number' is not set. Cannot derive window for non-year periods."
             )
 
-        if self.period_type == "year":
-            start = date(y, 1, 1)
-            end = date(y, 12, 31)
-            return start, end
-
-        if self.period_type == "halfyear":
+        if pt == "halfyear":
             start_month = 1 if pn == 1 else 7
             start = date(y, start_month, 1)
             end = start + relativedelta(months=6) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "quarter":
+        if pt == "quarter":
             start_month = (pn - 1) * 3 + 1
             start = date(y, start_month, 1)
             end = start + relativedelta(months=3) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "month":
+        if pt == "month":
             start = date(y, pn, 1)
             end = start + relativedelta(months=1) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "week":
+        if pt == "week":
             start = date.fromisocalendar(y, pn, 1)
             end = start + relativedelta(days=6)
             return start, end
 
         raise ValueError(
-            f"{self.period_type} is not a valid option. Please choose one of: {self.VALID_PERIOD_TYPES}."
+            f"{pt} is not a valid option. Please choose one of: {self.VALID_PERIOD_TYPES}."
         )
 
     @staticmethod
     def _add_wait_period(d: date, months: int, days: int, *, boundary: str) -> date:
         """Add months and days to given date with boundary-aware logic.
+
         - boundary = 'start' -> just add months and days (relativedelta handles rollovers).
         - boundary = 'end'   -> add months, snap to end of that month, then add days.
         """
@@ -262,6 +255,7 @@ class EventParams:
     @property
     def etterslep_window(self) -> tuple[date, date]:
         """Returns the start date and end date for the wait period.
+
         Calculated by taking the start and end dates and adding the wait period to each.
         """
         start, end = self.window

@@ -42,7 +42,8 @@ class BirthRates:
             warnings.warn(
                 f"Minste gruppe har n={min_n}. "
                 f"Vurder å øke aldersgruppering fra {self.aldersgruppering} "
-                "eller aggregere grupperingsvariabler."
+                "eller aggregere grupperingsvariabler.",
+                stacklevel=1,
             )
 
     def _normaliser_grupperingsvariabler(
@@ -122,7 +123,8 @@ class BirthRates:
         if n_missing_alder > 0:
             warnings.warn(
                 f"Fant {n_missing_alder} rader med manglende alder. "
-                f"Disse ekskluderes fra beregningen."
+                f"Disse ekskluderes fra beregningen.",
+                stacklevel=1,
             )
         df = df.loc[
             df[self.alder_col].notnull()
@@ -240,10 +242,10 @@ class BirthRates:
 
     def beregn_samlet_fruktbarhetstall(
         self,
-        df_start,
-        df_slutt,
-        df_foedsler,
-        grupperingsvariabler,
+        df_start: pd.DataFrame,
+        df_slutt: pd.DataFrame,
+        df_foedsler: pd.DataFrame,
+        grupperingsvariabler: str | list[str] | None = None,
     ) -> int:
         """Regner ut samlet fruktbarhetstall etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
 
