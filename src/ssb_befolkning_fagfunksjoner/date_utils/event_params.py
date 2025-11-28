@@ -37,7 +37,7 @@ class EventParams:
         year, period_type, period_number = self._prompt_missing_values(
             year, period_type, period_number
         )
-
+        """Initialise an EventParams instance."""
         self.year: int = year
         self.period_type: PeriodType = period_type
         self.period_number: int | None = period_number
@@ -85,7 +85,7 @@ class EventParams:
 
     @classmethod
     def _check_period_type(cls: type[Self], value: str) -> TypeIs[PeriodType]:
-        """Returns TRUE if 'value' is in VALID_PERIOD_TYPES"""
+        """Returns TRUE if 'value' is in VALID_PERIOD_TYPES."""
         return value in cls.VALID_PERIOD_TYPES
 
     @classmethod
@@ -99,6 +99,7 @@ class EventParams:
     @classmethod
     def _prompt_period_type(cls: type[Self], msg: str) -> PeriodType:
         """Prompt user for period type, with instant validity feedback.
+
         Accepts full names and single-letter abbreviations (e.g., 'q' → 'quarter').
         """
         abbreviations: dict[str, PeriodType] = {
@@ -179,6 +180,7 @@ class EventParams:
     @property
     def etterslep_label(self) -> str:
         """Returns a wait period label string formatted like: '1m0d'.
+
         Defaults to '1m0d' if specify_wait_period' is False.
         """
         return f"{self.wait_months}m{self.wait_days}d"
@@ -186,6 +188,7 @@ class EventParams:
     @property
     def window(self) -> tuple[date, date]:
         """Returns the start date and end date for the given period, as a tuple.
+
         Both dates are within the period, so 'end_date' is the last day of the period. E.g. end of the month.
         """
         y = self.year
@@ -233,6 +236,7 @@ class EventParams:
     @staticmethod
     def _add_wait_period(d: date, months: int, days: int, *, boundary: str) -> date:
         """Add months and days to given date with boundary-aware logic.
+
         - boundary = 'start' -> just add months and days (relativedelta handles rollovers).
         - boundary = 'end'   -> add months, snap to end of that month, then add days.
         """
@@ -251,6 +255,7 @@ class EventParams:
     @property
     def etterslep_window(self) -> tuple[date, date]:
         """Returns the start date and end date for the wait period.
+
         Calculated by taking the start and end dates and adding the wait period to each.
         """
         start, end = self.window
