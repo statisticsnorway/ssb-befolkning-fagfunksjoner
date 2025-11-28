@@ -77,7 +77,7 @@ def test_window_returns_correct_date_range(
         (
             2024, "quarter", 4,
             1, 0,
-            date(2025, 1, 1),
+            date(2024, 11, 1),
             date(2025, 1, 31),
         ),
 
