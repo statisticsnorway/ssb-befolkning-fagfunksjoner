@@ -141,7 +141,7 @@ class BirthRates:
     ) -> pd.DataFrame:
         """Teller rader per gruppe."""
         return (
-            df.groupby(grupperingsvariabler, dropna=False).size().reset_index(name=navn)
+            df.groupby(grupperingsvariabler, dropna=False, as_index=False).size().rename(columns={"size": navn})
         )
 
     def _beregn_middelfolkemengde(
@@ -222,9 +222,9 @@ class BirthRates:
         )
 
         antall_foedsler = (
-            df_foedsler.groupby(grupperingsvariabler, dropna=False)
+            df_foedsler.groupby(grupperingsvariabler, dropna=False, as_index=False)
             .size()
-            .reset_index("n_foedsler")
+            .rename(columns={"size": "n_foedsler"})
         )
 
         # Sjekk etter små grupper
