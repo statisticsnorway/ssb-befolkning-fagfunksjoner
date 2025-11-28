@@ -24,6 +24,8 @@
 [black]: https://github.com/psf/black
 [poetry]: https://python-poetry.org/
 
+Collection of python functions used in statistics production in the Division for Population Statistics at Statistics Norway.
+
 ## Features
 
 - TODO
@@ -33,16 +35,82 @@
 - TODO
 
 ## Installation
-
-You can install _Befolkning Fagfunksjoner_ via [pip] from [PyPI]:
-
-```console
-pip install ssb-befolkning-fagfunksjoner
+```bash
+poetry add ssb-befolkning-fagfunksjoner
 ```
 
 ## Usage
 
-Please see the [Reference Guide] for details.
+### EventParams
+`EventParams` contains logic for:
+- Prompting and validating parameters for event periods
+- Creating period labels
+- Computing calendar window for the chosen period
+- Exposing event parameters for parameterising SQL queries
+
+Supported period types are:
+- `year`
+- `halfyear` (1-2)
+- `quarter` (1-4)
+- `month` (1-12)
+- `week` (ISO week, 1-53)
+
+The class can be constructed with explicit arguments in code:
+```python
+from ssb_befolkning_fagfunksjoner import EventParams
+
+# Example: March 2024, with default wait period (1 month, 0 days)
+params = EventParams(
+    year=2024,
+    period_type="month",
+    period_number=3,
+    specify_wait_period=False,  # default; can be omitted
+)
+```
+
+If input arguments are omitted, the user will be prompted:
+- `year`: prompts for an integer between 1900 and current year
+- `period_type`: prompts for a valid period type
+    - Accepts both full names (`"quarter"`, `"month"`, etc.) and single-letter abbreviations (`"q"`, `"m"`, etc.)
+- `period_number`: prompted only when needed, with appropriate range checks (e.g. 1-12 for months)
+```python
+from ssb_befolkning_fagfunksjoner import EventParams
+
+# Will ask the user for missing values in the terminal
+params = EventParams()
+```
+
+Once the class is constructed, get the period label as follows:
+```python
+# Example: March 2024, with default wait period
+period_label = params.period_label
+# "p2024-03"
+```
+
+Get the start and end dates of the period using the window property:
+```python
+# Example: March 2024, with default wait period
+start_date, end_date = params.window
+# datetime.date(2024, 3, 1), datetime.date(2024, 3, 31)
+```
+
+Get a dict used for parameterising SQL-queries:
+```python
+sql_param = params.to_query_params()
+# {
+#   "start_date": datetime.date(2024, 3, 1),
+#   "end_date": datetime.date(2024, 3, 31),
+#   "etterslep_start": datetime.date(2024, 4, 1),
+#   "etterslep_end": datetime.date(2024, 4, 30)
+# }
+```
+
+
+### Demographics
+
+### KLASS utils
+
+### Kommnr
 
 ## Contributing
 
