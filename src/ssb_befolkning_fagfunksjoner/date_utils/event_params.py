@@ -59,14 +59,12 @@ class EventParams:
         period_type: str | None,
         period_number: int | None,
     ) -> tuple[int, PeriodType, int | None]:
-        """Prompt user for missing values."""
+        """Prompt user for missing input arguments."""
         if year is None:
             year = cls._prompt_year()
 
         if period_type is None or not cls._check_period_type(period_type):
-            period_type = cls._prompt_period_type(
-                "Enter period type", cls.VALID_PERIOD_TYPES
-            )
+            period_type = cls._prompt_period_type("Enter period type")
 
         # Only prompt period number when relevant
         if period_type == "year":
@@ -86,27 +84,27 @@ class EventParams:
         return year, period_type, period_number
 
     @classmethod
-    def _check_period_type(cls: type[Self], period_type: str) -> TypeIs[PeriodType]:
-        return period_type in cls.VALID_PERIOD_TYPES
+    def _check_period_type(cls: type[Self], value: str) -> TypeIs[PeriodType]:
+        """Returns TRUE if 'value' is in VALID_PERIOD_TYPES"""
+        return value in cls.VALID_PERIOD_TYPES
 
     @classmethod
     def _prompt_etterslep_values(cls: type[Self]) -> tuple[int, int]:
+        """Prompt user for wait period values."""
         wait_months = cls._prompt_int_in_range("Enter wait months")
         wait_days = cls._prompt_int_in_range("Enter wait days")
 
         return wait_months, wait_days
 
     @classmethod
-    def _prompt_period_type(
-        cls: type[Self], msg: str, valid_choices: tuple[PeriodType, ...]
-    ) -> PeriodType:
-        """Prompt user for an valid period type, with instant feedback.
+    def _prompt_period_type(cls: type[Self], msg: str) -> PeriodType:
+        """Prompt user for period type, with instant validity feedback.
         Accepts full names and single-letter abbreviations (e.g., 'q' → 'quarter').
         """
         abbreviations: dict[str, PeriodType] = {
-            c[0]: c for c in valid_choices
+            c[0]: c for c in cls.VALID_PERIOD_TYPES
         }  # e.g. {"m": "month", "q": "quarter"}
-        valid_choices_str = "/".join(valid_choices)
+        valid_choices_str = "/".join(cls.VALID_PERIOD_TYPES)
 
         while True:
             value = input(f"{msg} ({valid_choices_str}): ").strip().lower()
@@ -114,7 +112,7 @@ class EventParams:
             if value in abbreviations:
                 return abbreviations[value]
 
-            if cls._is_valid_choice(value, valid_choices):
+            if cls._check_period_type(value):
                 return value
 
             print(
@@ -122,13 +120,7 @@ class EventParams:
             )
 
     @staticmethod
-    def _is_valid_choice(value: str, valid_choices: tuple[PeriodType, ...]) -> TypeIs[PeriodType]:
-        return value in valid_choices
-
-    @staticmethod
-    def _prompt_int_in_range(
-        msg: str, valid_range: tuple[int, int] | None = None
-    ) -> int:
+    def _prompt_int_in_range(msg: str, valid_range: tuple[int, int] | None = None) -> int:
         """Prompt user for a valid integer within a range, with immediate feedback."""
         if valid_range is not None:
             low, high = valid_range
@@ -158,6 +150,7 @@ class EventParams:
         """Prompt user for valid year between 1900 and current year, with instant feedback."""
         current_year = date.today().year
         return cls._prompt_int_in_range("Enter year", (1900, current_year))
+
 
     # --------------------------------------------------------------------
     # Properties
@@ -210,35 +203,30 @@ class EventParams:
                 "'period_number' is not set. Cannot derive window for non-year periods."
             )
 
-        if self.period_type == "year":
-            start = date(y, 1, 1)
-            end = date(y, 12, 31)
-            return start, end
-
-        if self.period_type == "halfyear":
+        if pt == "halfyear":
             start_month = 1 if pn == 1 else 7
             start = date(y, start_month, 1)
             end = start + relativedelta(months=6) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "quarter":
+        if pt == "quarter":
             start_month = (pn - 1) * 3 + 1
             start = date(y, start_month, 1)
             end = start + relativedelta(months=3) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "month":
+        if pt == "month":
             start = date(y, pn, 1)
             end = start + relativedelta(months=1) - relativedelta(days=1)
             return start, end
 
-        if self.period_type == "week":
+        if pt == "week":
             start = date.fromisocalendar(y, pn, 1)
             end = start + relativedelta(days=6)
             return start, end
 
         raise ValueError(
-            f"{self.period_type} is not a valid option. Please choose one of: {self.VALID_PERIOD_TYPES}."
+            f"{pt} is not a valid option. Please choose one of: {self.VALID_PERIOD_TYPES}."
         )
 
     @staticmethod
