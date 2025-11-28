@@ -43,7 +43,7 @@ class BirthRates:
                 f"Minste gruppe har n={min_n}. "
                 f"Vurder å øke aldersgruppering fra {self.aldersgruppering} "
                 "eller aggregere grupperingsvariabler.",
-                stacklevel=1
+                stacklevel=1,
             )
 
     def _normaliser_grupperingsvariabler(
@@ -124,7 +124,7 @@ class BirthRates:
             warnings.warn(
                 f"Fant {n_missing_alder} rader med manglende alder. "
                 f"Disse ekskluderes fra beregningen.",
-                stacklevel=1
+                stacklevel=1,
             )
         df = df.loc[
             df[self.alder_col].notnull()
