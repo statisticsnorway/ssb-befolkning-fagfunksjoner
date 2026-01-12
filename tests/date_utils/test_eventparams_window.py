@@ -30,8 +30,7 @@ def test_window_returns_correct_date_range(
     expected_start: date,
     expected_end: date,
 ) -> None:
-    """Ensure that window returns the correct start and end dates
-    for different period types and numbers.
+    """Ensure that window returns the correct start and end dates for different period types and numbers.
     """
     # Arrange
     params = EventParams(
@@ -113,8 +112,7 @@ def test_etterslep_window(
     expected_start: date,
     expected_end: date,
 ) -> None:
-    """Ensure that etterslep_window returns correct dates for various
-    wait-period configurations and calendar boundary cases.
+    """Ensure that etterslep_window returns correct dates for various wait-period configurations and calendar boundary cases.
     """
     # Arrange
     params = EventParams(
