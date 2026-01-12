@@ -70,12 +70,12 @@ def update_kommnr(
     - Checks for municipality splits and logs warnings if any are found.
     - Validates that all updated codes exist in the official KLASS list for the given year.
 
-    Args:
-        original_codes : pd.Series
+    Parameters:
+        original_codes: pd.Series
             A pandas Series containing the original municipality codes.
-        year : int | str
+        year: int | str
             The year for which to apply the KLASS mappings.
-        validate : bool
+        validate: bool
             Boolean flag which determines whether to run validation or not (default = True).
 
     Returns:

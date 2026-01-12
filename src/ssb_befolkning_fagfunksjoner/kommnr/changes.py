@@ -15,22 +15,21 @@ def get_kommnr_changes(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load municipality code (kommnr) changes from KLASS.
 
-    Args:
-        from_date : str | datetime.date, default=datetime.date(1980, 1, 1)
-            Lower bound date for change history to include. Defaults to 01-01-1980.
-        to_date : str | datetime.date | None, default=None
+    Parameters:
+        from_date: str | datetime.date
+            Lower bound date for change history to include. Defaults to 1980-01-01.
+        to_date: str | datetime.date | None
             Upper bound date for change history to include. Defaults to today.
-        target_date : str | datetime.date | None, default=None
+        target_date: str | datetime.date | None
             Target date for municipality code mappings. Defaults to today.
-    
+
     Returns:
         tuple[pd.DataFrame, pd.DataFrame]
-            A tuple ``(changes, splits)`` with mappings from `old_code` to `new_code`. 
-            Split into codes that map to exactly one new code, and codes that map to multiple new codes. 
+            A tuple ``(changes, splits)`` with mappings from `old_code` to `new_code`.
+            Split into codes that map to exactly one new code, and codes that map to multiple new codes.
 
     Raises:
-        ValueError 
-            If any of the input parameters are not the correct type. 
+        ValueError: If any of the input parameters are not the correct type.
     """
     # Input validation
     for name, val in {
