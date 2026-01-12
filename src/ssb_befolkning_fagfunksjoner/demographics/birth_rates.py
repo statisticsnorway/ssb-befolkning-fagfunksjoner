@@ -88,8 +88,14 @@ class BirthRates:
         if self.aldersgruppering == 1:
             return alder.astype("string")
 
-        bins = *range(self.min_alder, self.max_alder, self.aldersgruppering), self.max_alder + 1
-        labels = [f"{min_alder}-{max_alder - 1}" for min_alder, max_alder in itertools.pairwise(bins)]
+        bins = (
+            *range(self.min_alder, self.max_alder, self.aldersgruppering),
+            self.max_alder + 1,
+        )
+        labels = [
+            f"{min_alder}-{max_alder - 1}"
+            for min_alder, max_alder in itertools.pairwise(bins)
+        ]
 
         return pd.cut(
             x=alder, bins=bins, right=False, labels=labels, include_lowest=True
