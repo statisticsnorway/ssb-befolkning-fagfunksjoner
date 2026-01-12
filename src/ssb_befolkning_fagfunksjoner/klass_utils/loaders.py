@@ -33,17 +33,6 @@ def load_grunnkrets(reference_date: str) -> dict[str, dict[str, str]]:
     return {"gkrets": gkrets, "gkrets_next_year": gkrets_next_year}
 
 
-def load_kommnr(reference_date: str) -> dict[str, str]:
-    """Load KLASS codelist for municipalities."""
-    year: str = reference_date[:4]
-    kommune_dict: dict[str, str] = (
-        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-01").to_dict()
-    )
-    kommune_dict.pop("9999", None)
-    kommune_dict["0000"] = "Sperret adresse"
-    return kommune_dict
-
-
 def load_landkoder() -> dict[str, str | None]:
     """Load KLASS correspondence table for country codes."""
     landkoder_dict: dict[str, str | None] = klass.KlassCorrespondence(953).to_dict()
