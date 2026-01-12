@@ -34,10 +34,11 @@ class EventParams:
         period_number: int | None = None,
         specify_wait_period: bool = False,
     ) -> None:
+        """Initialise an EventParams instance."""
         year, period_type, period_number = self._prompt_missing_values(
             year, period_type, period_number
         )
-        """Initialise an EventParams instance."""
+
         self.year: int = year
         self.period_type: PeriodType = period_type
         self.period_number: int | None = period_number
