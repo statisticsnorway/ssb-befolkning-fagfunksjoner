@@ -64,7 +64,7 @@ def test_filter_og_aldersgruppering(
     )
 
     # Sjekk kolonner i output
-    for c in list(mock_df.columns) + [br_default.aldersgruppe_col]:
+    for c in [*mock_df.columns, br_default.aldersgruppe_col]:
         assert c in resultat.columns
 
 

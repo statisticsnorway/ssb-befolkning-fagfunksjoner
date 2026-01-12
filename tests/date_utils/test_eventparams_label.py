@@ -31,6 +31,7 @@ def test_period_label_formats_correctly(
     """Ensure that period_label returns the correct formatted string
     for different period types and numbers.
     """
+
     # Arrange
     params = EventParams(
         year=year,
@@ -67,6 +68,7 @@ def test_etterslep_label_formats_correctly(
     """Ensure that the etterslep_label string is formatted correctly
     for different combinations of wait_months and wait_days.
     """
+    
     # Arrange
     params = EventParams(
         year=2024,

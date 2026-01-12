@@ -88,10 +88,8 @@ class BirthRates:
         if self.aldersgruppering == 1:
             return alder.astype("string")
 
-        bins = list(range(self.min_alder, self.max_alder, self.aldersgruppering)) + [
-            self.max_alder + 1
-        ]
-        labels = [f"{min}-{max - 1}" for min, max in itertools.pairwise(bins)]
+        bins = *range(self.min_alder, self.max_alder, self.aldersgruppering), self.max_alder + 1
+        labels = [f"{min_alder}-{max_alder - 1}" for min_alder, max_alder in itertools.pairwise(bins)]
 
         return pd.cut(
             x=alder, bins=bins, right=False, labels=labels, include_lowest=True
@@ -278,6 +276,7 @@ def foedselsrate(
     max_alder: int = 49,
     beregn_for_menn: bool = False,
 ) -> pd.DataFrame:
+    """Function for calculating the birth rate."""
     foedselsrater = BirthRates(
         aldersgruppe_col=aldersgruppe_col,
         alder_col=alder_col,
