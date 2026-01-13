@@ -14,7 +14,7 @@ from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import validate_komm_nr
 
 @pytest.fixture
 def mock_valid_codes() -> dict[str, str]:
-    """Minimal valid KLASS dict that validate_kommnr expects from _load_kommnr().
+    """Minimal valid KLASS dict that validate_kommnr expects from _load_komm_nr().
 
     Keys are codes; values are descriptions.
     """
@@ -49,14 +49,14 @@ cases = [
 
 
 @pytest.mark.parametrize("codes, expect_error", cases)
-def test_validate_kommnr_all_valid(
+def test_validate_komm_nr_all_valid(
     mocker: MockerFixture,
     mock_valid_codes: dict[str, str],
     codes: pd.Series,
     expect_error: Any,
 ) -> None:
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr._load_komm_nr",
         return_value=mock_valid_codes,
     )
 
@@ -69,7 +69,7 @@ def test_validate_kommnr_all_valid(
 # ------------------------------------------------------------------------
 
 
-def test_validate_kommnr_calls_loader_with_year(
+def test_validate_komm_nr_calls_loader_with_year(
     mocker: MockerFixture, mock_valid_codes: dict[str, str]
 ) -> None:
     """validate_kommnr passes a 'year' argument through to _load_kommnr.
@@ -79,12 +79,9 @@ def test_validate_kommnr_calls_loader_with_year(
     """
     s = pd.Series(["0301"])
     mock_load_kommnr = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.validate._load_kommnr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr._load_komm_nr",
         return_value=mock_valid_codes,
     )
 
     validate_komm_nr(s, year=2024)
-
-    mock_load_kommnr.assert_called_once_with(
-        "2024-01-02"
-    )  # matches current implementation
+    mock_load_kommnr.assert_called_once_with(2024)

@@ -16,7 +16,7 @@ from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import get_komm_nr_changes
 @pytest.fixture
 def mock_klass_classification(mocker: MockerFixture):
     return mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.klass.KlassClassification",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.klass.KlassClassification",
         return_value=mocker.Mock(spec=klass.KlassClassification),
     )
 
@@ -55,7 +55,7 @@ def test_get_klass_change_mapping(
     )
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_klass_change_mapping",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_klass_change_mapping",
         return_value=mock_klass_change_series,
     )
 
@@ -127,7 +127,7 @@ def test_date_parsing_and_default(
 ) -> None:
     """Verify normalisation/defaulting of from_date/to_date/target_date in get_kommnr_changes."""
     mock_get_klass_change_mapping = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_klass_change_mapping",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_klass_change_mapping",
         return_value=mock_klass_change_series,
     )
 
