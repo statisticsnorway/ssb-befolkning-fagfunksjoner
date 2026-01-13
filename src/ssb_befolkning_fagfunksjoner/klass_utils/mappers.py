@@ -1,5 +1,5 @@
 from collections.abc import Hashable
-from typing import Sequence
+from collections.abc import Sequence
 
 import klass
 import pandas as pd
@@ -27,7 +27,7 @@ def load_country_codes() -> dict[str, str]:
 
 
 def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
-    """Convert a Series of ISO alpha-3 codes to SSB-3 codes. 
+    """Convert a Series of ISO alpha-3 codes to SSB-3 codes.
 
     The Series may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
     Missing values are preserved.
@@ -40,15 +40,20 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
         if isinstance(code, str):
             try:
                 return mapping[code]
-            except KeyError:
-                raise ValueError(f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953).")
+            except KeyError as e:
+                raise ValueError(
+                    f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953)."
+                ) from e
         if isinstance(code, Sequence):
             try:
                 return [mapping[c] for c in code]
-            except KeyError:
-                raise ValueError(f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953).")
+            except KeyError as e:
+                raise ValueError(
+                    f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
+                ) from e
 
     return alpha_3_col.apply(_convert)
+
 
 # ------------------------------------------------------------------------
 # World division classification
