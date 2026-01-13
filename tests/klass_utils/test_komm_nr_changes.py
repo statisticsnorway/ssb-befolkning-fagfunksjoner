@@ -5,7 +5,6 @@ import klass
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
-
 from ssb_befolkning_fagfunksjoner.kommnr.changes import get_kommnr_changes
 
 # ------------------------------------------------------------------------

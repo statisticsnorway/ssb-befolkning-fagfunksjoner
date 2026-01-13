@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def alderh(dob: pd.Series, event_date: pd.Series) -> pd.Series:
     """Lager variabelen `alderh`."""
     dob = pd.to_datetime(dob, format="%Y-%m-%d", errors="coerce")
@@ -16,4 +17,3 @@ def alderh(dob: pd.Series, event_date: pd.Series) -> pd.Series:
     )
 
     return age
-

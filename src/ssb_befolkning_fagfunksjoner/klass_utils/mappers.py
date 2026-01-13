@@ -1,17 +1,16 @@
-from typing import Hashable
+from collections.abc import Hashable
 
 import klass
 import numpy as np
 import pandas as pd
 
-
 # ------------------------------------------------------------------------
 # Country codes correspondence
 # ------------------------------------------------------------------------
 
+
 def load_country_codes() -> dict[str, str]:
     """Load KLASS correspondence table for country codes."""
-    
     landkoder_dict: dict[str, str | None] = klass.KlassCorrespondence(953).to_dict()
 
     landkoder_dict["ANT"] = "656"
@@ -24,20 +23,21 @@ def load_country_codes() -> dict[str, str]:
     landkoder_dict["YUG"] = "125"
     landkoder_dict["XXA"] = "990"
 
-    return {
-        key: value for key, value 
-        in landkoder_dict.items() 
-        if value is not None
-    }
+    return {key: value for key, value in landkoder_dict.items() if value is not None}
 
 
-def map_to_country_codes(alpha_3_col: pd.Series, default: str | None = None) -> pd.Series:
+def map_to_country_codes(
+    alpha_3_col: pd.Series, default: str | None = None
+) -> pd.Series:
     """Convert Series from alpha-3 country codes to SSB-3 codes."""
     correspondence_dict = load_country_codes()
 
     def convert_element(x):
         if isinstance(x, np.ndarray):
-            return [correspondence_dict.get(code, default if default is not None else code) for code in x]
+            return [
+                correspondence_dict.get(code, default if default is not None else code)
+                for code in x
+            ]
         else:
             return correspondence_dict.get(x, default if default is not None else x)
 
@@ -48,11 +48,12 @@ def map_to_country_codes(alpha_3_col: pd.Series, default: str | None = None) -> 
 # World division classification
 # ------------------------------------------------------------------------
 
+
 def load_verdensinndeling(year: int | str) -> dict[Hashable, str]:
     """Load and transform KLASS world division codes to regional groups."""
     # Read country codes correspondence
     landkoder_dict: dict[str, str] = load_country_codes()
-    
+
     # Read world division classification
     world_div_dict = (
         klass.KlassClassification(545)
@@ -89,4 +90,3 @@ def load_verdensinndeling(year: int | str) -> dict[Hashable, str]:
             world_div_dict[value] = "4"
 
     return world_div_dict
-

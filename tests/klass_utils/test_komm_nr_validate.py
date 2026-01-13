@@ -4,7 +4,6 @@ from typing import Any
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
-
 from ssb_befolkning_fagfunksjoner.kommnr.validate import validate_kommnr
 
 # ------------------------------------------------------------------------

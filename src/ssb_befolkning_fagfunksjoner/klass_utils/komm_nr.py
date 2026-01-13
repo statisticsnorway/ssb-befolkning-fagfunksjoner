@@ -18,6 +18,7 @@ __all__ = ["get_komm_nr_changes", "update_komm_nr", "validate_komm_nr"]
 # Validation
 # ------------------------------------------------------------------------
 
+
 def _load_komm_nr(year: int | str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     kommune_dict: dict[str, str] = (
@@ -46,6 +47,7 @@ def validate_komm_nr(codes: pd.Series, year: int | str) -> None:
 # Update komm_nr
 # ------------------------------------------------------------------------
 
+
 def _get_latest_komm_nr(code: str, komm_nr_change_dict: dict[str, str]) -> str:
     """Recursively find the latest municipality code using a dict of municipality code changes."""
     start_code = code
@@ -57,10 +59,10 @@ def _get_latest_komm_nr(code: str, komm_nr_change_dict: dict[str, str]) -> str:
                 "Found a cycle of municipality codes. "
                 f"{start_code}. Revisited code: {code}. Seen: {sorted(seen)}"
             )
-        
+
         seen.add(code)
         code = komm_nr_change_dict[code]
-    
+
     return code
 
 
@@ -154,6 +156,7 @@ def update_komm_nr(
 # ------------------------------------------------------------------------
 # Get komm_nr changes
 # ------------------------------------------------------------------------
+
 
 def get_komm_nr_changes(
     from_date: str | datetime.date = datetime.date(1980, 1, 1),
