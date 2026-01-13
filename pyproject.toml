@@ -5,7 +5,7 @@ description = "Befolkning Fagfunksjoner"
 license = "MIT"
 readme = "README.md"
 authors = [{name = "Stian Nergård", email = "grd@ssb.no"}]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 dependencies = [
     "click (>=8.0.1)",
     "python-dateutil (>=2.9.0.post0,<3.0.0)",

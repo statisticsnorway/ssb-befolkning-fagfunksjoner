@@ -25,7 +25,7 @@ except ImportError:
 
 package = "ssb_befolkning_fagfunksjoner"
 python_versions = ["3.11", "3.12", "3.13"]
-python_versions_for_test = python_versions + ["3.10"]
+python_versions_for_test = python_versions
 nox.needs_version = ">= 2025.2.9"
 nox.options.sessions = (
     "pre-commit",
