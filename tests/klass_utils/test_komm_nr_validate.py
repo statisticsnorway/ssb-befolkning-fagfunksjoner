@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
-from ssb_befolkning_fagfunksjoner.kommnr.validate import validate_kommnr
+from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import validate_komm_nr
 
 # ------------------------------------------------------------------------
 # Common fixtures (used by multiple tests)
@@ -60,7 +60,7 @@ def test_validate_kommnr_all_valid(
     )
 
     with expect_error:
-        validate_kommnr(codes, year=2024)
+        validate_komm_nr(codes, year=2024)
 
 
 # ------------------------------------------------------------------------
@@ -82,7 +82,7 @@ def test_validate_kommnr_calls_loader_with_year(
         return_value=mock_valid_codes,
     )
 
-    validate_kommnr(s, year=2024)
+    validate_komm_nr(s, year=2024)
 
     mock_load_kommnr.assert_called_once_with(
         "2024-01-02"

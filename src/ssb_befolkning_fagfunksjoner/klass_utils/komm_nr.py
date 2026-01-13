@@ -1,3 +1,6 @@
+from typing import Any
+
+
 import datetime
 import logging
 import warnings
@@ -51,7 +54,7 @@ def validate_komm_nr(codes: pd.Series, year: int | str) -> None:
 def _get_latest_komm_nr(code: str, komm_nr_change_dict: dict[str, str]) -> str:
     """Recursively find the latest municipality code using a dict of municipality code changes."""
     start_code = code
-    seen = set()
+    seen: set[Any] = set()
 
     while code in komm_nr_change_dict:
         if code in seen:

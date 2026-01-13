@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
-from ssb_befolkning_fagfunksjoner.kommnr.update import update_kommnr
+from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import update_komm_nr
 
 # ------------------------------------------------------------------------
 # Common fixtures
@@ -74,7 +74,7 @@ def test_update_kommnr_and_validate(
         "ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr",
     )
 
-    result = update_kommnr(original_codes=original, year=2024, validate=validate)
+    result = update_komm_nr(original_codes=original, year=2024, validate=validate)
     pd.testing.assert_series_equal(result, expected, check_names=False)
     if expect_called:
         mock_validate.assert_called_once_with(result, 2024)
@@ -107,7 +107,7 @@ def test_update_without_validation(
     )
 
     with pytest.warns(UserWarning, match=r"splits"):
-        result = update_kommnr(original, 2024, validate=False)
+        result = update_komm_nr(original, 2024, validate=False)
 
     pd.testing.assert_series_equal(result, expected, check_names=False)
     mock_validate.assert_not_called()
@@ -138,7 +138,7 @@ def test_recursive_mapping(
     )
     mocker.patch("ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr")
 
-    result = update_kommnr(original, 2024, validate=True)
+    result = update_komm_nr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
@@ -167,5 +167,5 @@ def test_na_filled_with_0000(
     )
     mocker.patch("ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr")
 
-    result = update_kommnr(original, 2024, validate=True)
+    result = update_komm_nr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
