@@ -13,14 +13,17 @@ delete the .rst file afterwards.
 
 ```{eval-rst}
 ssb\_befolkning\_fagfunksjoner package
-=============================================================================
+======================================
 
+Subpackages
+-----------
 
-ssb\_befolkning\_fagfunksjoner.functions module
------------------------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: ssb_befolkning_fagfunksjoner.functions
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   ssb_befolkning_fagfunksjoner.bef_variables
+   ssb_befolkning_fagfunksjoner.date_utils
+   ssb_befolkning_fagfunksjoner.demographics
+   ssb_befolkning_fagfunksjoner.generelle_sjekker
+   ssb_befolkning_fagfunksjoner.klass_utils
 ```
