@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
-from ssb_befolkning_fagfunksjoner.kommnr.update import update_kommnr
+from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import update_komm_nr
 
 # ------------------------------------------------------------------------
 # Common fixtures
@@ -10,7 +10,7 @@ from ssb_befolkning_fagfunksjoner.kommnr.update import update_kommnr
 
 
 @pytest.fixture
-def kommnr_changes() -> pd.DataFrame:
+def komm_nr_changes() -> pd.DataFrame:
     # Example mappings: 5401 -> 5501, 3005 -> 3301
     return pd.DataFrame(
         {
@@ -21,7 +21,7 @@ def kommnr_changes() -> pd.DataFrame:
 
 
 @pytest.fixture
-def kommnr_splits() -> pd.DataFrame:
+def komm_nr_splits() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "old_code": ["1507", "1507"],
@@ -57,7 +57,7 @@ cases = [
 @pytest.mark.parametrize("original, expected, validate, expect_called", cases)
 def test_update_kommnr_and_validate(
     mocker: MockerFixture,
-    kommnr_changes: pd.DataFrame,
+    komm_nr_changes: pd.DataFrame,
     empty_splits: pd.DataFrame,
     original: pd.Series,
     expected: pd.Series,
@@ -65,17 +65,17 @@ def test_update_kommnr_and_validate(
     expect_called: bool,
 ) -> None:
     """Updates are applied; validation is invoked only when requested."""
-    # Patch functions called in update_kommnr()
+    # Patch functions called in update_komm_nr()
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.get_kommnr_changes",
-        return_value=(kommnr_changes, empty_splits),
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
+        return_value=(komm_nr_changes, empty_splits),
     )
 
     mock_validate = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.validate_komm_nr",
     )
 
-    result = update_kommnr(original_codes=original, year=2024, validate=validate)
+    result = update_komm_nr(original_codes=original, year=2024, validate=validate)
     pd.testing.assert_series_equal(result, expected, check_names=False)
     if expect_called:
         mock_validate.assert_called_once_with(result, 2024)
@@ -90,8 +90,8 @@ def test_update_kommnr_and_validate(
 
 def test_update_without_validation(
     mocker: MockerFixture,
-    kommnr_changes: pd.DataFrame,
-    kommnr_splits: pd.DataFrame,
+    komm_nr_changes: pd.DataFrame,
+    komm_nr_splits: pd.DataFrame,
 ) -> None:
     """When there are split codes, codes remain as-is and a warning is raised."""
     original = pd.Series(["0301", "5401", "4601", "1103", "3005", "1507"])
@@ -99,16 +99,16 @@ def test_update_without_validation(
 
     # Patch functions called in update_kommnr()
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.get_kommnr_changes",
-        return_value=(kommnr_changes, kommnr_splits),
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
+        return_value=(komm_nr_changes, komm_nr_splits),
     )
 
     mock_validate = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.validate_komm_nr",
     )
 
     with pytest.warns(UserWarning, match=r"splits"):
-        result = update_kommnr(original, 2024, validate=False)
+        result = update_komm_nr(original, 2024, validate=False)
 
     pd.testing.assert_series_equal(result, expected, check_names=False)
     mock_validate.assert_not_called()
@@ -134,12 +134,12 @@ def test_recursive_mapping(
     expected = pd.Series(["3333", "0301"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.get_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
         return_value=(recursive_changes, empty_splits),
     )
-    mocker.patch("ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr")
+    mocker.patch("ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.validate_komm_nr")
 
-    result = update_kommnr(original, 2024, validate=True)
+    result = update_komm_nr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
@@ -163,10 +163,10 @@ def test_na_filled_with_0000(
     expected = pd.Series(["0301", "0000"])
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.update.get_kommnr_changes",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
         return_value=(empty_changes, empty_splits),
     )
-    mocker.patch("ssb_befolkning_fagfunksjoner.kommnr.update.validate_kommnr")
+    mocker.patch("ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.validate_komm_nr")
 
-    result = update_kommnr(original, 2024, validate=True)
+    result = update_komm_nr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)

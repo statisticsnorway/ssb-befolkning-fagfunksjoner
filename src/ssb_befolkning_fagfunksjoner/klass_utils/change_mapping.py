@@ -55,12 +55,15 @@ def _build_change_graph(
     """Construct a directed graph representing relations between municipality codes across KlassClassification versions.
 
     Parameters:
-    - classification (KlassClassification): Classification object, typically ID = 131 for municipality codes.
-    - from_date (datetime.date): Date for earliest version to include in the graph.
-    - to_date (datetime.date): Date for latest version to include in graph. If None, all later versions are included.
+        classification: KlassClassification
+            Classification object, typically ID = 131 for municipality codes.
+        from_date: datetime.date
+            Date for earliest version to include in the graph.
+        to_date: datetime.date
+            Date for latest version to include in graph. If None, all later versions are included.
 
     Returns:
-    - networkx.DiGraph: Directed graph
+        networkx.DiGraph
     """
     # Filter on which versions to include in graph
     versions_meta = filter(

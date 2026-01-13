@@ -10,19 +10,15 @@ from ssb_befolkning_fagfunksjoner import EventParams
     [
         # Year
         (2024, "year", None, date(2024, 1, 1), date(2024, 12, 31)),
-
         # Halfyear
         (2024, "halfyear", 1, date(2024, 1, 1), date(2024, 6, 30)),
         (2024, "halfyear", 2, date(2024, 7, 1), date(2024, 12, 31)),
-
         # Quarter
         (2024, "quarter", 1, date(2024, 1, 1), date(2024, 3, 31)),
         (2024, "quarter", 4, date(2024, 10, 1), date(2024, 12, 31)),
-
         # Month (incl. leap-year February)
         (2024, "month", 2, date(2024, 2, 1), date(2024, 2, 29)),
         (2024, "month", 4, date(2024, 4, 1), date(2024, 4, 30)),
-
         # Week (ISO week)
         (2024, "week", 10, date(2024, 3, 4), date(2024, 3, 10)),
     ],
@@ -34,10 +30,7 @@ def test_window_returns_correct_date_range(
     expected_start: date,
     expected_end: date,
 ) -> None:
-    """
-    Ensure that window returns the correct start and end dates
-    for different period types and numbers.
-    """
+    """Ensure that window returns the correct start and end dates for different period types and numbers."""
     # Arrange
     params = EventParams(
         year=year,
@@ -59,40 +52,51 @@ def test_window_returns_correct_date_range(
     [
         # Default wait period applied to a month (March → April)
         (
-            2024, "month", 3,
-            1, 0,
-            date(2024, 4, 1),   # start + 1 month
+            2024,
+            "month",
+            3,
+            1,
+            0,
+            date(2024, 4, 1),  # start + 1 month
             date(2024, 4, 30),  # end + 1 month, snapped to end of April
         ),
-
         # Pure day-based wait for a week (7 days forward)
         (
-            2024, "week", 10,
-            0, 7,
+            2024,
+            "week",
+            10,
+            0,
+            7,
             date(2024, 3, 11),  # 7 days after Mar 4
             date(2024, 3, 17),  # 7 days after Mar 10
         ),
-
         # Month rollover: December 2024 → January 2025
         (
-            2024, "quarter", 4,
-            1, 0,
+            2024,
+            "quarter",
+            4,
+            1,
+            0,
             date(2024, 11, 1),
             date(2025, 1, 31),
         ),
-
         # Leap year end-boundary logic: January 2024 end → February 2024 (29 days)
         (
-            2024, "month", 1,
-            1, 0,
+            2024,
+            "month",
+            1,
+            1,
+            0,
             date(2024, 2, 1),
             date(2024, 2, 29),  # leap year
         ),
-
         # Non-leap year: January 2023 → February 2023 (28 days)
         (
-            2023, "month", 1,
-            1, 0,
+            2023,
+            "month",
+            1,
+            1,
+            0,
             date(2023, 2, 1),
             date(2023, 2, 28),
         ),
@@ -107,10 +111,7 @@ def test_etterslep_window(
     expected_start: date,
     expected_end: date,
 ) -> None:
-    """
-    Ensure that etterslep_window returns correct dates for various
-    wait-period configurations and calendar boundary cases.
-    """
+    """Ensure that etterslep_window returns correct dates for various wait-period configurations and calendar boundary cases."""
     # Arrange
     params = EventParams(
         year=year,

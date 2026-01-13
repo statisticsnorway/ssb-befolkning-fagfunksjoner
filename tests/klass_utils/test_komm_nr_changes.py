@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
-from ssb_befolkning_fagfunksjoner.kommnr.changes import get_kommnr_changes
+from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import get_komm_nr_changes
 
 # ------------------------------------------------------------------------
 # Common fixtures
@@ -16,7 +16,7 @@ from ssb_befolkning_fagfunksjoner.kommnr.changes import get_kommnr_changes
 @pytest.fixture
 def mock_klass_classification(mocker: MockerFixture):
     return mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.klass.KlassClassification",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.klass.KlassClassification",
         return_value=mocker.Mock(spec=klass.KlassClassification),
     )
 
@@ -55,11 +55,11 @@ def test_get_klass_change_mapping(
     )
 
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_klass_change_mapping",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_klass_change_mapping",
         return_value=mock_klass_change_series,
     )
 
-    changes, splits = get_kommnr_changes(
+    changes, splits = get_komm_nr_changes(
         from_date="1980-01-01", to_date="2024-01-01", target_date="2024-01-01"
     )
 
@@ -127,7 +127,7 @@ def test_date_parsing_and_default(
 ) -> None:
     """Verify normalisation/defaulting of from_date/to_date/target_date in get_kommnr_changes."""
     mock_get_klass_change_mapping = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.kommnr.changes.get_klass_change_mapping",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_klass_change_mapping",
         return_value=mock_klass_change_series,
     )
 
@@ -135,7 +135,7 @@ def test_date_parsing_and_default(
 
     if errors:
         with pytest.raises(ValueError):
-            get_kommnr_changes(
+            get_komm_nr_changes(
                 from_date=input_from_date,
                 to_date=input_to_date,
                 target_date=input_target_date,
@@ -143,7 +143,7 @@ def test_date_parsing_and_default(
         mock_get_klass_change_mapping.assert_not_called()
         return
 
-    _changes, _splits = get_kommnr_changes(
+    _changes, _splits = get_komm_nr_changes(
         from_date=input_from_date, to_date=input_to_date, target_date=input_target_date
     )
 

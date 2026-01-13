@@ -54,7 +54,9 @@ def test_filter_og_aldersgruppering(
 
     # Sjekk aldersgruppering
     forventet_aldersgruppe = pd.Series(
-        ["15-19", "15-19", "20-24", "45-49"], name=br_default.aldersgruppe_col, dtype="string"
+        ["15-19", "15-19", "20-24", "45-49"],
+        name=br_default.aldersgruppe_col,
+        dtype="string",
     )
     assert_series_equal(
         resultat[br_default.aldersgruppe_col].reset_index(drop=True),
@@ -62,7 +64,7 @@ def test_filter_og_aldersgruppering(
     )
 
     # Sjekk kolonner i output
-    for c in list(mock_df.columns) + [br_default.aldersgruppe_col]:
+    for c in [*mock_df.columns, br_default.aldersgruppe_col]:
         assert c in resultat.columns
 
 
