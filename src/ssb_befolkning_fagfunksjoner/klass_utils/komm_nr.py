@@ -1,9 +1,7 @@
-from typing import Any
-
-
 import datetime
 import logging
 import warnings
+from typing import Any
 
 import klass
 import pandas as pd

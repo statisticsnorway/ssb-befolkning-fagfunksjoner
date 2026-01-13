@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
+
 from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import update_komm_nr
 
 # ------------------------------------------------------------------------
