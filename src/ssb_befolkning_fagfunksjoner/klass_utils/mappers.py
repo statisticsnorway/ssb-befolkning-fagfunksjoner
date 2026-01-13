@@ -1,7 +1,7 @@
 from collections.abc import Hashable
+from typing import Sequence
 
 import klass
-import numpy as np
 import pandas as pd
 
 # ------------------------------------------------------------------------
@@ -26,23 +26,29 @@ def load_country_codes() -> dict[str, str]:
     return {key: value for key, value in landkoder_dict.items() if value is not None}
 
 
-def map_to_country_codes(
-    alpha_3_col: pd.Series, default: str | None = None
-) -> pd.Series:
-    """Convert Series from alpha-3 country codes to SSB-3 codes."""
-    correspondence_dict = load_country_codes()
+def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
+    """Convert a Series of ISO alpha-3 codes to SSB-3 codes. 
 
-    def convert_element(x):
-        if isinstance(x, np.ndarray):
-            return [
-                correspondence_dict.get(code, default if default is not None else code)
-                for code in x
-            ]
-        else:
-            return correspondence_dict.get(x, default if default is not None else x)
+    The Series may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
+    Missing values are preserved.
+    """
+    mapping: dict[str, str] = load_country_codes()
 
-    return alpha_3_col.apply(convert_element)
+    def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
+        if not code:
+            return None  # If empty string or None, return None
+        if isinstance(code, str):
+            try:
+                return mapping[code]
+            except KeyError:
+                raise ValueError(f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953).")
+        if isinstance(code, Sequence):
+            try:
+                return [mapping[c] for c in code]
+            except KeyError:
+                raise ValueError(f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953).")
 
+    return alpha_3_col.apply(_convert)
 
 # ------------------------------------------------------------------------
 # World division classification
