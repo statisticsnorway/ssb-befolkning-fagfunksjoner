@@ -4,12 +4,11 @@ from collections.abc import Sequence
 import klass
 import pandas as pd
 
-# ------------------------------------------------------------------------
-# Country codes correspondence
-# ------------------------------------------------------------------------
+
+__all__ = ["map_to_country_codes"]
 
 
-def load_country_codes() -> dict[str, str]:
+def _load_country_codes() -> dict[str, str]:
     """Load KLASS correspondence table for country codes."""
     landkoder_dict: dict[str, str | None] = klass.KlassCorrespondence(953).to_dict()
 
@@ -26,17 +25,21 @@ def load_country_codes() -> dict[str, str]:
     return {key: value for key, value in landkoder_dict.items() if value is not None}
 
 
-def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
+def map_to_country_codes(alpha_3_col: pd.Series[str | list[str]]) -> pd.Series[str | list[str]]: 
     """Convert a Series of ISO alpha-3 codes to SSB-3 codes.
 
-    The Series may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
-    Missing values are preserved.
+    Parameters: 
+        alpha_3_col: pd.Series[str | list[str]]
+            A pandas series of citizenships that may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
+
+    Returns:
+        pd.Series[str | list[str]]
     """
-    mapping: dict[str, str] = load_country_codes()
+    mapping: dict[str, str] = _load_country_codes()
 
     def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
-        if not code:
-            return None  # If empty string or None, return None
+        if code is pd.NA or not code: # If empty string or None or pd.NA, return None
+            return None
         if isinstance(code, str):
             try:
                 return mapping[code]
@@ -55,15 +58,10 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     return alpha_3_col.apply(_convert)
 
 
-# ------------------------------------------------------------------------
-# World division classification
-# ------------------------------------------------------------------------
-
-
 def load_verdensinndeling(year: int | str) -> dict[Hashable, str]:
     """Load and transform KLASS world division codes to regional groups."""
     # Read country codes correspondence
-    landkoder_dict: dict[str, str] = load_country_codes()
+    landkoder_dict: dict[str, str] = _load_country_codes()
 
     # Read world division classification
     world_div_dict = (
