@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def alderh(dob: pd.Series, event_date: pd.Series) -> pd.Series[int]:
+def alderh(dob: pd.Series, event_date: pd.Series) -> pd.Series:
     """Creating the variable: `alderh`."""
     dob_dt = pd.to_datetime(arg=dob, format="%Y-%m-%d", errors="coerce")
     event_dt = pd.to_datetime(arg=event_date, format="%Y-%m-%d", errors="coerce")
@@ -22,7 +22,7 @@ def alderh(dob: pd.Series, event_date: pd.Series) -> pd.Series[int]:
     return age
 
 
-def alderu(dob: pd.Series, year: int | str) -> pd.Series[int]:
+def alderu(dob: pd.Series, year: int | str) -> pd.Series:
     """Creating the variable: `alderu`."""
     dob_dt = pd.to_datetime(dob, format="%Y-%m-%d", errors="coerce")
 
