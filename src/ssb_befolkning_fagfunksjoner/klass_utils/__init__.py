@@ -11,7 +11,7 @@ __all__ = [
     "aggregate_codes",
     "get_klass_change_mapping",
     "get_komm_nr_changes",
+    "map_to_country_codes",
     "update_komm_nr",
     "validate_komm_nr",
-    "map_to_country_codes",
 ]

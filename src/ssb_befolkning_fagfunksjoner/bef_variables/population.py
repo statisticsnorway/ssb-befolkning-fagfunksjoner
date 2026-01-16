@@ -1,8 +1,11 @@
 from datetime import date
+
 import pandas as pd
 
 
-def alderh(dob: pd.Series[date | str], event_date: pd.Series[date | str]) -> pd.Series[int]:
+def alderh(
+    dob: pd.Series[date | str], event_date: pd.Series[date | str]
+) -> pd.Series[int]:
     """Creating the variable: `alderh`."""
     dob_dt = pd.to_datetime(arg=dob, format="%Y-%m-%d", errors="coerce")
     event_dt = pd.to_datetime(arg=event_date, format="%Y-%m-%d", errors="coerce")
@@ -13,7 +16,10 @@ def alderh(dob: pd.Series[date | str], event_date: pd.Series[date | str]) -> pd.
         - (
             # subtract 1 for dob > event_date in the same year
             (dob_dt.dt.month > event_dt.dt.month)
-            | ((dob_dt.dt.month == event_dt.dt.month) & (dob_dt.dt.day > event_dt.dt.day))
+            | (
+                (dob_dt.dt.month == event_dt.dt.month)
+                & (dob_dt.dt.day > event_dt.dt.day)
+            )
         )
     )
 
@@ -21,8 +27,7 @@ def alderh(dob: pd.Series[date | str], event_date: pd.Series[date | str]) -> pd.
 
 
 def alderu(dob: pd.Series[date | str], year: int | str) -> pd.Series[int]:
-    """Creating the variable: `alderu`"""
+    """Creating the variable: `alderu`."""
     dob_dt = pd.to_datetime(dob, format="%Y-%m-%d", errors="coerce")
 
     return int(year) - dob_dt.dt.year
-

@@ -12,7 +12,7 @@ from ..klass_utils.change_mapping import get_klass_change_mapping
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["validate_komm_nr", "update_komm_nr", "get_komm_nr_changes"]
+__all__ = ["get_komm_nr_changes", "update_komm_nr", "validate_komm_nr"]
 
 
 # ------------------------------------------------------------------------

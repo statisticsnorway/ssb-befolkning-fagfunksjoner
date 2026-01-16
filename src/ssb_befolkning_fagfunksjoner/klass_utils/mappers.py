@@ -4,7 +4,6 @@ from collections.abc import Sequence
 import klass
 import pandas as pd
 
-
 __all__ = ["map_to_country_codes"]
 
 
@@ -25,10 +24,12 @@ def _load_country_codes() -> dict[str, str]:
     return {key: value for key, value in landkoder_dict.items() if value is not None}
 
 
-def map_to_country_codes(alpha_3_col: pd.Series[str | list[str]]) -> pd.Series[str | list[str]]: 
+def map_to_country_codes(
+    alpha_3_col: pd.Series[str | list[str]],
+) -> pd.Series[str | list[str]]:
     """Convert a Series of ISO alpha-3 codes to SSB-3 codes.
 
-    Parameters: 
+    Parameters:
         alpha_3_col: pd.Series[str | list[str]]
             A pandas series of citizenships that may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
 
@@ -38,7 +39,7 @@ def map_to_country_codes(alpha_3_col: pd.Series[str | list[str]]) -> pd.Series[s
     mapping: dict[str, str] = _load_country_codes()
 
     def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
-        if code is pd.NA or not code: # If empty string or None or pd.NA, return None
+        if code is pd.NA or code == "" or code is None:  # If empty string or None or pd.NA, return None
             return None
         if isinstance(code, str):
             try:
