@@ -1,10 +1,8 @@
-from datetime import date
-
 import pandas as pd
 
 
 def alderh(
-    dob: pd.Series[date | str], event_date: pd.Series[date | str]
+    dob: pd.Series, event_date: pd.Series
 ) -> pd.Series[int]:
     """Creating the variable: `alderh`."""
     dob_dt = pd.to_datetime(arg=dob, format="%Y-%m-%d", errors="coerce")
@@ -26,7 +24,7 @@ def alderh(
     return age
 
 
-def alderu(dob: pd.Series[date | str], year: int | str) -> pd.Series[int]:
+def alderu(dob: pd.Series, year: int | str) -> pd.Series[int]:
     """Creating the variable: `alderu`."""
     dob_dt = pd.to_datetime(dob, format="%Y-%m-%d", errors="coerce")
 
