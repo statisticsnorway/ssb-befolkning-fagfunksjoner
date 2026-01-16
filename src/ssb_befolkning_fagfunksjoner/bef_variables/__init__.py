@@ -1,5 +1,5 @@
 """Subpackage for creating statistical variables used in population statistics."""
 
-from .population import alderh
+from .population import alderh, alderu
 
-__all__ = ["alderh"]
+__all__ = ["alderh", "alderu"]
