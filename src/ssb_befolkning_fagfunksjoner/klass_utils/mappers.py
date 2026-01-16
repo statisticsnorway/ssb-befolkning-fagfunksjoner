@@ -24,17 +24,15 @@ def _load_country_codes() -> dict[str, str]:
     return {key: value for key, value in landkoder_dict.items() if value is not None}
 
 
-def map_to_country_codes(
-    alpha_3_col: pd.Series[str | list[str]],
-) -> pd.Series[str | list[str]]:
+def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     """Convert a Series of ISO alpha-3 codes to SSB-3 codes.
 
     Parameters:
-        alpha_3_col: pd.Series[str | list[str]]
+        alpha_3_col: pd.Series
             A pandas series of citizenships that may contain scalars (e.g., "NOR") or sequences (e.g., ["NOR", "SWE"]).
 
     Returns:
-        pd.Series[str | list[str]]
+        pd.Series
     """
     mapping: dict[str, str] = _load_country_codes()
 
