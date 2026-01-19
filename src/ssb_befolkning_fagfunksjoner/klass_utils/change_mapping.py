@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import enum
 import functools
 from collections.abc import Iterable
 from itertools import chain
@@ -20,6 +21,16 @@ __all__ = ["get_klass_change_mapping"]
 class _CodePoint(NamedTuple):
     code: str
     version: int
+
+
+class _CessionType(enum.Enum):
+    NO_CESSION = enum.auto()
+    CESSATION_WHOLE = enum.auto()
+    CESSATION_PART_TO_NEW = enum.auto()
+    CESSATION_PART_TO_EXISTING = enum.auto()
+    ADJUSTMENT_PART_TO_NEW = enum.auto()
+    ADJUSTMENT_PART_TO_EXISTING = enum.auto()
+    BORDER_CHANGE = enum.auto()
 
 
 def _get_from_date(version: VersionPartType) -> datetime.date:
@@ -109,7 +120,7 @@ def _build_change_graph(
                 _CodePoint(code, int(version1.version_id)),
                 _CodePoint(code, int(version2.version_id)),
             )
-            graph.add_edge(*edge)
+            graph.add_edge(*edge, cession_type=_CessionType.NO_CESSION)
 
     # Get correspondence tables between filtered versions
     seen_change_tables_ides: set[int] = set()
@@ -146,9 +157,52 @@ def _build_change_graph(
             )
             if backwards:
                 edge = reversed(edge)
-            graph.add_edge(*edge)
+            graph.add_edge(*edge, cession_type=None)
 
+    _label_changes(graph)
     return graph
+
+
+def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
+    """Label graph edges with a "cession type".
+
+    Since the Klass API is missing metadata abut the type of change, like the SCB Regina API,
+    we try to interfere the type of cession here.
+    The algorithm may mislabel changes, if there is boarder changes and code changes at the same time.
+    """
+    get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
+    edges_missing_label: Iterable[tuple[_CodePoint, _CodePoint]] = filter(
+        lambda e: get_cession_type[e] is not None, graph.edges
+    )
+    for edge in edges_missing_label:
+        v, u = edge
+
+        out_degree = graph.out_degree(v)
+        in_degree = graph.in_degree(u)
+
+        old_codes = set(graph.predecessors(u))
+        new_codes = set(graph.successors(v))
+
+        if in_degree == 1 and out_degree == 1:
+            get_cession_type[edge] = _CessionType.NO_CESSION
+
+        elif v.code == u.code:
+            get_cession_type[edge] = _CessionType.BORDER_CHANGE
+
+        elif out_degree == 1:
+            get_cession_type[edge] = _CessionType.CESSATION_WHOLE
+
+        elif v.code not in new_codes and u.code not in old_codes:
+            get_cession_type[edge] = _CessionType.CESSATION_PART_TO_NEW
+
+        elif v.code not in new_codes:
+            get_cession_type[edge] = _CessionType.CESSATION_PART_TO_EXISTING
+
+        elif u.code not in old_codes:
+            get_cession_type[edge] = _CessionType.ADJUSTMENT_PART_TO_NEW
+
+        else:
+            get_cession_type[edge] = _CessionType.ADJUSTMENT_PART_TO_EXISTING
 
 
 def get_klass_change_mapping(
@@ -184,6 +238,14 @@ def get_klass_change_mapping(
 
     # Get directed graph `old_code -> new_code`
     graph = _build_change_graph(classification, from_date, to_date)
+
+    # To ignore minor boarder changes we filter away cession type ADJUSTMENT_PART_TO_EXISTING
+    get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
+    graph = networkx.subgraph_view(
+        graph,
+        filter_edge=lambda *e: get_cession_type[e]
+        is not _CessionType.ADJUSTMENT_PART_TO_EXISTING,
+    )
 
     # Filter to version valid on target date (next(iterator) selects first element from iterator)
     target_version = next(
