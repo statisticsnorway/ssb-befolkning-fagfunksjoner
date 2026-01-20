@@ -157,7 +157,11 @@ def classification_mocker() -> Mock:
     ]
 
     for mock, v_id, meta, codes in zip(
-        version_mockers, range(len(corr_meta), 0, -1), corr_meta, versions_codes, strict=True
+        version_mockers,
+        range(len(corr_meta), 0, -1),
+        corr_meta,
+        versions_codes,
+        strict=True,
     ):
         mock.correspondenceTables = meta
         mock.classificationItems = codes
@@ -273,7 +277,7 @@ def test_get_changes_mapping(
     pd.testing.assert_series_equal(expected, result, check_names=False)
 
 
-cases = [
+cases_label_graph = [
     [(_CodePoint("1504", 1), _CodePoint("1507", 2)), _CessionType.CESSATION_WHOLE],
     [(_CodePoint("1507", 2), _CodePoint("1507", 3)), _CessionType.NO_CESSION],
     [
@@ -288,7 +292,7 @@ cases = [
 ]
 
 
-@pytest.mark.parametrize(("edge", "expected"), cases)
+@pytest.mark.parametrize(("edge", "expected"), cases_label_graph)
 def test_label_graph(edge, expected, classification_mocker) -> None:
     result = _build_change_graph(
         classification_mocker, from_date=datetime.date(2019, 1, 1)
