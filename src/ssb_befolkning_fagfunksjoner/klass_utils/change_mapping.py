@@ -168,7 +168,7 @@ def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
 
     Since the Klass API is missing metadata abut the type of change, like the SCB Regina API,
     we try to interfere the type of cession here.
-    The algorithm may mislabel changes, if there is boarder changes and code changes at the same time.
+    The algorithm may mislabel changes as a cessation, if there is boarder changes and code changes at the same time.
     """
     get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
     edges_missing_label: Iterable[tuple[_CodePoint, _CodePoint]] = filter(
