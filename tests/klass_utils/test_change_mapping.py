@@ -2,11 +2,15 @@ import datetime
 from unittest.mock import Mock
 
 import klass
+import networkx
 import pandas as pd
 import pytest
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
 
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _build_change_graph
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _CessionType
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _CodePoint
 from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import (
     get_klass_change_mapping,
 )
@@ -215,3 +219,16 @@ cases = [
 def test_get_changes_mapping(classification_mocker, target_date, expected) -> None:
     result = get_klass_change_mapping(classification_mocker, target_date=target_date)
     pd.testing.assert_series_equal(expected, result, check_names=False)
+
+
+def test_label_graph(classification_mocker) -> None:
+    result = _build_change_graph(
+        classification_mocker, from_date=datetime.date(2019, 1, 1)
+    )
+    get_cession_type = networkx.get_edge_attributes(result, "cession_type")
+
+    edge = _CodePoint("1507", 3), _CodePoint("1580", 4)
+    assert get_cession_type[edge] == _CessionType.CESSATION_PART_TO_NEW
+
+    edge = _CodePoint("1504", 1), _CodePoint("1507", 2)
+    assert get_cession_type[edge] == _CessionType.CESSATION_WHOLE

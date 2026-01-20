@@ -61,7 +61,7 @@ def _dates_overlap(
 def _build_change_graph(
     classification: klass.KlassClassification,
     from_date: datetime.date,
-    to_date: datetime.date | None,
+    to_date: datetime.date | None = None,
 ) -> networkx.DiGraph[_CodePoint]:
     """Construct a directed graph representing relations between municipality codes across KlassClassification versions.
 
@@ -172,7 +172,7 @@ def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
     """
     get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
     edges_missing_label: Iterable[tuple[_CodePoint, _CodePoint]] = filter(
-        lambda e: get_cession_type[e] is not None, graph.edges
+        lambda e: get_cession_type[e] is None, graph.edges
     )
     for edge in edges_missing_label:
         v, u = edge
@@ -180,29 +180,29 @@ def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
         out_degree = graph.out_degree(v)
         in_degree = graph.in_degree(u)
 
-        old_codes = set(graph.predecessors(u))
-        new_codes = set(graph.successors(v))
+        old_codes = set(p.code for p in graph.predecessors(u))
+        new_codes = set(s.code for s in graph.successors(v))
 
         if in_degree == 1 and out_degree == 1:
-            get_cession_type[edge] = _CessionType.NO_CESSION
+            graph.edges[edge]["cession_type"] = _CessionType.NO_CESSION
 
         elif v.code == u.code:
-            get_cession_type[edge] = _CessionType.BORDER_CHANGE
+            graph.edges[edge]["cession_type"] = _CessionType.BORDER_CHANGE
 
         elif out_degree == 1:
-            get_cession_type[edge] = _CessionType.CESSATION_WHOLE
+            graph.edges[edge]["cession_type"] = _CessionType.CESSATION_WHOLE
 
         elif v.code not in new_codes and u.code not in old_codes:
-            get_cession_type[edge] = _CessionType.CESSATION_PART_TO_NEW
+            graph.edges[edge]["cession_type"] = _CessionType.CESSATION_PART_TO_NEW
 
         elif v.code not in new_codes:
-            get_cession_type[edge] = _CessionType.CESSATION_PART_TO_EXISTING
+            graph.edges[edge]["cession_type"] = _CessionType.CESSATION_PART_TO_EXISTING
 
         elif u.code not in old_codes:
-            get_cession_type[edge] = _CessionType.ADJUSTMENT_PART_TO_NEW
+            graph.edges[edge]["cession_type"] = _CessionType.ADJUSTMENT_PART_TO_NEW
 
         else:
-            get_cession_type[edge] = _CessionType.ADJUSTMENT_PART_TO_EXISTING
+            graph.edges[edge]["cession_type"] = _CessionType.ADJUSTMENT_PART_TO_EXISTING
 
 
 def get_klass_change_mapping(
