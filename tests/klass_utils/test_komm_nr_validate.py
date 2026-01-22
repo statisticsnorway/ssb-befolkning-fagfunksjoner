@@ -56,7 +56,7 @@ def test_validate_komm_nr_all_valid(
     expect_error: Any,
 ) -> None:
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.klass_utils.loaders.load_komm_nr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.load_komm_nr",
         return_value=mock_valid_codes,
     )
 
@@ -72,14 +72,14 @@ def test_validate_komm_nr_all_valid(
 def test_validate_komm_nr_calls_loader_with_year(
     mocker: MockerFixture, mock_valid_codes: dict[str, str]
 ) -> None:
-    """validate_kommnr passes a 'year' argument through to _load_kommnr.
+    """validate_kommnr passes a 'year' argument through to load_kommnr().
 
     This test asserts the call value. If you change how the year is passed,
     update the expectation accordingly.
     """
     s = pd.Series(["0301"])
     mock_load_kommnr = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.klass_utils.loaders.load_komm_nr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.load_komm_nr",
         return_value=mock_valid_codes,
     )
 
