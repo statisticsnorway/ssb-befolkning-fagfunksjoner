@@ -39,7 +39,9 @@ def sorter_landkoder(
     if dates is not None:
         ordered = [
             _sort_by_ranking_multiple(ranking, code_list, date_list)
-            for code_list, date_list in zip(country_codes, dates, strict=True)  # strict=True means country_codes and dates must be same length
+            for code_list, date_list in zip(
+                country_codes, dates, strict=True
+            )  # strict=True means country_codes and dates must be same length
         ]
 
         if select_first:
