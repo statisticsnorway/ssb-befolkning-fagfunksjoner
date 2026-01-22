@@ -5,9 +5,9 @@ from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeli
 
 
 def sorter_landkoder(
-    country_codes: Sequence[str],
+    country_codes: Sequence[Sequence[str]],
     *,
-    dates: Sequence[str] | None = None,
+    dates: Sequence[Sequence[str]] | None = None,
     select_first: bool = False,
     year: int | str = datetime.today().year,
 ) -> tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]:
@@ -15,9 +15,9 @@ def sorter_landkoder(
 
     Parameters
     ----------
-    country_codes : Sequence[str]
+    country_codes : Sequence[Sequence[str]]
         Sequence of country code lists to reorder.
-    dates : Sequence[str] | None, optional
+    dates : Sequence[Sequence[str]] | None, optional
         Optional date lists corresponding to country codes.
         If provided, dates are reordered to match country code order.
     select_first : bool, default False
@@ -27,7 +27,7 @@ def sorter_landkoder(
 
     Returns:
     -------
-    tuple[list, list] | list
+    tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]
         If dates provided: (ordered_codes, ordered_dates)
         If no dates: ordered_codes
         If select_first=True, each sublist contains only one element.
