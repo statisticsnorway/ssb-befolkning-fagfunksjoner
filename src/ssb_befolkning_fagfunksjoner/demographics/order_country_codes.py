@@ -14,14 +14,14 @@ def sorter_landkoder(
     """Reorders country codes based on KLASS regional priority ranking.
 
     Parameters:
-        country_codes : Sequence[Sequence[str]]
+        country_codes: Sequence[Sequence[str]]
             Sequence of country code lists to reorder.
-        dates : Sequence[Sequence[str]] | None, optional
+        dates: Sequence[Sequence[str]] | None, optional
             Optional date lists corresponding to country codes.
             If provided, dates are reordered to match country code order.
-        select_first : bool, default False
+        select_first: bool, default False
             If True, return only the highest-priority code (and date) per row.
-        year : int | str, default current year
+        year: int | str, default current year
             Year for loading the appropriate KLASS classification.
 
     Returns:
