@@ -25,7 +25,7 @@ def sorter_landkoder(
     year : int | str, default current year
         Year for loading the appropriate KLASS classification.
 
-    Returns:
+    Returns
     -------
     tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]
         If dates provided: (ordered_codes, ordered_dates)
