@@ -1,3 +1,6 @@
+from typing import Sequence
+
+
 from collections.abc import Iterable
 from collections.abc import Sequence
 from datetime import datetime
@@ -36,7 +39,7 @@ def sorter_landkoder(
 
     # Apply ranking with dates
     if dates is not None:
-        ordered = [
+        ordered_pair = [
             _sort_by_ranking_multiple(ranking, code_list, date_list)
             for code_list, date_list in zip(
                 country_codes, dates, strict=True
@@ -44,22 +47,22 @@ def sorter_landkoder(
         ]
 
         if select_first:
-            sorted_codes = [sorted_code_list[0:1] for sorted_code_list, _ in ordered]
-            sorted_dates = [sorted_date_list[0:1] for _, sorted_date_list in ordered]
+            sorted_codes = [sorted_code_list[0:1] for sorted_code_list, _ in ordered_pair]
+            sorted_dates = [sorted_date_list[0:1] for _, sorted_date_list in ordered_pair]
             return sorted_codes, sorted_dates
 
-        sorted_codes = [sorted_code_list for sorted_code_list, _ in ordered]
-        sorted_dates = [sorted_date_list for _, sorted_date_list in ordered]
+        sorted_codes = [sorted_code_list for sorted_code_list, _ in ordered_pair]
+        sorted_dates = [sorted_date_list for _, sorted_date_list in ordered_pair]
         return sorted_codes, sorted_dates
 
     # Apply ranking without dates
     else:
-        ordered = [_sort_by_ranking(ranking, code_list) for code_list in country_codes]
+        ordered_codes = [_sort_by_ranking(ranking, code_list) for code_list in country_codes]
 
         if select_first:
-            return [sorted_code_list[0:1] for sorted_code_list in ordered]
+            return [sorted_code_list[0:1] for sorted_code_list in ordered_codes]
 
-        return ordered
+        return ordered_codes
 
 
 def _sort_by_ranking_multiple(

@@ -262,9 +262,7 @@ class BirthRates:
         foedselsrater = self.beregn_foedselsrate(
             df_start, df_slutt, df_foedsler, grupperingsvariabler
         )
-        samlet_fruktbarhet = foedselsrater["foedselsrate"].sum()
-
-        return samlet_fruktbarhet
+        return float(foedselsrater["foedselsrate"].sum())
 
 
 # ------------------------------------------------------------------------

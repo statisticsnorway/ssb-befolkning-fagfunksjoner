@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Hashable, cast
 
 import klass
 
@@ -36,7 +36,7 @@ def load_country_codes() -> dict[str, str]:
 def load_verdensinndeling(year: int | str) -> dict[str, int]:
     """Load and transform KLASS world division codes to regional groups."""
     # Read country codes correspondence
-    landkoder_dict: dict[str, str] = load_country_codes()
+    landkoder_dict = load_country_codes()
 
     # Read world division classification
     world_div_dict = (
@@ -58,15 +58,15 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
         "921": 5,
         # Note: all other values not in the dict will be changed to '4' by default
     }
-    world_div_dict = {k: recoding_rules.get(v, 4) for k, v in world_div_dict.items()}
+    recoded_dict = {k: recoding_rules.get(v, 4) for k, v in cast(dict[str, str], world_div_dict).items()}
 
     # Set UK outside European group
-    world_div_dict["139"] = 4
+    recoded_dict["139"] = 4
 
     # Include any values in country codes, that may not be in world_div_dict
     for value in landkoder_dict.values():
-        if value not in world_div_dict:
+        if value not in recoded_dict:
             # Add new key with ranking '4'
-            world_div_dict[value] = 4
+            recoded_dict[value] = 4
 
-    return cast(dict[str, int], world_div_dict)
+    return recoded_dict
