@@ -1,4 +1,4 @@
-from typing import Hashable, cast
+from typing import cast
 
 import klass
 
@@ -58,7 +58,10 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
         "921": 5,
         # Note: all other values not in the dict will be changed to '4' by default
     }
-    recoded_dict = {k: recoding_rules.get(v, 4) for k, v in cast(dict[str, str], world_div_dict).items()}
+    recoded_dict = {
+        k: recoding_rules.get(v, 4)
+        for k, v in cast(dict[str, str], world_div_dict).items()
+    }
 
     # Set UK outside European group
     recoded_dict["139"] = 4

@@ -1,6 +1,3 @@
-from typing import Sequence
-
-
 from collections.abc import Iterable
 from collections.abc import Sequence
 from datetime import datetime
@@ -47,8 +44,12 @@ def sorter_landkoder(
         ]
 
         if select_first:
-            sorted_codes = [sorted_code_list[0:1] for sorted_code_list, _ in ordered_pair]
-            sorted_dates = [sorted_date_list[0:1] for _, sorted_date_list in ordered_pair]
+            sorted_codes = [
+                sorted_code_list[0:1] for sorted_code_list, _ in ordered_pair
+            ]
+            sorted_dates = [
+                sorted_date_list[0:1] for _, sorted_date_list in ordered_pair
+            ]
             return sorted_codes, sorted_dates
 
         sorted_codes = [sorted_code_list for sorted_code_list, _ in ordered_pair]
@@ -57,7 +58,9 @@ def sorter_landkoder(
 
     # Apply ranking without dates
     else:
-        ordered_codes = [_sort_by_ranking(ranking, code_list) for code_list in country_codes]
+        ordered_codes = [
+            _sort_by_ranking(ranking, code_list) for code_list in country_codes
+        ]
 
         if select_first:
             return [sorted_code_list[0:1] for sorted_code_list in ordered_codes]
