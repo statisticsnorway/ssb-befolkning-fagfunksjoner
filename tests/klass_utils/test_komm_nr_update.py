@@ -141,3 +141,32 @@ def test_recursive_mapping(
 
     result = update_komm_nr(original, 2024, validate=True)
     pd.testing.assert_series_equal(result, expected, check_names=False)
+
+
+# ------------------------------------------------------------------------
+# Test 4: NA handling
+# ------------------------------------------------------------------------
+
+
+@pytest.fixture
+def empty_changes() -> pd.DataFrame:
+    return pd.DataFrame({"old_code": [], "new_code": []})
+
+
+def test_na_filled_with_0000(
+    mocker: MockerFixture,
+    empty_changes: pd.DataFrame,
+    empty_splits: pd.DataFrame,
+) -> None:
+    """Missing codes are filled with '0000' prior to validation."""
+    original = pd.Series(["0301", None])
+    expected = pd.Series(["0301", None])
+
+    mocker.patch(
+        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
+        return_value=(empty_changes, empty_splits),
+    )
+    mocker.patch("ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.validate_komm_nr")
+
+    result = update_komm_nr(original, 2024, validate=True)
+    pd.testing.assert_series_equal(result, expected, check_names=False)
