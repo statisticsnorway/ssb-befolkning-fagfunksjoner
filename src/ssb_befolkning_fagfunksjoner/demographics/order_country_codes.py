@@ -1,6 +1,6 @@
+from collections.abc import Iterable
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Iterable
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeling
 
