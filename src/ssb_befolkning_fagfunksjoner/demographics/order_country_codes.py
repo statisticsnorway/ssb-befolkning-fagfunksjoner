@@ -13,7 +13,7 @@ def sorter_landkoder(
 ) -> tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]:
     """Reorders country codes based on KLASS regional priority ranking.
 
-    Parameters
+    Parameters:
     ----------
     country_codes : Sequence[Sequence[str]]
         Sequence of country code lists to reorder.
@@ -25,7 +25,7 @@ def sorter_landkoder(
     year : int | str, default current year
         Year for loading the appropriate KLASS classification.
 
-    Returns
+    Returns:
     -------
     tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]
         If dates provided: (ordered_codes, ordered_dates)
