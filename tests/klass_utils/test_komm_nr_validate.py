@@ -56,7 +56,7 @@ def test_validate_komm_nr_all_valid(
     expect_error: Any,
 ) -> None:
     mocker.patch(
-        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr._load_komm_nr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.mappers.load_komm_nr",
         return_value=mock_valid_codes,
     )
 
@@ -79,7 +79,7 @@ def test_validate_komm_nr_calls_loader_with_year(
     """
     s = pd.Series(["0301"])
     mock_load_kommnr = mocker.patch(
-        "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr._load_komm_nr",
+        "ssb_befolkning_fagfunksjoner.klass_utils.mappers.load_komm_nr",
         return_value=mock_valid_codes,
     )
 
