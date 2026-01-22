@@ -32,13 +32,6 @@ def sorter_landkoder(
         If no dates: ordered_codes
         If select_first=True, each sublist contains only one element.
     """
-    # Validate inputs
-    if dates is not None and len(country_codes) != len(dates):
-        raise ValueError(
-            f"Length mismatch: country_codes has {len(country_codes)} elements "
-            f"but dates has {len(dates)} elements."
-        )
-
     # Get ranking dictionary
     ranking = load_verdensinndeling(year)
 
@@ -46,7 +39,7 @@ def sorter_landkoder(
     if dates is not None:
         ordered = [
             _sort_by_ranking_multiple(ranking, code_list, date_list)
-            for code_list, date_list in zip(country_codes, dates)
+            for code_list, date_list in zip(country_codes, dates, strict=True)  # strict=True means country_codes and dates must be same length
         ]
 
         if select_first:
@@ -76,7 +69,7 @@ def _sort_by_ranking_multiple(
     if not codes:
         return codes, dates
 
-    pairs = list(zip(codes, dates))
+    pairs = list(zip(codes, dates, strict=True))
     sorted_pairs = sorted(pairs, key=lambda x: ranking.get(x[0], float("inf")))
 
     # Unpack

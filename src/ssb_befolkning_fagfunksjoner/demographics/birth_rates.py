@@ -21,7 +21,7 @@ class BirthRates:
     max_alder: int
     beregn_for_menn: bool
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Sjekk at min_alder < max_alder (tidlig raise)
         if self.min_alder > self.max_alder:
             raise ValueError(
