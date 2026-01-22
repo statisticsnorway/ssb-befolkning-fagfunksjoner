@@ -1,13 +1,14 @@
 from collections.abc import Sequence
 from datetime import datetime
+from typing import Iterable
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeling
 
 
 def sorter_landkoder(
-    country_codes: Sequence[Sequence[str]],
+    country_codes: Iterable[Sequence[str]],
     *,
-    dates: Sequence[Sequence[str]] | None = None,
+    dates: Iterable[Sequence[str]] | None = None,
     select_first: bool = False,
     year: int | str = datetime.today().year,
 ) -> tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]:
