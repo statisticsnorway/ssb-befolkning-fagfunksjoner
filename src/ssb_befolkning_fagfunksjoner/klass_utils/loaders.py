@@ -3,6 +3,19 @@ from typing import cast
 import klass
 
 
+def load_komm_nr(year: int | str) -> dict[str, str]:
+    """Load KLASS codelist for municipalities."""
+    kommune_dict: dict[str, str] = (
+        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-02").to_dict()
+    )
+
+    # Handle missing values
+    kommune_dict.pop("9999", None)
+    kommune_dict["0000"] = "Sperret adresse"
+
+    return kommune_dict
+
+
 def load_country_codes() -> dict[str, str]:
     """Load KLASS correspondence table for country codes."""
     landkoder_dict: dict[str, str | None] = klass.KlassCorrespondence(953).to_dict()
@@ -26,16 +39,14 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
     landkoder_dict: dict[str, str] = load_country_codes()
 
     # Read world division classification
-    world_div_dict = cast(dict[str, int],
-        (
+    world_div_dict = (
             klass.KlassClassification(545)
             .get_codes(from_date=f"{year}-01-01", select_level=4)
             .data[["code", "parentCode"]]
             .set_index("code")["parentCode"]
-            .str[-3:].astype(int)
+            .str[-3:]
             .to_dict()
         )
-    )
 
     # Define and apply recoding rules
     recoding_rules = {
@@ -47,14 +58,10 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
         "921": 5,
         # Note: all other values not in the dict will be changed to '4' by default
     }
+    world_div_dict = {k: recoding_rules.get(v, 4) for k, v in world_div_dict.items()}
 
-    for key, value in world_div_dict.items():
-        if key == "139":
-            world_div_dict[key] = 4
-        elif value in recoding_rules:
-            world_div_dict[key] = recoding_rules[value]
-        else:
-            world_div_dict[key] = 4
+    # Set UK outside European group
+    world_div_dict["139"] = 4
 
     # Include any values in country codes, that may not be in world_div_dict
     for value in landkoder_dict.values():
@@ -62,4 +69,4 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
             # Add new key with ranking '4'
             world_div_dict[value] = 4
 
-    return world_div_dict
+    return cast(dict[str, int], world_div_dict)

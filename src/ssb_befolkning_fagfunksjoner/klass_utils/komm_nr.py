@@ -7,7 +7,8 @@ import klass
 import pandas as pd
 from tabulate import tabulate
 
-from ..klass_utils.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_utils.mappers import load_komm_nr
 
 logger = logging.getLogger(__name__)
 
@@ -20,22 +21,9 @@ __all__ = ["get_komm_nr_changes", "update_komm_nr", "validate_komm_nr"]
 # ------------------------------------------------------------------------
 
 
-def _load_komm_nr(year: int | str) -> dict[str, str]:
-    """Load KLASS codelist for municipalities."""
-    kommune_dict: dict[str, str] = (
-        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-02").to_dict()
-    )
-
-    # Handle missing values
-    kommune_dict.pop("9999", None)
-    kommune_dict["0000"] = "Sperret adresse"
-
-    return kommune_dict
-
-
 def validate_komm_nr(codes: pd.Series, year: int | str) -> None:
     """Validate that all codes exist in the KLASS codelist for the given year."""
-    valid_codes = set(_load_komm_nr(year).keys())
+    valid_codes = set(load_komm_nr(year).keys())
     invalid_codes = set(codes) - valid_codes
 
     if invalid_codes:
@@ -128,11 +116,6 @@ def update_komm_nr(
         target_date=datetime.date(int(year), 1, 1)
     )
     komm_nr_changes_dict = komm_nr_changes.set_index("old_code").to_dict()["new_code"]
-
-    original_codes = original_codes.fillna("0000")
-    logger.info(
-        f"{len(original_codes[original_codes == '0000'])} rows where municipality code = '0000'"
-    )
 
     updated_codes = original_codes.map(
         lambda code: _get_latest_komm_nr(code, komm_nr_changes_dict)
