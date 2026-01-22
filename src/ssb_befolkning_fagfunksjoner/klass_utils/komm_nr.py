@@ -7,7 +7,9 @@ import klass
 import pandas as pd
 from tabulate import tabulate
 
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import (
+    get_klass_change_mapping,
+)
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_komm_nr
 
 logger = logging.getLogger(__name__)

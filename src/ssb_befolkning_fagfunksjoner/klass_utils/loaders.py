@@ -40,13 +40,13 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
 
     # Read world division classification
     world_div_dict = (
-            klass.KlassClassification(545)
-            .get_codes(from_date=f"{year}-01-01", select_level=4)
-            .data[["code", "parentCode"]]
-            .set_index("code")["parentCode"]
-            .str[-3:]
-            .to_dict()
-        )
+        klass.KlassClassification(545)
+        .get_codes(from_date=f"{year}-01-01", select_level=4)
+        .data[["code", "parentCode"]]
+        .set_index("code")["parentCode"]
+        .str[-3:]
+        .to_dict()
+    )
 
     # Define and apply recoding rules
     recoding_rules = {

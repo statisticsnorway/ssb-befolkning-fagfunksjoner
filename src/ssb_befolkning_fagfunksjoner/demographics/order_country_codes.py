@@ -1,18 +1,18 @@
-from typing import Sequence
+from collections.abc import Sequence
 from datetime import datetime
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeling
 
 
 def sorter_landkoder(
-    country_codes: Sequence[str], 
-    *, 
-    dates: Sequence[str] | None = None, 
-    select_first: bool = False, 
-    year: int | str = datetime.today().year
+    country_codes: Sequence[str],
+    *,
+    dates: Sequence[str] | None = None,
+    select_first: bool = False,
+    year: int | str = datetime.today().year,
 ) -> tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]:
     """Reorders country codes based on KLASS regional priority ranking.
-    
+
     Parameters
     ----------
     country_codes : Sequence[str]
@@ -24,8 +24,8 @@ def sorter_landkoder(
         If True, return only the highest-priority code (and date) per row.
     year : int | str, default current year
         Year for loading the appropriate KLASS classification.
-    
-    Returns
+
+    Returns:
     -------
     tuple[list, list] | list
         If dates provided: (ordered_codes, ordered_dates)
@@ -38,14 +38,14 @@ def sorter_landkoder(
             f"Length mismatch: country_codes has {len(country_codes)} elements "
             f"but dates has {len(dates)} elements."
         )
-    
-    # Get ranking dictionary 
+
+    # Get ranking dictionary
     ranking = load_verdensinndeling(year)
 
     # Apply ranking with dates
     if dates is not None:
         ordered = [
-            _sort_by_ranking_multiple(ranking, code_list, date_list) 
+            _sort_by_ranking_multiple(ranking, code_list, date_list)
             for code_list, date_list in zip(country_codes, dates)
         ]
 
@@ -69,9 +69,7 @@ def sorter_landkoder(
 
 
 def _sort_by_ranking_multiple(
-    ranking: dict[str, int], 
-    codes: Sequence[str], 
-    dates: Sequence[str]
+    ranking: dict[str, int], codes: Sequence[str], dates: Sequence[str]
 ) -> tuple[Sequence[str], Sequence[str]]:
     """Sort country codes and dates by ranking priority."""
     # Handle empty Sequences
@@ -79,27 +77,19 @@ def _sort_by_ranking_multiple(
         return codes, dates
 
     pairs = list(zip(codes, dates))
-    sorted_pairs = sorted(
-        pairs, key=lambda x: ranking.get(x[0], float('inf'))
-    )
+    sorted_pairs = sorted(pairs, key=lambda x: ranking.get(x[0], float("inf")))
 
-    # Unpack 
+    # Unpack
     sorted_codes = [code for code, _ in sorted_pairs]
     sorted_dates = [date for _, date in sorted_pairs]
 
     return sorted_codes, sorted_dates
 
 
-def _sort_by_ranking(
-    ranking: dict[str, int], 
-    codes: Sequence[str]
-) -> Sequence[str]:
+def _sort_by_ranking(ranking: dict[str, int], codes: Sequence[str]) -> Sequence[str]:
     """Sort country codes by ranking priority."""
     # Handle empty Sequences
     if not codes:
         return codes
-    
-    return sorted(
-        codes,
-        key=lambda code: ranking.get(code, float('inf'))
-    )
+
+    return sorted(codes, key=lambda code: ranking.get(code, float("inf")))
