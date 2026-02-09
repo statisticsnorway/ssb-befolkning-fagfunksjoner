@@ -76,7 +76,7 @@ class BirthRates:
             norm_grupperingsvariabler = list(grupperingsvariabler)
 
         # Fjerner duplikater og alderskolonner
-        norm_grupperingsvariabler = list(dict.fromkeys(norm_grupperingsvariabler))
+        norm_grupperingsvariabler = list(set(norm_grupperingsvariabler))
         norm_grupperingsvariabler = [
             col
             for col in norm_grupperingsvariabler
