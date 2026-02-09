@@ -166,9 +166,9 @@ def _build_change_graph(
 def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
     """Label graph edges with a "cession type".
 
-    Since the Klass API is missing metadata abut the type of change, like the SCB Regina API,
-    we try to interfere the type of cession here.
-    The algorithm may mislabel changes as a cessation, if there is boarder changes and code changes at the same time.
+    Since the Klass API is missing metadata about the type of change, like the SCB Regina API,
+    we try to infer the type of cession here.
+    The algorithm may mislabel changes as a cessation if there are border changes and code changes at the same time.
     """
     get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
     edges_missing_label: Iterable[tuple[_CodePoint, _CodePoint]] = filter(
@@ -236,10 +236,10 @@ def get_klass_change_mapping(
             "Target date older than from date, or older than KLASS classifcation"
         )
 
-    # Get directed graph `old_code -> new_code`
+    # Get directed graph `new_code -> old_code`
     graph = _build_change_graph(classification, from_date, to_date)
 
-    # To ignore minor boarder changes we filter away cession type ADJUSTMENT_PART_TO_EXISTING
+    # To ignore minor border changes we filter away cession type `ADJUSTMENT_PART_TO_EXISTING`
     get_cession_type = networkx.get_edge_attributes(graph, "cession_type")
     graph = networkx.subgraph_view(
         graph,

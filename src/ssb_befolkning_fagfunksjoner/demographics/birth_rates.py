@@ -1,7 +1,6 @@
 import itertools
 import warnings
 from dataclasses import dataclass
-from typing import cast
 
 import pandas as pd
 
@@ -21,6 +20,24 @@ class BirthRates:
     min_alder: int
     max_alder: int
     beregn_for_menn: bool
+
+    def __post_init__(self) -> None:
+        # Sjekk at min_alder < max_alder (tidlig raise)
+        if self.min_alder > self.max_alder:
+            raise ValueError(
+                f"Ugyldig aldersintervall: 'min_alder' {self.min_alder} må være mindre enn 'max_alder' {self.max_alder}."
+            )
+
+        # Sjekk at aldersgruppering ikke overstiger differansen mellom min. og max. alder
+        maks_mulig_bredde = (self.max_alder - self.min_alder) + 1
+        if self.aldersgruppering > maks_mulig_bredde:
+            raise ValueError(
+                f"Aldersgruppering ({self.aldersgruppering}) kan ikke overstige differansen mellom min. og max. alder ({maks_mulig_bredde})."
+            )
+
+        # Sjekk at aldersgruppering er minst 1
+        if self.aldersgruppering < 1:
+            raise ValueError("Aldersgruppering må være minst 1.")
 
     @staticmethod
     def _valider_grupperingsvariabler(
@@ -44,7 +61,7 @@ class BirthRates:
                 f"Minste gruppe har n={min_n}. "
                 f"Vurder å øke aldersgruppering fra {self.aldersgruppering} "
                 "eller aggregere grupperingsvariabler.",
-                stacklevel=1,
+                stacklevel=3,
             )
 
     def _normaliser_grupperingsvariabler(
@@ -58,36 +75,20 @@ class BirthRates:
         else:
             norm_grupperingsvariabler = list(grupperingsvariabler)
 
+        # Fjerner duplikater og alderskolonner
+        norm_grupperingsvariabler = list(set(norm_grupperingsvariabler))
         norm_grupperingsvariabler = [
-            col for col in norm_grupperingsvariabler if col != self.aldersgruppe_col
+            col
+            for col in norm_grupperingsvariabler
+            if col not in {self.aldersgruppe_col, self.alder_col}
         ]
 
         return [*norm_grupperingsvariabler, self.aldersgruppe_col]
 
     def _lag_aldersgrupper(self, alder: pd.Series) -> pd.Series:
-        """Lager aldersgrupper av kolonne med aldre.
-
-        Validerer at parameterverdiene er fornuftige, og sikrer at øvre grense
-        i siste aldersbånd ikke går over max_alder.
-        """
-        # Valider parametre
-        if self.min_alder > self.max_alder:
-            raise ValueError(
-                f"Ugyldig aldersintervall: 'min_alder' {self.min_alder} må være mindre enn 'max_alder' {self.max_alder}."
-            )
-
-        maks_mulig_bredde = (self.max_alder - self.min_alder) + 1
-        if self.aldersgruppering > maks_mulig_bredde:
-            raise ValueError(
-                f"Aldersgruppering ({self.aldersgruppering}) kan ikke overstige alderområdet ({maks_mulig_bredde})."
-            )
-
-        if self.aldersgruppering < 1:
-            raise ValueError("Aldersgruppering må være minst 1.")
-
+        """Lager aldersgrupper av kolonne med aldre."""
         if self.aldersgruppering == 1:
             return alder.astype("string")
-
         bins = (
             *range(self.min_alder, self.max_alder, self.aldersgruppering),
             self.max_alder + 1,
@@ -96,7 +97,6 @@ class BirthRates:
             f"{min_alder}-{max_alder - 1}"
             for min_alder, max_alder in itertools.pairwise(bins)
         ]
-
         return pd.cut(
             x=alder, bins=bins, right=False, labels=labels, include_lowest=True
         ).astype("string")
@@ -254,7 +254,7 @@ class BirthRates:
         df_slutt: pd.DataFrame,
         df_foedsler: pd.DataFrame,
         grupperingsvariabler: str | list[str] | None = None,
-    ) -> int:
+    ) -> float:
         """Regner ut samlet fruktbarhetstall etter aldersgrupper med mulighet for å gruppere etter valgt grupperingsvariabel.
 
         Samlet fruktbarhetstall er summen av fødselsrater.
@@ -262,17 +262,20 @@ class BirthRates:
         foedselsrater = self.beregn_foedselsrate(
             df_start, df_slutt, df_foedsler, grupperingsvariabler
         )
-        samlet_fruktbarhet = cast(int, foedselsrater["foedselsrate"].sum())
+        return float(foedselsrater["foedselsrate"].sum())
 
-        return samlet_fruktbarhet
+
+# ------------------------------------------------------------------------
+# Wrappers
+# ------------------------------------------------------------------------
 
 
 def foedselsrate(
     df_start: pd.DataFrame,
     df_slutt: pd.DataFrame,
     df_foedsler: pd.DataFrame,
-    grupperingsvariabler: None | str | list[str],
     *,
+    grupperingsvariabler: None | str | list[str] = None,
     aldersgruppe_col: str = "aldersgruppe",
     alder_col: str = "alder",
     kjoenn_col: str = "kjoenn",
@@ -282,7 +285,40 @@ def foedselsrate(
     max_alder: int = 49,
     beregn_for_menn: bool = False,
 ) -> pd.DataFrame:
-    """Function for calculating the birth rate."""
+    """Beregner fødselsrater per 1000 etter aldersgrupper.
+
+    Parametere
+    ----------
+    df_start: pd.DataFrame
+        Befolkning ved periodens start. Må inneholde alder og grupperingskolonner.
+    df_slutt: pd.DataFrame
+        Befolkning ved periodens slutt. Må inneholde alder og grupperingskolonner.
+    df_foedsler: pd.DataFrame
+        Hendelsesdata for fødsler.
+    grupperingsvariabler: None | str | list[str], optional
+        Variabler å gruppere fødselsrater på (f.eks. "komm_nr" eller ["landsdel", "invkat"]).
+    aldersgruppering: int, default 1
+        Bredde på aldersgrupper (f.eks. 5 for 5-årsgrupper)
+    min_alder: int, default 15
+        Nedre aldersgrense.
+    max_alder: int, default 49
+        Øvre aldersgrense.
+    beregn_for_menn: bool, default False
+        Hvis True, beregn fødselsrater for menn.
+
+    Returnerer
+    ----------
+    pd.DataFrame
+        Datasett med fødselsrater per gruppe.
+
+    Eksempler
+    ----------
+    # Med 5-årsgrupper
+    foedselsrate(start, slutt, foedsler, aldersgruppering=5)
+
+    # Gruppert etter fylke
+    foedselsrate(start, slutt, foedsler, grupperingsvariabler="fylke")
+    """
     foedselsrater = BirthRates(
         aldersgruppe_col=aldersgruppe_col,
         alder_col=alder_col,
@@ -297,3 +333,75 @@ def foedselsrate(
     return foedselsrater.beregn_foedselsrate(
         df_start, df_slutt, df_foedsler, grupperingsvariabler
     )
+
+
+def samlet_fruktbarhet(
+    df_start: pd.DataFrame,
+    df_slutt: pd.DataFrame,
+    df_foedsler: pd.DataFrame,
+    *,
+    grupperingsvariabler: None | str | list[str] = None,
+    aldersgruppe_col: str = "aldersgruppe",
+    alder_col: str = "alder",
+    kjoenn_col: str = "kjoenn",
+    skala: int = 1000,
+    aldersgruppering: int = 1,
+    min_alder: int = 15,
+    max_alder: int = 49,
+    beregn_for_menn: bool = False,
+) -> float:
+    """Beregner samlet fruktbarhetstall per 1000 etter aldersgrupper.
+
+    Parametere
+    ----------
+    df_start: pd.DataFrame
+        Befolkning ved periodens start. Må inneholde alder og grupperingskolonner.
+    df_slutt: pd.DataFrame
+        Befolkning ved periodens slutt. Må inneholde alder og grupperingskolonner.
+    df_foedsler: pd.DataFrame
+        Hendelsesdata for fødsler.
+    grupperingsvariabler: None | str | list[str], optional
+        Variabler å gruppere fødselsrater på (f.eks. "komm_nr" eller ["landsdel", "invkat"]).
+    aldersgruppering: int, default 1
+        Bredde på aldersgrupper (f.eks. 5 for 5-årsgrupper)
+    min_alder: int, default 15
+        Nedre aldersgrense.
+    max_alder: int, default 49
+        Øvre aldersgrense.
+    beregn_for_menn: bool, default False
+        Hvis True, beregn fødselsrater for menn.
+
+    Returnerer
+    ----------
+    float
+        Samlet fruktbarhetstall er summen av grupperte fruktbarhetsrater.
+
+    Eksempler
+    ----------
+    # Med 5-årsgrupper
+    samlet_fruktbarhet(start, slutt, foedsler, aldersgruppering=5)
+
+    # Gruppert etter fylke
+    samlet_fruktbarhet(start, slutt, foedsler, grupperingsvariabler="fylke")
+    """
+    foedselsrater = BirthRates(
+        aldersgruppe_col=aldersgruppe_col,
+        alder_col=alder_col,
+        kjoenn_col=kjoenn_col,
+        skala=skala,
+        aldersgruppering=aldersgruppering,
+        min_alder=min_alder,
+        max_alder=max_alder,
+        beregn_for_menn=beregn_for_menn,
+    )
+
+    return foedselsrater.beregn_samlet_fruktbarhetstall(
+        df_start, df_slutt, df_foedsler, grupperingsvariabler
+    )
+
+
+# ------------------------------------------------------------------------
+# Nice to have:
+# 1. Confidence intervals (poisson?)
+# 2. Visualisation
+# ------------------------------------------------------------------------

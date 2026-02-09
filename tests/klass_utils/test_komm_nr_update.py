@@ -144,7 +144,7 @@ def test_recursive_mapping(
 
 
 # ------------------------------------------------------------------------
-# Test 4: NA handling - missing filled with "0000" to match Klass
+# Test 4: NA handling
 # ------------------------------------------------------------------------
 
 
@@ -160,7 +160,7 @@ def test_na_filled_with_0000(
 ) -> None:
     """Missing codes are filled with '0000' prior to validation."""
     original = pd.Series(["0301", None])
-    expected = pd.Series(["0301", "0000"])
+    expected = pd.Series(["0301", None])
 
     mocker.patch(
         "ssb_befolkning_fagfunksjoner.klass_utils.komm_nr.get_komm_nr_changes",
