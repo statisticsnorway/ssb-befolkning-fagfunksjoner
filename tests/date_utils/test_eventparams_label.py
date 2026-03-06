@@ -7,19 +7,19 @@ from ssb_befolkning_fagfunksjoner import EventParams
     "year, period_type, period_number, expected_label",
     [
         # Year
-        (2024, "year", None, "p2024"),
+        (2024, "year", None, "2024"),
         # Halfyear
-        (2024, "halfyear", 1, "p2024-H1"),
-        (2024, "halfyear", 2, "p2024-H2"),
+        (2024, "halfyear", 1, "2024-H1"),
+        (2024, "halfyear", 2, "2024-H2"),
         # Quarter
-        (2024, "quarter", 1, "p2024-Q1"),
-        (2024, "quarter", 4, "p2024-Q4"),
+        (2024, "quarter", 1, "2024-Q1"),
+        (2024, "quarter", 4, "2024-Q4"),
         # Month (check zero-padding)
-        (2024, "month", 1, "p2024-01"),
-        (2024, "month", 10, "p2024-10"),
+        (2024, "month", 1, "2024-01"),
+        (2024, "month", 10, "2024-10"),
         # Week (check zero-padding)
-        (2024, "week", 2, "p2024-W02"),
-        (2024, "week", 12, "p2024-W12"),
+        (2024, "week", 2, "2024-W02"),
+        (2024, "week", 12, "2024-W12"),
     ],
 )
 def test_period_label_formats_correctly(
