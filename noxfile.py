@@ -10,7 +10,6 @@ from textwrap import dedent
 
 import nox
 
-
 try:
     from nox_poetry import Session
     from nox_poetry import session
@@ -24,7 +23,7 @@ except ImportError:
     raise SystemExit(dedent(message)) from None
 
 package = "ssb_befolkning_fagfunksjoner"
-python_versions = ["3.11", "3.12", "3.13"]
+python_versions = ["3.13", "3.12", "3.14"]
 python_versions_for_test = python_versions
 nox.needs_version = ">= 2025.2.9"
 nox.options.sessions = (
