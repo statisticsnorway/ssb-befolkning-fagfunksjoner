@@ -18,6 +18,14 @@ ssb\_befolkning\_fagfunksjoner.demographics.dublettsjekk module
    :show-inheritance:
    :undoc-members:
 
+ssb\_befolkning\_fagfunksjoner.demographics.order\_country\_codes module
+------------------------------------------------------------------------
+
+.. automodule:: ssb_befolkning_fagfunksjoner.demographics.order_country_codes
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ssb\_befolkning\_fagfunksjoner.demographics.sml\_rader module
 -------------------------------------------------------------
 

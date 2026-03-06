@@ -26,6 +26,14 @@ ssb\_befolkning\_fagfunksjoner.klass\_utils.level\_mapping module
    :show-inheritance:
    :undoc-members:
 
+ssb\_befolkning\_fagfunksjoner.klass\_utils.loaders module
+----------------------------------------------------------
+
+.. automodule:: ssb_befolkning_fagfunksjoner.klass_utils.loaders
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ssb\_befolkning\_fagfunksjoner.klass\_utils.mappers module
 ----------------------------------------------------------
 
