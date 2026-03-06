@@ -162,19 +162,19 @@ class EventParams:
     def period_label(self) -> str:
         """Returns a period label string formatted to Dapla standard."""
         if self.period_type == "year":
-            return f"p{self.year}"
+            return f"{self.year}"
 
         if self.period_type == "halfyear":
-            return f"p{self.year}-H{self.period_number}"
+            return f"{self.year}-H{self.period_number}"
 
         if self.period_type == "quarter":
-            return f"p{self.year}-Q{self.period_number}"
+            return f"{self.year}-Q{self.period_number}"
 
         if self.period_type == "month":
-            return f"p{self.year}-{str(self.period_number).zfill(2)}"
+            return f"{self.year}-{str(self.period_number).zfill(2)}"
 
         if self.period_type == "week":
-            return f"p{self.year}-W{str(self.period_number).zfill(2)}"
+            return f"{self.year}-W{str(self.period_number).zfill(2)}"
 
         raise ValueError()
 
