@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime
 import functools
-from typing import TypeAlias
 from typing import cast
 from typing import overload
 
@@ -14,7 +13,7 @@ from klass.requests.klass_types import VersionPartType
 from .change_mapping import _get_from_date
 from .change_mapping import _get_to_date
 
-_Code: TypeAlias = str
+type _Code = str
 
 
 def _date_between(

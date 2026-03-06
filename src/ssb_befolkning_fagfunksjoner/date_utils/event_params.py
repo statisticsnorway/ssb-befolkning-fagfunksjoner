@@ -2,12 +2,11 @@ import calendar
 from datetime import date
 from typing import Literal
 from typing import Self
-from typing import TypeAlias
 from typing import TypeIs
 
 from dateutil.relativedelta import relativedelta
 
-PeriodType: TypeAlias = Literal["year", "halfyear", "quarter", "month", "week"]
+type PeriodType = Literal["year", "halfyear", "quarter", "month", "week"]
 
 
 class EventParams:
