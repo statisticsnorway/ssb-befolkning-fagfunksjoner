@@ -3,9 +3,9 @@ from datetime import date
 from typing import Literal
 from typing import Self
 from typing import TypeAlias
+from typing import TypeIs
 
 from dateutil.relativedelta import relativedelta
-from typing_extensions import TypeIs
 
 PeriodType: TypeAlias = Literal["year", "halfyear", "quarter", "month", "week"]
 
