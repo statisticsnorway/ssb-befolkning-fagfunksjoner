@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import cast
 
 import pandas as pd
 from pandas.api.typing import NAType
@@ -30,12 +31,12 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
                 raise ValueError(
                     f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953)."
                 ) from e
-        else:
-            try:
-                return [mapping[c] for c in code]  # pyright: ignore[reportGeneralTypeIssues]
-            except KeyError as e:
-                raise ValueError(
-                    f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
-                ) from e
+
+        try:
+            return [mapping[c] for c in cast(Sequence[str], code)]
+        except KeyError as e:
+            raise ValueError(
+                f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
+            ) from e
 
     return alpha_3_col.apply(_convert)
