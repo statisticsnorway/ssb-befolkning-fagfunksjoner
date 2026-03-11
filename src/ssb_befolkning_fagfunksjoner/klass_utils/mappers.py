@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 
 import pandas as pd
+from pandas.api.typing import NAType
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_country_codes
 
@@ -17,7 +18,7 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     """
     mapping: dict[str, str] = load_country_codes()
 
-    def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
+    def _convert(code: str | Sequence[str] | None | NAType) -> str | Sequence[str] | None:
         if (
             code is pd.NA or code is None
         ):  # If empty string or None or pd.NA, return None
