@@ -22,7 +22,7 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     def _convert(code: str | Sequence[str] | None | NAType) -> str | Sequence[str] | None:
         if (
             code is pd.NA or code is None
-        ):  # If empty string or None or pd.NA, return None
+        ):  # # If None or pd.NA, return None
             return None
         if isinstance(code, str):
             try:
