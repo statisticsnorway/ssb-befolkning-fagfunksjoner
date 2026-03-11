@@ -18,7 +18,9 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     mapping: dict[str, str] = load_country_codes()
 
     def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
-        if code is pd.NA or code is None:  # If empty string or None or pd.NA, return None
+        if (
+            code is pd.NA or code is None
+        ):  # If empty string or None or pd.NA, return None
             return None
         if isinstance(code, str):
             try:
