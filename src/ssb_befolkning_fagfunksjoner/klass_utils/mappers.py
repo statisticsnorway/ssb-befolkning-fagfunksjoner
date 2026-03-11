@@ -19,19 +19,9 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     """
     mapping: dict[str, str] = load_country_codes()
 
-    def _convert(
-        code: str | Sequence[str] | None | NAType,
-    ) -> str | Sequence[str] | None:
-        if code is pd.NA or code is None:  # # If None or pd.NA, return None
+    def _convert(code: Sequence[str] | None | NAType) -> Sequence[str] | None:
+        if pd.isna(code):  # type: ignore
             return None
-        if isinstance(code, str):
-            try:
-                return mapping[code]
-            except KeyError as e:
-                raise ValueError(
-                    f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953)."
-                ) from e
-
         try:
             return [mapping[c] for c in cast(Sequence[str], code)]
         except KeyError as e:
