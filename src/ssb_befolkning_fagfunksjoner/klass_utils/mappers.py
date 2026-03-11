@@ -32,7 +32,7 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
                 ) from e
         else:
             try:
-                return [mapping[c] for c in code]
+                return [mapping[c] for c in code]  # pyright: ignore[reportGeneralTypeIssues]
             except KeyError as e:
                 raise ValueError(
                     f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
