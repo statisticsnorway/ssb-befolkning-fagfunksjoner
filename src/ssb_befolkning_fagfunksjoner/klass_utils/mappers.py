@@ -1,6 +1,8 @@
 from collections.abc import Sequence
+from typing import cast
 
 import pandas as pd
+from pandas.api.typing import NAType
 
 from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_country_codes
 
@@ -17,8 +19,10 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
     """
     mapping: dict[str, str] = load_country_codes()
 
-    def _convert(code: str | Sequence[str] | None) -> str | Sequence[str] | None:
-        if not code:  # If empty string or None or pd.NA, return None
+    def _convert(
+        code: str | Sequence[str] | None | NAType,
+    ) -> str | Sequence[str] | None:
+        if code is pd.NA or code is None:  # # If None or pd.NA, return None
             return None
         if isinstance(code, str):
             try:
@@ -27,12 +31,12 @@ def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
                 raise ValueError(
                     f"Fant ikke alpha-3 kode: {code} i KLASS kodeliste (953)."
                 ) from e
-        if isinstance(code, Sequence):
-            try:
-                return [mapping[c] for c in code]
-            except KeyError as e:
-                raise ValueError(
-                    f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
-                ) from e
+
+        try:
+            return [mapping[c] for c in cast(Sequence[str], code)]
+        except KeyError as e:
+            raise ValueError(
+                f"Fant ikke alpha-3 koder: {code} i KLASS kodeliste (953)."
+            ) from e
 
     return alpha_3_col.apply(_convert)
