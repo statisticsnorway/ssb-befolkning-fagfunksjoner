@@ -1,10 +1,16 @@
 import itertools
 import warnings
 from dataclasses import dataclass
+from typing import Literal, TypeAlias
 
 import pandas as pd
+import numpy as np
+from scipy import stats
 
-__all__ = ["foedselsrate"]
+__all__ = ["foedselsrate", "samlet_fruktbarhet"]
+
+
+VariansFordeling: TypeAlias = Literal["poisson", "normal"]
 
 
 @dataclass
@@ -50,7 +56,48 @@ class BirthRates:
                 f"Datasett '{navn_df}' mangler grupperingskolonner: {mangler}."
             )
 
-    def _sjekk_smaa_grupper(self, gruppert_antall: pd.Series, terskel: int) -> None:
+    @staticmethod
+    def _poisson_ci(
+        n: pd.Series, at_risk: pd.Series, scale: int, confidence: float 
+    ) -> tuple[pd.Series, pd.Series]:
+        """Poisson distribution confidence interval based on Chi-squared quantiles.
+        
+        For birth rates r(x) = B(x)/Y(x), the confidence interval is computed as follows:
+            ci_lower(x) = chi2.ppf(alpha/2, df=2*B(x)) / (2*Y(x))
+            ci_upper(x) = chi2.ppf(1 - alpha/2, df=2*(B(x) + 1)) / (2*Y(x))
+        """
+        alpha = 1 - confidence
+        
+        lower_bound = stats.chi2.ppf(q=alpha/2, df=2*n) / (2*at_risk) * scale
+        upper_bound = stats.chi2.ppf(q=(1-(alpha/2)), df=2*(n+1)) / (2*at_risk) * scale
+
+        return pd.Series(lower_bound), pd.Series(upper_bound)
+
+    @staticmethod
+    def _normal_ci(
+        n: pd.Series, at_risk: pd.Series, scale: int, confidence: float
+    ) -> tuple[pd.Series, pd.Series]:
+        """Normal distribution confidence interval.
+        
+        For birth rates r(x) = B(x)/Y(x), the confidence interval is computed as follows:
+            ci_lower(x) = r(x) - z_(1-alpa/2) * se_(r)
+            ci_upper(x) = r(x) + z_(1-alpa/2) * se_(r)
+        """
+        variance = (n/at_risk**2) * scale**2
+        se = np.sqrt(variance)
+
+        rate = (n/at_risk) * scale
+        alpha = 1 - confidence
+
+        z = stats.norm.ppf(1 - (alpha/2))
+        lower_bound = (rate - z * se).clip(lower=0)
+        upper_bound = (rate + z * se)
+
+        return lower_bound, upper_bound
+
+    def _sjekk_smaa_grupper(
+        self, gruppert_antall: pd.Series, terskel: int
+    ) -> None:
         """Gir advarsel dersom minste gruppe har færre observasjoner enn terskelverdien."""
         if gruppert_antall.empty:
             return
@@ -101,10 +148,7 @@ class BirthRates:
             x=alder, bins=bins, right=False, labels=labels, include_lowest=True
         ).astype("string")
 
-    def _filtrer_og_lag_aldersgrupper(
-        self,
-        df: pd.DataFrame,
-    ) -> pd.DataFrame:
+    def _filtrer_og_lag_aldersgrupper(self, df: pd.DataFrame) -> pd.DataFrame:
         """Filtrerer datasettet på kjønn og alder, og lager aldersgrupper.
 
         Datasettet filtreres til valgt kjønn og til personer innenfor aldersintervallet: 'min_alder' til 'max_alder'.
@@ -184,12 +228,53 @@ class BirthRates:
 
         return mfm.sort_values(grupperingsvariabler).reset_index(drop=True)
 
+    def _beregn_varians_og_intervaller(
+        self,
+        df: pd.DataFrame,
+        konfidensnivaa: float = 0.95,
+        ki_metode: VariansFordeling = "poisson",
+    ) -> pd.DataFrame:
+        """Legger til varians, standardfeil og konfidensintervall i fødselsratetabellen.
+        
+        Kolonner som legges til:
+            - varians   : Var(rate) = n_foedsler / MFM^2 * skala^2
+            - std_feil  : sqrt(varians)
+            - ki_nedre  : nedre konfidensgrense
+            - ki_oevre  : øvre konfidensgrense
+
+        Parametere
+        ----------
+        df: pd.DataFrame
+            Datasett med fødsler og middelfolkmengde
+        konfidensnivaa: float, default 0.95
+            Konfidensnivå for utregning av konfidensintervaller
+        ki_metode: {"eksakt", "normal"}, default og fallback er "normal"
+            Valg mellom poisson og normal fordeling.
+        """
+        if not 0 < konfidensnivaa < 1:
+            raise ValueError("Konfidensnivå må være mellom 0 og 1.")
+        
+        df = df.copy()
+        n = df["n_foedsler"]
+        mfm = df["middelfolkemengde"]
+
+        df["varians"] = (n/mfm**2) * self.skala**2
+        df["std_feil"] = np.sqrt(df["varians"])
+
+        if ki_metode == "poisson":
+            df["ki_nedre"], df["ki_oevre"] = self._poisson_ci(n, mfm, self.skala, konfidensnivaa)
+        else:
+            df["ki_nedre"], df["ki_oevre"] = self._normal_ci(n, mfm, self.skala, konfidensnivaa)
+
+        return df
+
     def beregn_foedselsrate(
         self,
         df_start: pd.DataFrame,
         df_slutt: pd.DataFrame,
         df_foedsler: pd.DataFrame,
         grupperingsvariabler: None | str | list[str] = None,
+        konfidensnivaa: float | None = 0.95,
     ) -> pd.DataFrame:
         """Beregner fødselsrater per 1000 etter aldersgrupper og valgte grupperingsvariabler.
 
@@ -245,6 +330,9 @@ class BirthRates:
         df_foedselsrater["foedselsrate"] = (
             df_foedselsrater["n_foedsler"] / df_foedselsrater["middelfolkemengde"]
         ) * self.skala
+
+        if konfidensnivaa is not None:
+            df_foedselsrater = self._beregn_varians_og_intervaller(df_foedselsrater, konfidensnivaa)
 
         return df_foedselsrater.sort_values(grupperingsvariabler).reset_index(drop=True)
 
@@ -398,10 +486,3 @@ def samlet_fruktbarhet(
     return foedselsrater.beregn_samlet_fruktbarhetstall(
         df_start, df_slutt, df_foedsler, grupperingsvariabler
     )
-
-
-# ------------------------------------------------------------------------
-# Nice to have:
-# 1. Confidence intervals (poisson?)
-# 2. Visualisation
-# ------------------------------------------------------------------------
