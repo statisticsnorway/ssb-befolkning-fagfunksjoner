@@ -27,6 +27,7 @@ class BirthRates:
     max_alder: int
     beregn_for_menn: bool
 
+
     def __post_init__(self) -> None:
         # Sjekk at min_alder < max_alder (tidlig raise)
         if self.min_alder > self.max_alder:
@@ -45,6 +46,7 @@ class BirthRates:
         if self.aldersgruppering < 1:
             raise ValueError("Aldersgruppering må være minst 1.")
 
+
     @staticmethod
     def _valider_grupperingsvariabler(
         df: pd.DataFrame, grupperingsvariabler: list[str], navn_df: str
@@ -55,6 +57,7 @@ class BirthRates:
             raise ValueError(
                 f"Datasett '{navn_df}' mangler grupperingskolonner: {mangler}."
             )
+
 
     @staticmethod
     def _poisson_ci(
@@ -72,6 +75,7 @@ class BirthRates:
         upper_bound = stats.chi2.ppf(q=(1-(alpha/2)), df=2*(n+1)) / (2*at_risk) * scale
 
         return pd.Series(lower_bound), pd.Series(upper_bound)
+
 
     @staticmethod
     def _normal_ci(
@@ -95,6 +99,7 @@ class BirthRates:
 
         return lower_bound, upper_bound
 
+
     def _sjekk_smaa_grupper(
         self, gruppert_antall: pd.Series, terskel: int
     ) -> None:
@@ -110,6 +115,7 @@ class BirthRates:
                 "eller aggregere grupperingsvariabler.",
                 stacklevel=3,
             )
+
 
     def _normaliser_grupperingsvariabler(
         self, grupperingsvariabler: None | str | list[str]
@@ -132,6 +138,7 @@ class BirthRates:
 
         return [*norm_grupperingsvariabler, self.aldersgruppe_col]
 
+
     def _lag_aldersgrupper(self, alder: pd.Series) -> pd.Series:
         """Lager aldersgrupper av kolonne med aldre."""
         if self.aldersgruppering == 1:
@@ -147,6 +154,7 @@ class BirthRates:
         return pd.cut(
             x=alder, bins=bins, right=False, labels=labels, include_lowest=True
         ).astype("string")
+
 
     def _filtrer_og_lag_aldersgrupper(self, df: pd.DataFrame) -> pd.DataFrame:
         """Filtrerer datasettet på kjønn og alder, og lager aldersgrupper.
@@ -185,6 +193,35 @@ class BirthRates:
         df[self.aldersgruppe_col] = self._lag_aldersgrupper(df[self.alder_col])
 
         return df
+
+
+    def _filter_births(self, df: pd.DataFrame, mother_age_col: str = "mor_alderh") -> pd.DataFrame:
+        # Validere parametere
+        if mother_age_col not in df.columns:
+            raise ValueError(f"Kolonnen '{mother_age_col}' finnes ikke i datasettet.")
+        
+        # Lokal kopi
+        df = df.copy()
+
+        # Filtrer på alder
+        df[mother_age_col] = df[mother_age_col].astype("Int64")
+        n_missing_alder = df[mother_age_col].isna().sum()
+        if n_missing_alder > 0:
+            warnings.warn(
+                f"Fant {n_missing_alder} rader med manglende mors alder. "
+                f"Disse ekskluderes fra beregningen.",
+                stacklevel=1,
+            )
+        df = df.loc[
+            df[mother_age_col].notnull()
+            & df[mother_age_col].between(self.min_alder, self.max_alder)
+        ].copy()
+
+        # Legg til aldersgruppe kolonne
+        df[self.aldersgruppe_col] = self._lag_aldersgrupper(df[mother_age_col])
+
+        return df
+        
 
     def _tell_per_gruppe(
         self, df: pd.DataFrame, grupperingsvariabler: list[str], navn: str
@@ -309,7 +346,7 @@ class BirthRates:
         mfm = self._beregn_middelfolkemengde(df_start, df_slutt, grupperingsvariabler)
 
         # Tell opp fødsler per gruppe
-        df_foedsler = self._filtrer_og_lag_aldersgrupper(df_foedsler)
+        df_foedsler = self._filter_births(df_foedsler)
         self._valider_grupperingsvariabler(
             df_foedsler, grupperingsvariabler, "df_foedsler"
         )
