@@ -17,7 +17,10 @@ dependencies = [
     "networkx (<3.5)",
     "types-networkx (>=3.5.0.20251001,<4.0.0.0)",
     "types-python-dateutil (>=2.9.0.20250822,<3.0.0.0)",
-    "scipy (>=1.17.1,<2.0.0)"
+    "scipy (>=1.17.1,<2.0.0)",
+    "formulaic (>=1.2.1,<2.0.0)",
+    "glum (>=3.3.0,<4.0.0)",
+    "statsmodels (>=0.14.6,<0.15.0)",
     ]
 
 [project.urls]
