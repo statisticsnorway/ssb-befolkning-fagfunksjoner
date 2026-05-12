@@ -10,13 +10,10 @@ dependencies = [
     "click (>=8.0.1)",
     "python-dateutil (>=2.9.0.post0)",
     "pandas (>=2.2.3)",
-    "universal-pathlib (>=0.2.6)",
     "ipykernel (>=6.29.5,<7.0.0)",
     "ssb-klass-python (>=1.0.2)",
     "tabulate (>=0.9.0)",
     "networkx (<3.5)",
-    "types-networkx (>=3.5.0.20251001,<4.0.0.0)",
-    "types-python-dateutil (>=2.9.0.20250822,<3.0.0.0)"
     ]
 
 [project.urls]
@@ -59,6 +56,8 @@ dev = [
     "pytest-mock (>=3.15.1)",
     "pandas-stubs (>=2.3.3.251219)",
     "types-tabulate (>=0.9.0.20241207)",
+    "types-networkx (>=3.5.0.20251001,<4.0.0.0)",
+    "types-python-dateutil (>=2.9.0.20250822,<3.0.0.0)"
 ]
 
 [tool.poetry]
