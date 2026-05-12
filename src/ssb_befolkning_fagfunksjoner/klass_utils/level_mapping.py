@@ -128,7 +128,7 @@ def _get_klass_level_map(
     codes_at_level = [
         code
         for (code, code_level) in graph.nodes(data="level")
-        if code_level == to_levelindex
+        if cast(int, code_level) == to_levelindex
     ]
     for target_code in codes_at_level:
         children_codes = networkx.dfs_preorder_nodes(graph, target_code)

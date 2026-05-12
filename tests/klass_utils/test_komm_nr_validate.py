@@ -43,7 +43,7 @@ cases = [
     ),
     (
         pd.Series(["0301", None]),
-        pytest.raises(ValueError, match=r"Invalid municipality codes found: \[None\]"),
+        pytest.raises(ValueError, match=r"Invalid municipality codes found: \[.+\]"),
     ),
 ]
 

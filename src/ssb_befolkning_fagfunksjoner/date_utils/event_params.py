@@ -1,10 +1,15 @@
 import calendar
+import sys
 from datetime import date
 from typing import Literal
 from typing import Self
-from typing import TypeIs
 
 from dateutil.relativedelta import relativedelta
+
+if sys.version_info >= (3, 13):
+    from typing import TypeIs
+else:
+    from typing_extensions import TypeIs
 
 type PeriodType = Literal["year", "halfyear", "quarter", "month", "week"]
 
