@@ -1,3 +1,5 @@
+"""Functions to create variables used in population statistics."""
+
 from .population import alderh
 from .population import alderu
 

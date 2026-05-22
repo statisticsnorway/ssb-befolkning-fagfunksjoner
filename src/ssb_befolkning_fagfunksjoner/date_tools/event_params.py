@@ -21,15 +21,6 @@ class EventParams:
     the calendar window, creates a Dapla-standardised period label, and exposes
     event parameters as SQL query parameters.
 
-    Attributes:
-        year: The calendar year of the period.
-        period_type: The granularity of the period (e.g. `"quarter"`).
-        period_number: The ordinal position of the period in the year (e.g. `3` for Q3).
-            `None` for `"year"` periods.
-        specify_wait_period: Whether the user was prompted for a custom wait period.
-        wait_months: Months to offset the wait-period window. Defaults to `1`.
-        wait_days: Days to offset the wait-period window. Defaults to `0`.
-
     Examples:
         >>> event_params = EventParams()
         # user is prompted to fill in class attributes...
@@ -57,10 +48,10 @@ class EventParams:
         specify_wait_period: bool = False,
     ) -> None:
         """Initialises an EventParams instance.
-        
-        Any argument left as `None` triggers an interactive prompt. If 
+
+        Any argument left as `None` triggers an interactive prompt. If
         `specify_wait_period` is `True`, the user is also prompted for
-        period-lag attributes. Otherwise, period-lag defaults to 1 month and 0 days. 
+        period-lag attributes. Otherwise, period-lag defaults to 1 month and 0 days.
 
         Args:
             year: The calendar year of the period. Prompted if `None`.
@@ -98,7 +89,7 @@ class EventParams:
         period_number: int | None,
     ) -> tuple[int, PeriodType, int | None]:
         """Prompt user for missing input arguments.
-        
+
         Validates `period_type` and only prompts for `period_number` when
         period is not `"year"`.
 
@@ -140,8 +131,8 @@ class EventParams:
         """Checks whether a string is a valid period type.
 
         Args:
-            value (str): The string to validate.
-        
+            value: The string to validate.
+
         Returns:
             `True` if `value` is one of `VALID_PERIOD_TYPES`, `False` otherwise.
         """
@@ -167,7 +158,7 @@ class EventParams:
         abbreviations (e.g. `"q"`). Loops until a valid choice is entered.
 
         Args:
-            msg (str): The prompt message displayed to the user.
+            msg: The prompt message displayed to the user.
 
         Returns:
             A validated `PeriodType` string.
@@ -195,11 +186,11 @@ class EventParams:
         msg: str, valid_range: tuple[int, int] | None = None
     ) -> int:
         """Prompt user for an integer, optionally constrained to a range.
-        
+
         Loops until a valid choice is entered.
 
         Args:
-            msg (str): The prompt message displayed to the user.
+            msg: The prompt message displayed to the user.
             valid_range (tuple[int, int]): An inclusive bound.
 
         Returns:
@@ -231,7 +222,7 @@ class EventParams:
     @classmethod
     def _prompt_year(cls) -> int:
         """Prompts the user for calendar year between 1900 and current year.
-        
+
         Returns:
             A validated 4-digit year.
         """
@@ -293,7 +284,7 @@ class EventParams:
 
         Returns:
             A `(start_date, end_date)` tuple.
-        
+
         Raises:
             ValueError: If `year` is None, or if `period_number` is
                 `None` in a non-year period.
@@ -348,9 +339,9 @@ class EventParams:
         For `boundary="end"`   -> add months, snap to end of that month, then add days.
 
         Args:
-            d (date): The base date to offset.
-            months (int): Number of months to add.
-            days (int): Number of days to add after the month offset.
+            d: The base date to offset.
+            months: Number of months to add.
+            days: Number of days to add after the month offset.
             boundary: Either `start` or `end` to specify boundary-logic.
 
         Returns:
@@ -395,7 +386,7 @@ class EventParams:
     # --------------------------------------------------------------------
     def to_query_params(self) -> dict[str, date]:
         """Returns a dict for parameterising SQL queries in event extraction.
-        
+
         Returns:
             A dictionary with four `date` values:
 

@@ -106,7 +106,9 @@ def test_tell_per_gruppe(br_default: FoedselsRater) -> None:
         }
     )
 
-    resultat = br_default._tell_per_gruppe(df, ["alder", "kjoenn"], kolonnenavn="antall")
+    resultat = br_default._tell_per_gruppe(
+        df, ["alder", "kjoenn"], kolonnenavn="antall"
+    )
 
     forventet = pd.DataFrame(
         {

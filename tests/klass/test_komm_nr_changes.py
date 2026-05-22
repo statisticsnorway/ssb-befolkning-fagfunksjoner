@@ -1,11 +1,11 @@
 from datetime import date
 from typing import Any
 
-import klass
 import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
+import klass
 from ssb_befolkning_fagfunksjoner.klass.komm_nr import get_komm_nr_changes
 
 # ------------------------------------------------------------------------

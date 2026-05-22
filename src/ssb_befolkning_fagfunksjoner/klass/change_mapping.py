@@ -9,11 +9,12 @@ from itertools import pairwise
 from typing import NamedTuple
 from typing import cast
 
-import klass
 import networkx
 import pandas as pd
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
+
+import klass
 
 __all__ = ["get_klass_change_mapping"]
 

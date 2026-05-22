@@ -1,11 +1,9 @@
-from typing import Self
-
-
 import getpass
 import logging
 import random
 import re
 from pathlib import Path
+from typing import Self
 
 import saspy
 
@@ -15,11 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class ManagedSASsession(saspy.SASsession):
-    """
-    SASsession with dunder enter an exit methods.
+    """SASsession with dunder enter an exit methods.
 
-    This allow us to use a SASsession in a with block to ensure that the session is closed, 
-    even if the programs fails. 
+    This allow us to use a SASsession in a with block to ensure that the session is closed,
+    even if the programs fails.
 
     Example usage:
     with ManagedSASsession() as sas_session:
@@ -44,7 +41,7 @@ class ManagedSASsession(saspy.SASsession):
             args["authkey"] = AUTHKEY
 
         super().__init__(**args)
-    
+
     def __enter__(self) -> Self:
         return self
 
@@ -55,7 +52,7 @@ class ManagedSASsession(saspy.SASsession):
 def _get_server_url() -> str:
     """Picks a SAS server at random."""
     server_nums = range(1, 1 + 6)
-    random_num = random.choice(server_nums)  
+    random_num = random.choice(server_nums)
     sas_server = f"sl-sas-comp-p{random_num}.ssb.no"
     logger.info(f"Using SAS server: {sas_server}")
     return sas_server
@@ -65,32 +62,32 @@ def set_password() -> None:
     """Sets SAS-encoded password so that interacting with saspy does not prompt for a password every time."""
     user_initials = getpass.getuser()
     password = getpass.getpass("Passord:")
-        
+
     with ManagedSASsession(password=password) as session:
-        
+
         log = session.submit(f"""
         proc pwencode in='{password}' method=sas004;
         run;
         """)["LOG"]
-        
+
     match = PATTERN.search(log)
-    
+
     if not match:
         raise ValueError("Could not find SAS-encoded password.")
 
     token = match[0]
-    
+
     authstring = f"{AUTHKEY} user {user_initials} password {token}"
-    authfile_path = Path.home() / ".authinfo"   
-    
+    authfile_path = Path.home() / ".authinfo"
+
     if authfile_path.exists():
         with authfile_path.open("r+") as file:
             lines = file.read().splitlines()
-            lines = filter(lambda l: not l.startswith(AUTHKEY), lines)
+            lines = filter(lambda x: not x.startswith(AUTHKEY), lines)
             file.seek(0)
             file.truncate()
             file.write("\n".join(lines))
 
             file.write(authstring)
-    else:  
+    else:
         authfile_path.write_text(authstring)

@@ -3,13 +3,11 @@ import logging
 import warnings
 from typing import Any
 
-import klass
 import pandas as pd
 from tabulate import tabulate
 
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import (
-    get_klass_change_mapping,
-)
+import klass
+from ssb_befolkning_fagfunksjoner.klass.change_mapping import get_klass_change_mapping
 from ssb_befolkning_fagfunksjoner.klass.loaders import load_komm_nr
 
 logger = logging.getLogger(__name__)
