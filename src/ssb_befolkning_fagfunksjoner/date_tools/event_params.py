@@ -17,10 +17,28 @@ type PeriodType = Literal["year", "halfyear", "quarter", "month", "week"]
 class EventParams:
     """Class for handling event periods.
 
-    - Prompts and validates event periods
-    - Creates period labels (Dapla-standard)
-    - Computes calendar windows for period
-    - Exposes event parameters for parameterising SQL queries
+    Validates and stores a statistical period (e.g. a quarter or a month), computes
+    the calendar window, creates a Dapla-standardised period label, and exposes
+    event parameters as SQL query parameters.
+
+    Attributes:
+        year: The calendar year of the period.
+        period_type: The granularity of the period (e.g. `"quarter"`).
+        period_number: The ordinal position of the period in the year (e.g. `3` for Q3).
+            `None` for `"year"` periods.
+        specify_wait_period: Whether the user was prompted for a custom wait period.
+        wait_months: Months to offset the wait-period window. Defaults to `1`.
+        wait_days: Days to offset the wait-period window. Defaults to `0`.
+
+    Examples:
+        >>> event_params = EventParams()
+        # user is prompted to fill in class attributes...
+
+        >>> event_params = EventParams(year=2026, period_type="quarter", period_number=2)
+        >>> event_params.period_label
+        '2026-Q2'
+        >>> event_params.window
+        (date(2026, 4, 1), date(2026, 6, 30))
     """
 
     VALID_PERIOD_TYPES: tuple[PeriodType, ...] = (
@@ -38,7 +56,22 @@ class EventParams:
         period_number: int | None = None,
         specify_wait_period: bool = False,
     ) -> None:
-        """Initialise an EventParams instance."""
+        """Initialises an EventParams instance.
+        
+        Any argument left as `None` triggers an interactive prompt. If 
+        `specify_wait_period` is `True`, the user is also prompted for
+        period-lag attributes. Otherwise, period-lag defaults to 1 month and 0 days. 
+
+        Args:
+            year: The calendar year of the period. Prompted if `None`.
+            period_type: Granularity of the period. Must be one of
+                `VALID_PERIOD_TYPES`. Prompted if `None` or invalid.
+            period_number: Ordinal position within the year (e.g. `2` for
+                February or Q2). Ignored for `"year"` periods; prompted if
+                `None` for all other types.
+            specify_wait_period: If `True`, interactively prompt the user for
+                `wait_months` and `wait_days` instead of using the defaults.
+        """
         year, period_type, period_number = self._prompt_missing_values(
             year, period_type, period_number
         )
@@ -64,7 +97,21 @@ class EventParams:
         period_type: str | None,
         period_number: int | None,
     ) -> tuple[int, PeriodType, int | None]:
-        """Prompt user for missing input arguments."""
+        """Prompt user for missing input arguments.
+        
+        Validates `period_type` and only prompts for `period_number` when
+        period is not `"year"`.
+
+        Args:
+            year: The calendar year, or `None` to trigger a prompt.
+            period_type: The period granularity, or `None` / an invalid string
+                to trigger a prompt.
+            period_number: The ordinal period number, or `None` to trigger a
+                prompt for non-year period types.
+
+        Returns:
+            A three-tuple of `(year, period_type, period_number)`.
+        """
         if year is None:
             year = cls._prompt_year()
 
@@ -90,12 +137,23 @@ class EventParams:
 
     @classmethod
     def _check_period_type(cls: type[Self], value: str) -> TypeIs[PeriodType]:
-        """Returns TRUE if 'value' is in VALID_PERIOD_TYPES."""
+        """Checks whether a string is a valid period type.
+
+        Args:
+            value (str): The string to validate.
+        
+        Returns:
+            `True` if `value` is one of `VALID_PERIOD_TYPES`, `False` otherwise.
+        """
         return value in cls.VALID_PERIOD_TYPES
 
     @classmethod
     def _prompt_etterslep_values(cls: type[Self]) -> tuple[int, int]:
-        """Prompt user for wait period values."""
+        """Prompts the user for wait period.
+
+        Returns:
+            A two-tuple of `(wait_months, wait_days)`.
+        """
         wait_months = cls._prompt_int_in_range("Enter wait months")
         wait_days = cls._prompt_int_in_range("Enter wait days")
 
@@ -103,9 +161,16 @@ class EventParams:
 
     @classmethod
     def _prompt_period_type(cls: type[Self], msg: str) -> PeriodType:
-        """Prompt user for period type, with instant validity feedback.
+        """Prompts the user for period type with instant validity feedback.
 
-        Accepts full names and single-letter abbreviations (e.g., 'q' → 'quarter').
+        Accepts both full names (e.g. `"quarter"`) and their first-letter
+        abbreviations (e.g. `"q"`). Loops until a valid choice is entered.
+
+        Args:
+            msg (str): The prompt message displayed to the user.
+
+        Returns:
+            A validated `PeriodType` string.
         """
         abbreviations: dict[str, PeriodType] = {
             c[0]: c for c in cls.VALID_PERIOD_TYPES
@@ -129,7 +194,17 @@ class EventParams:
     def _prompt_int_in_range(
         msg: str, valid_range: tuple[int, int] | None = None
     ) -> int:
-        """Prompt user for a valid integer within a range, with immediate feedback."""
+        """Prompt user for an integer, optionally constrained to a range.
+        
+        Loops until a valid choice is entered.
+
+        Args:
+            msg (str): The prompt message displayed to the user.
+            valid_range (tuple[int, int]): An inclusive bound.
+
+        Returns:
+            A validated integer.
+        """
         if valid_range is not None:
             low, high = valid_range
             prompt_msg = f"{msg} ({low}-{high}): "
@@ -155,7 +230,11 @@ class EventParams:
 
     @classmethod
     def _prompt_year(cls) -> int:
-        """Prompt user for valid year between 1900 and current year, with instant feedback."""
+        """Prompts the user for calendar year between 1900 and current year.
+        
+        Returns:
+            A validated 4-digit year.
+        """
         current_year = date.today().year
         return cls._prompt_int_in_range("Enter year", (1900, current_year))
 
@@ -164,7 +243,20 @@ class EventParams:
     # --------------------------------------------------------------------
     @property
     def period_label(self) -> str:
-        """Returns a period label string formatted to Dapla standard."""
+        """Formats the period as a Dapla-standardised label string.
+
+        Returns:
+            A period label in the appropriate format for the period type:
+
+            - `"year"`     → `"2024"`
+            - `"halfyear"` → `"2024-H1"`
+            - `"quarter"`  → `"2024-Q3"`
+            - `"month"`    → `"2024-06"`
+            - `"week"`     → `"2024-W09"`
+
+        Raises:
+            ValueError: If `period_type` is not a recognised value.
+        """
         if self.period_type == "year":
             return f"{self.year}"
 
@@ -184,17 +276,27 @@ class EventParams:
 
     @property
     def etterslep_label(self) -> str:
-        """Returns a wait period label string formatted like: '1m0d'.
+        """Formats the wait period as a compact label string.
 
-        Defaults to '1m0d' if specify_wait_period' is False.
+        Returns:
+            A string of the form `"{months}m{days}d"`, e.g. `"1m0d"`.
+                Defaults to `"1m0d"` when `specify_wait_period` is `False`.
         """
         return f"{self.wait_months}m{self.wait_days}d"
 
     @property
     def window(self) -> tuple[date, date]:
-        """Returns the start date and end date for the given period, as a tuple.
+        """Computes the calendar window for the period.
 
-        Both dates are within the period, so 'end_date' is the last day of the period. E.g. end of the month.
+        The end date is the *last* day of the period (inclusive bound), e.g.
+        `date(2026, 3, 31)` for Q1 2026.
+
+        Returns:
+            A `(start_date, end_date)` tuple.
+        
+        Raises:
+            ValueError: If `year` is None, or if `period_number` is
+                `None` in a non-year period.
         """
         y = self.year
         if y is None:
@@ -240,10 +342,22 @@ class EventParams:
 
     @staticmethod
     def _add_wait_period(d: date, months: int, days: int, *, boundary: str) -> date:
-        """Add months and days to given date with boundary-aware logic.
+        """Boundary-aware offset of a date by a wait period.
 
-        - boundary = 'start' -> just add months and days (relativedelta handles rollovers).
-        - boundary = 'end'   -> add months, snap to end of that month, then add days.
+        For `boundary="start"` -> just add months and days (relativedelta handles rollovers).
+        For `boundary="end"`   -> add months, snap to end of that month, then add days.
+
+        Args:
+            d (date): The base date to offset.
+            months (int): Number of months to add.
+            days (int): Number of days to add after the month offset.
+            boundary: Either `start` or `end` to specify boundary-logic.
+
+        Returns:
+            Offset date.
+
+        Raises:
+            ValueError: If `boundary` is not as expected.
         """
         if boundary == "start":
             return d + relativedelta(months=months, days=days)
@@ -261,9 +375,10 @@ class EventParams:
 
     @property
     def etterslep_window(self) -> tuple[date, date]:
-        """Returns the start date and end date for the wait period.
+        """Computes the wait-period-adjusted calendar window.
 
-        Calculated by taking the start and end dates and adding the wait period to each.
+        Returns:
+            A `(etterslep_start, etterslep_end)` tuple of offset dates.
         """
         start, end = self.window
 
@@ -279,7 +394,16 @@ class EventParams:
     # Methods
     # --------------------------------------------------------------------
     def to_query_params(self) -> dict[str, date]:
-        """Returns a dict for parameterising SQL queries."""
+        """Returns a dict for parameterising SQL queries in event extraction.
+        
+        Returns:
+            A dictionary with four `date` values:
+
+            - `"start_date"`: First day of the period.
+            - `"end_date"`: Last day of the period.
+            - `"etterslep_start"`: Wait-period-adjusted start date.
+            - `"etterslep_end"`: Wait-period-adjusted end date.
+        """
         start_date, end_date = self.window
         etterslep_start, etterslep_end = self.etterslep_window
 
