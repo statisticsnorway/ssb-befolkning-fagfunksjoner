@@ -6,14 +6,14 @@ from pathlib import Path
 from typing import Any
 from typing import Self
 
-import saspy
+from saspy import SASsession
 
 AUTHKEY = "IOM_Prod_Grid1"
 PATTERN = re.compile(r"{SAS004}[A-Z\d]+")
 logger = logging.getLogger(__name__)
 
 
-class ManagedSASsession(saspy.SASsession):
+class ManagedSASsession(SASsession):
     """SASsession with dunder enter an exit methods.
 
     This allow us to use a SASsession in a with block to ensure that the session is closed,
