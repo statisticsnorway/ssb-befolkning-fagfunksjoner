@@ -96,7 +96,7 @@ show_column_numbers = true
 show_error_context = true
 disable_error_code = ["typeddict-item", "no-untyped-def", "unreachable", "no-redef", "assignment"]
 
-[tool.mypy.overrides]
+[[tool.mypy.overrides]]
 module = ["saspy.*"]
 follow_untyped_imports = true
 
