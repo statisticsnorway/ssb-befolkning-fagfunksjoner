@@ -95,3 +95,8 @@ def set_password() -> None:
             file.write(authstring)
     else:
         authfile_path.write_text(authstring)
+
+
+# TODO: 
+# 1. Er 'encodinga' sikker i en offentlig pakke?
+# 2. mypy klager og manglende stubs
