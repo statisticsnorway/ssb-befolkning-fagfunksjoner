@@ -2413,6 +2413,24 @@ files = [
 ]
 
 [[package]]
+name = "saspy"
+version = "5.107.1"
+description = "A Python interface to SAS"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "saspy-5.107.1-py3-none-any.whl", hash = "sha256:c518d75d913ebddc5bf3fa55899062c5abdda6b8df3441fb7a12563e4c240867"},
+    {file = "saspy-5.107.1.tar.gz", hash = "sha256:c9eb0dcee97db0cbc9f61446af87f67112f35c4803e5992d2743985d37ba0f7d"},
+]
+
+[package.extras]
+colorlog = ["pygments"]
+iomcom = ["pypiwin32"]
+pandas = ["pandas"]
+parquet = ["pyarrow"]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -3236,4 +3254,4 @@ tests-strict = ["pytest (==4.6.0) ; python_version < \"3.10.0\" and python_versi
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "e9ebbf3667908bafebe5283bb8a2302e9cffd5976cec5649a57b1922929b52b9"
+content-hash = "e2b4ba4bd8f388ad783b7421307aa8c377a6a8c41464efa9ba56b9c197bd4a6f"
