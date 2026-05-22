@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 import pandas as pd
 
-from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_country_codes
+from ssb_befolkning_fagfunksjoner.klass.loaders import load_country_codes
 
 
 def map_to_country_codes(alpha_3_col: pd.Series) -> pd.Series:
