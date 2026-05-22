@@ -503,10 +503,10 @@ def samlet_fruktbarhet(
     ... })
 
     >>> # Med 5-årsgrupper
-    >>> foedselsrate(df_start, df_slutt, foedsler, aldersgruppering=5)
+    >>> foedselsrate(df_start, df_slutt, df_foedsler, aldersgruppering=5)
 
     >>> # Gruppert etter fylke
-    >>> foedselsrate(df_start, df_slutt, foedsler, grupperingsvariabler="fylke")
+    >>> foedselsrate(df_start, df_slutt, df_foedsler, grupperingsvariabler="fylke")
     """
     foedselsrater = FoedselsRater(
         aldersgruppe_col=aldersgruppe_col,
