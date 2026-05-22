@@ -17,6 +17,9 @@ type PeriodType = Literal["year", "halfyear", "quarter", "month", "week"]
 class EventParams:
     """Class for handling event periods.
 
+    Attributes:
+        VALID_PERIOD_TYPES: Compatible period types.
+
     Validates and stores a statistical period (e.g. a quarter or a month), computes
     the calendar window, creates a Dapla-standardised period label, and exposes
     event parameters as SQL query parameters.
@@ -191,7 +194,7 @@ class EventParams:
 
         Args:
             msg: The prompt message displayed to the user.
-            valid_range (tuple[int, int]): An inclusive bound.
+            valid_range: An inclusive bound.
 
         Returns:
             A validated integer.

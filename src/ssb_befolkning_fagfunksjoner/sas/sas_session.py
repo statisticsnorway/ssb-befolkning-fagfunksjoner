@@ -3,7 +3,7 @@ import logging
 import random
 import re
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 import saspy
 
@@ -25,6 +25,7 @@ class ManagedSASsession(saspy.SASsession):
     """
 
     def __init__(self, *, password: str | None = None) -> None:
+        """Initialise ManagedSASsession class."""
         user_initials = getpass.getuser()
         server = _get_server_url()
 
@@ -43,9 +44,11 @@ class ManagedSASsession(saspy.SASsession):
         super().__init__(**args)
 
     def __enter__(self) -> Self:
+        """Open SAS session."""
         return self
 
-    def __exit__(self, *args) -> None:
+    def __exit__(self, *args: Any) -> None:
+        """Close SAS session."""
         self.endsas()
 
 
