@@ -29,7 +29,7 @@ class EventParams:
         >>> event_params.period_label
         '2026-Q2'
         >>> event_params.window
-        (date(2026, 4, 1), date(2026, 6, 30))
+        (datetime.date(2026, 4, 1), datetime.date(2026, 6, 30))
     """
 
     VALID_PERIOD_TYPES: tuple[PeriodType, ...] = (

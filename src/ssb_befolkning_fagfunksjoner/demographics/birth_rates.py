@@ -25,19 +25,6 @@ class FoedselsRater:
         maks_alder (int): Øvre aldersgrense, inklusiv.
         beregn_for_menn (bool): Hvis `True`, beregnes rater for menn (`kjoenn` = `"1"`),
             ellers beregnes rater for kvinner (`kjoenn` = `"2"`).
-
-    Eksempel:
-        >>> beregner = Foedselsrateberegner(
-        ...     aldersgruppe_col="aldersgruppe",
-        ...     alder_col="alder",
-        ...     kjoenn_col="kjoenn",
-        ...     skala=1000,
-        ...     aldersgruppering=5,
-        ...     min_alder=15,
-        ...     maks_alder=49,
-        ...     beregn_for_menn=False,
-        ... )
-        >>> beregner.beregn_foedselsrate(df_start, df_slutt, df_foedsler)
     """
 
     # Kolonnenavn
@@ -405,6 +392,29 @@ def foedselsrate(
             - `"foedselsrate"`
 
     Eksempler:
+    >>> import pandas as pd
+
+    >>> # Befolkning ved periodens start
+    >>> df_start = pd.DataFrame({
+    ...     "alder": [20, 21, 22, 30, 31],
+    ...     "kjoenn": ["2", "2", "2", "2", "2"],
+    ...     "fylke": ["01", "03", "03", "39", "55"],
+    ... })
+
+    >>> # Befolkning ved periodens slutt
+    >>> df_slutt = pd.DataFrame({
+    ...     "alder": [20, 21, 22, 30, 31],
+    ...     "kjoenn": ["2", "2", "2", "2", "2"],
+    ...     "fylke": ["01", "03", "03", "39", "55"],
+    ... })
+
+    >>> # Fødsler i perioden
+    >>> df_foedsler = pd.DataFrame({
+    ...     "alder": [20, 21, 30],
+    ...     "kjoenn": ["2", "2", "2"],
+    ...     "fylke": ["03", "03", "39"],
+    ... })
+
     >>> # Med 5-årsgrupper
     >>> foedselsrate(df_start, df_slutt, foedsler, aldersgruppering=5)
 
@@ -469,11 +479,34 @@ def samlet_fruktbarhet(
         Samlet fruktbarhetstall som `float`.
 
     Eksempler:
+    >>> import pandas as pd
+
+    >>> # Befolkning ved periodens start
+    >>> df_start = pd.DataFrame({
+    ...     "alder": [20, 21, 22, 30, 31],
+    ...     "kjoenn": ["2", "2", "2", "2", "2"],
+    ...     "fylke": ["01", "03", "03", "39", "55"],
+    ... })
+
+    >>> # Befolkning ved periodens slutt
+    >>> df_slutt = pd.DataFrame({
+    ...     "alder": [20, 21, 22, 30, 31],
+    ...     "kjoenn": ["2", "2", "2", "2", "2"],
+    ...     "fylke": ["01", "03", "03", "39", "55"],
+    ... })
+
+    >>> # Fødsler i perioden
+    >>> df_foedsler = pd.DataFrame({
+    ...     "alder": [20, 21, 30],
+    ...     "kjoenn": ["2", "2", "2"],
+    ...     "fylke": ["03", "03", "39"],
+    ... })
+
     >>> # Med 5-årsgrupper
-    >>> samlet_fruktbarhet(df_start, df_slutt, foedsler, aldersgruppering=5)
+    >>> foedselsrate(df_start, df_slutt, foedsler, aldersgruppering=5)
 
     >>> # Gruppert etter fylke
-    >>> samlet_fruktbarhet(df_start, df_slutt, foedsler, grupperingsvariabler="fylke")
+    >>> foedselsrate(df_start, df_slutt, foedsler, grupperingsvariabler="fylke")
     """
     foedselsrater = FoedselsRater(
         aldersgruppe_col=aldersgruppe_col,
