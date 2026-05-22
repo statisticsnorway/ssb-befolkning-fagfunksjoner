@@ -2,7 +2,7 @@ from collections.abc import Iterable
 from collections.abc import Sequence
 from datetime import datetime
 
-from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeling
+from ssb_befolkning_fagfunksjoner.klass.loaders import load_verdensinndeling
 
 
 def sorter_landkoder(

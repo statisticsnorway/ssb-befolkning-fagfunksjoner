@@ -3,19 +3,19 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_series_equal
 
-from ssb_befolkning_fagfunksjoner.demographics.birth_rates import BirthRates
+from ssb_befolkning_fagfunksjoner.demographics.birth_rates import FoedselsRater
 
 
 @pytest.fixture
-def br_default() -> BirthRates:
-    return BirthRates(
+def br_default() -> FoedselsRater:
+    return FoedselsRater(
         aldersgruppe_col="aldersgruppe",
         alder_col="alder",
         kjoenn_col="kjoenn",
         skala=1000,
         aldersgruppering=5,
         min_alder=15,
-        max_alder=49,
+        maks_alder=49,
         beregn_for_menn=False,  # kvinner
     )
 
@@ -32,7 +32,7 @@ def mock_df() -> pd.DataFrame:
 
 
 def test_filter_og_aldersgruppering(
-    br_default: BirthRates, mock_df: pd.DataFrame
+    br_default: FoedselsRater, mock_df: pd.DataFrame
 ) -> None:
     """Tester hjelpefunksjonen '_filtrer_og_lag_aldersgrupper'.
 
@@ -49,7 +49,7 @@ def test_filter_og_aldersgruppering(
 
     # Sjekk filtrering av aldre
     assert resultat[br_default.alder_col].min() >= br_default.min_alder
-    assert resultat[br_default.alder_col].max() <= br_default.max_alder
+    assert resultat[br_default.alder_col].max() <= br_default.maks_alder
     assert not resultat[br_default.alder_col].isna().any()
 
     # Sjekk aldersgruppering
@@ -68,13 +68,13 @@ def test_filter_og_aldersgruppering(
         assert c in resultat.columns
 
 
-def test_manglende_kolonne_error(br_default: BirthRates, mock_df: pd.DataFrame):
+def test_manglende_kolonne_error(br_default: FoedselsRater, mock_df: pd.DataFrame):
     df = mock_df.drop(columns=[br_default.alder_col])
     with pytest.raises(ValueError):
         br_default._filtrer_og_lag_aldersgrupper(df)
 
 
-def test_idempotency(br_default: BirthRates, mock_df: pd.DataFrame):
+def test_idempotency(br_default: FoedselsRater, mock_df: pd.DataFrame):
     """Å kjøre helperen to ganger skal ikke endre resultatet (idempotent)."""
     out1 = br_default._filtrer_og_lag_aldersgrupper(mock_df.copy())
     out2 = br_default._filtrer_og_lag_aldersgrupper(out1.copy())
@@ -85,7 +85,7 @@ def test_idempotency(br_default: BirthRates, mock_df: pd.DataFrame):
     pd.testing.assert_frame_equal(out1s, out2s)
 
 
-def test_normaliser_grupperingsvariabler(br_default: BirthRates) -> None:
+def test_normaliser_grupperingsvariabler(br_default: FoedselsRater) -> None:
     assert br_default._normaliser_grupperingsvariabler(None) == ["aldersgruppe"]
     assert sorted(br_default._normaliser_grupperingsvariabler("komm_nr")) == sorted(
         ["aldersgruppe", "komm_nr"]
@@ -98,7 +98,7 @@ def test_normaliser_grupperingsvariabler(br_default: BirthRates) -> None:
     ) == sorted(["aldersgruppe", "landsdel", "utdanning"])
 
 
-def test_tell_per_gruppe(br_default: BirthRates) -> None:
+def test_tell_per_gruppe(br_default: FoedselsRater) -> None:
     df = pd.DataFrame(
         {
             "alder": [25, 25, 30, 30, 30, 40],
@@ -106,7 +106,7 @@ def test_tell_per_gruppe(br_default: BirthRates) -> None:
         }
     )
 
-    resultat = br_default._tell_per_gruppe(df, ["alder", "kjoenn"], navn="antall")
+    resultat = br_default._tell_per_gruppe(df, ["alder", "kjoenn"], kolonnenavn="antall")
 
     forventet = pd.DataFrame(
         {
