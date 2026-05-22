@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 from klass.requests.klass_types import VersionPartType
 
-from ssb_befolkning_fagfunksjoner.klass_utils.level_mapping import aggregate_codes
-from ssb_befolkning_fagfunksjoner.klass_utils.level_mapping import get_klass_level_map
+from ssb_befolkning_fagfunksjoner.klass.level_mapping import aggregate_codes
+from ssb_befolkning_fagfunksjoner.klass.level_mapping import get_klass_level_map
 
 
 @pytest.fixture()

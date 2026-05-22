@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
-from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import validate_komm_nr
+from ssb_befolkning_fagfunksjoner.klass.komm_nr import validate_komm_nr
 
 # ------------------------------------------------------------------------
 # Common fixtures (used by multiple tests)

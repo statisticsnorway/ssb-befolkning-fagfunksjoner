@@ -9,10 +9,10 @@ import pytest
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
 
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _build_change_graph
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _CessionType
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import _CodePoint
-from ssb_befolkning_fagfunksjoner.klass_utils.change_mapping import (
+from ssb_befolkning_fagfunksjoner.klass.change_mapping import _build_change_graph
+from ssb_befolkning_fagfunksjoner.klass.change_mapping import _CessionType
+from ssb_befolkning_fagfunksjoner.klass.change_mapping import _CodePoint
+from ssb_befolkning_fagfunksjoner.klass.change_mapping import (
     get_klass_change_mapping,
 )
 

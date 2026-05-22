@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockerFixture
 
-from ssb_befolkning_fagfunksjoner.klass_utils.komm_nr import get_komm_nr_changes
+from ssb_befolkning_fagfunksjoner.klass.komm_nr import get_komm_nr_changes
 
 # ------------------------------------------------------------------------
 # Common fixtures
