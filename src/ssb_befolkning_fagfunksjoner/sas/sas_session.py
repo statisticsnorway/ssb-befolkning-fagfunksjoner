@@ -3,7 +3,8 @@ import logging
 import random
 import re
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
+from typing import Self
 
 import saspy
 
