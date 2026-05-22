@@ -25,9 +25,6 @@ class EventParams:
     event parameters as SQL query parameters.
 
     Examples:
-        >>> event_params = EventParams()
-        # user is prompted to fill in class attributes...
-
         >>> event_params = EventParams(year=2026, period_type="quarter", period_number=2)
         >>> event_params.period_label
         '2026-Q2'
