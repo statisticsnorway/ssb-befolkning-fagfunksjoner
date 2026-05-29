@@ -1,10 +1,10 @@
 """Befolkning Fagfunksjoner."""
 
 from ssb_befolkning_fagfunksjoner import variables
-from ssb_befolkning_fagfunksjoner.demographics import order_country_codes
 from ssb_befolkning_fagfunksjoner.date_tools import EventParams
 from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_month
 from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_next_month
+from ssb_befolkning_fagfunksjoner.demographics import order_country_codes
 from ssb_befolkning_fagfunksjoner.klass import aggregate_codes
 from ssb_befolkning_fagfunksjoner.klass import get_klass_change_mapping
 from ssb_befolkning_fagfunksjoner.klass import get_komm_nr_changes
