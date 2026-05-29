@@ -1,6 +1,7 @@
 """Befolkning Fagfunksjoner."""
 
 from ssb_befolkning_fagfunksjoner import variables
+from ssb_befolkning_fagfunksjoner.demographics import order_country_codes
 from ssb_befolkning_fagfunksjoner.date_tools import EventParams
 from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_month
 from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_next_month
@@ -25,6 +26,7 @@ __all__ = [
     "load_komm_nr",
     "load_verdensinndeling",
     "map_to_country_codes",
+    "order_country_codes",
     "update_komm_nr",
     "validate_komm_nr",
     "variables",
