@@ -5,10 +5,11 @@ import functools
 from typing import cast
 from typing import overload
 
-import klass
 import networkx
 import pandas as pd
 from klass.requests.klass_types import VersionPartType
+
+import klass
 
 from .change_mapping import _get_from_date
 from .change_mapping import _get_to_date

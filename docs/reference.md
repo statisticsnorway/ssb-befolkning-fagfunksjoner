@@ -21,8 +21,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   ssb_befolkning_fagfunksjoner.bef_variables
-   ssb_befolkning_fagfunksjoner.date_utils
+   ssb_befolkning_fagfunksjoner.date_tools
    ssb_befolkning_fagfunksjoner.demographics
-   ssb_befolkning_fagfunksjoner.klass_utils
+   ssb_befolkning_fagfunksjoner.klass
+   ssb_befolkning_fagfunksjoner.sas
+   ssb_befolkning_fagfunksjoner.variables
 ```

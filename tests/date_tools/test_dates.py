@@ -2,8 +2,8 @@ from datetime import date
 
 import pytest
 
-from ssb_befolkning_fagfunksjoner.date_utils.dates import get_last_day_of_month
-from ssb_befolkning_fagfunksjoner.date_utils.dates import get_last_day_of_next_month
+from ssb_befolkning_fagfunksjoner.date_tools.dates import get_last_day_of_month
+from ssb_befolkning_fagfunksjoner.date_tools.dates import get_last_day_of_next_month
 
 # ---------------- get_last_day_of_month ----------------
 cases_last_day_of_month = [

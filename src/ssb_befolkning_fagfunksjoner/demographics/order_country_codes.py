@@ -2,10 +2,10 @@ from collections.abc import Iterable
 from collections.abc import Sequence
 from datetime import datetime
 
-from ssb_befolkning_fagfunksjoner.klass_utils.loaders import load_verdensinndeling
+from ssb_befolkning_fagfunksjoner.klass.loaders import load_verdensinndeling
 
 
-def sorter_landkoder(
+def order_country_codes(
     country_codes: Iterable[Sequence[str]],
     *,
     dates: Iterable[Sequence[str]] | None = None,
@@ -14,22 +14,19 @@ def sorter_landkoder(
 ) -> tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]:
     """Reorders country codes based on KLASS regional priority ranking.
 
-    Parameters:
-        country_codes: Iterable[Sequence[str]]
-            Sequence of country code lists to reorder.
-        dates: Iterable[Sequence[str]] | None, optional
-            Optional date lists corresponding to country codes.
+    Args:
+        country_codes: Sequence of country code lists to reorder.
+        dates: Optional date lists corresponding to country codes.
             If provided, dates are reordered to match country code order.
-        select_first: bool, default False
-            If True, return only the highest-priority code (and date) per row.
-        year: int | str, default current year
-            Year for loading the appropriate KLASS classification.
+            Must be the same length as `country_codes`.
+        select_first: If `True`, return only the highest-priority code (and date) per row.
+        year: Year for loading the appropriate KLASS classification.
+            Defaults to current year.
 
     Returns:
-        tuple[list[Sequence[str]], list[Sequence[str]]] | list[Sequence[str]]
-            If dates provided: (ordered_codes, ordered_dates)
-            If no dates: ordered_codes
-            If select_first=True, each sublist contains only one element.
+        If `dates` provided, a tuple of (ordered_codes, ordered_dates).
+        If `dates` is not provided, a list of ordered codes.
+        If `select_first=True`, each sublist contains only one element.
     """
     # Get ranking dictionary
     ranking = load_verdensinndeling(year)

@@ -1,4 +1,4 @@
-"""Subpackage for interacting with KLASS specifically used in population statistics."""
+"""KLASS functions used in population statistics."""
 
 from .change_mapping import get_klass_change_mapping
 from .komm_nr import get_komm_nr_changes
