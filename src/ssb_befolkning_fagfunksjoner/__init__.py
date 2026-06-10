@@ -14,9 +14,12 @@ from ssb_befolkning_fagfunksjoner.klass import load_verdensinndeling
 from ssb_befolkning_fagfunksjoner.klass import map_to_country_codes
 from ssb_befolkning_fagfunksjoner.klass import update_komm_nr
 from ssb_befolkning_fagfunksjoner.klass import validate_komm_nr
+from ssb_befolkning_fagfunksjoner.sas import ManagedSASsession
+from ssb_befolkning_fagfunksjoner.sas import set_sas_password
 
 __all__ = [
     "EventParams",
+    "ManagedSASsession",
     "aggregate_codes",
     "get_klass_change_mapping",
     "get_komm_nr_changes",
@@ -27,6 +30,7 @@ __all__ = [
     "load_verdensinndeling",
     "map_to_country_codes",
     "order_country_codes",
+    "set_sas_password",
     "update_komm_nr",
     "validate_komm_nr",
     "variables",
