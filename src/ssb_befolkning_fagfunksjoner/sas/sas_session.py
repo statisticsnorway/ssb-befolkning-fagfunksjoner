@@ -62,7 +62,7 @@ def _get_server_url() -> str:
     return sas_server
 
 
-def set_password() -> None:
+def set_sas_password() -> None:
     """Sets SAS-encoded password so that interacting with saspy does not prompt for a password every time."""
     user_initials = getpass.getuser()
     password = getpass.getpass("Passord:")
