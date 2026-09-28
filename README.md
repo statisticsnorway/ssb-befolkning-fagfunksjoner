@@ -51,9 +51,7 @@ poetry add ssb-befolkning-fagfunksjoner -E sas
 
 ## Usage
 
-Optional features are imported identically to standard modules, but will raise a detailed `ImportError` pointing to the required extra if you attempt to use them without installing it first.
-
-### Quick Reference Guide
+### Reference Guide
 
 The library's utilities are grouped into structured submodule namespaces. Here is a quick reference cheat sheet:
 
