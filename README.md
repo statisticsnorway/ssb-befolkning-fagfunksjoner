@@ -35,11 +35,23 @@ Collection of python functions used in statistics production in the Division for
 - TODO
 
 ## Installation
+
+To install the core library:
 ```bash
 poetry add ssb-befolkning-fagfunksjoner
 ```
 
+If you need SAS session support (which requires Java and a SAS installation), install the optional `sas` extra:
+
+```bash
+# For SAS support (saspy)
+poetry add ssb-befolkning-fagfunksjoner -E sas
+```
+*(If using `pip`, use `pip install ssb-befolkning-fagfunksjoner[sas]`)*
+
 ## Usage
+
+Optional features are imported identically to standard modules, but will raise a detailed `ImportError` pointing to the required extra if you attempt to use them without installing it first.
 
 ### Quick Reference Guide
 
