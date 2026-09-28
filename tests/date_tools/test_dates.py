@@ -4,6 +4,7 @@ import pytest
 
 from ssb_befolkning_fagfunksjoner.date_tools.dates import get_last_day_of_month
 from ssb_befolkning_fagfunksjoner.date_tools.dates import get_last_day_of_next_month
+from ssb_befolkning_fagfunksjoner.date_tools.dates import validate_reference_date
 
 # ---------------- get_last_day_of_month ----------------
 cases_last_day_of_month = [
@@ -34,3 +35,32 @@ cases_last_day_of_next_month = [
 def test_get_last_day_of_next_month(input_date: date, expected: date) -> None:
     result = get_last_day_of_next_month(input_date)
     assert result == expected
+
+
+# ---------------- validate_reference_date ----------------
+cases_validate_reference_date = [
+    ("2024-12-31", date(2024, 12, 31)),
+    ("20241231", date(2024, 12, 31)),
+    ("2024-02-29", date(2024, 2, 29)),
+]
+
+
+@pytest.mark.parametrize("input_str, expected", cases_validate_reference_date)
+def test_validate_reference_date(input_str: str, expected: date) -> None:
+    result = validate_reference_date(input_str)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "invalid_str",
+    [
+        "2024/12/31",
+        "202412",
+        "not-a-date",
+        "2024-02-30",
+        "20240230",
+    ],
+)
+def test_validate_reference_date_invalid(invalid_str: str) -> None:
+    with pytest.raises(ValueError, match="Invalid reference-date"):
+        validate_reference_date(invalid_str)

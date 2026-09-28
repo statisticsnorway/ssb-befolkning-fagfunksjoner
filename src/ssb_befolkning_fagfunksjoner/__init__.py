@@ -1,37 +1,19 @@
 """Befolkning Fagfunksjoner."""
 
+from ssb_befolkning_fagfunksjoner import date_tools
+from ssb_befolkning_fagfunksjoner import demographics
+from ssb_befolkning_fagfunksjoner import io
+from ssb_befolkning_fagfunksjoner import klass
+from ssb_befolkning_fagfunksjoner import logs
+from ssb_befolkning_fagfunksjoner import sas
 from ssb_befolkning_fagfunksjoner import variables
-from ssb_befolkning_fagfunksjoner.date_tools import EventParams
-from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_month
-from ssb_befolkning_fagfunksjoner.date_tools import get_last_day_of_next_month
-from ssb_befolkning_fagfunksjoner.demographics import order_country_codes
-from ssb_befolkning_fagfunksjoner.klass import aggregate_codes
-from ssb_befolkning_fagfunksjoner.klass import get_klass_change_mapping
-from ssb_befolkning_fagfunksjoner.klass import get_komm_nr_changes
-from ssb_befolkning_fagfunksjoner.klass import load_country_codes
-from ssb_befolkning_fagfunksjoner.klass import load_komm_nr
-from ssb_befolkning_fagfunksjoner.klass import load_verdensinndeling
-from ssb_befolkning_fagfunksjoner.klass import map_to_country_codes
-from ssb_befolkning_fagfunksjoner.klass import update_komm_nr
-from ssb_befolkning_fagfunksjoner.klass import validate_komm_nr
-from ssb_befolkning_fagfunksjoner.sas import ManagedSASsession
-from ssb_befolkning_fagfunksjoner.sas import set_sas_password
 
 __all__ = [
-    "EventParams",
-    "ManagedSASsession",
-    "aggregate_codes",
-    "get_klass_change_mapping",
-    "get_komm_nr_changes",
-    "get_last_day_of_month",
-    "get_last_day_of_next_month",
-    "load_country_codes",
-    "load_komm_nr",
-    "load_verdensinndeling",
-    "map_to_country_codes",
-    "order_country_codes",
-    "set_sas_password",
-    "update_komm_nr",
-    "validate_komm_nr",
+    "date_tools",
+    "demographics",
+    "io",
+    "klass",
+    "logs",
+    "sas",
     "variables",
 ]

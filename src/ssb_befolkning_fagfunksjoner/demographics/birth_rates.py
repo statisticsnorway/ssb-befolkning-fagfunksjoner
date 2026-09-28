@@ -89,7 +89,7 @@ class FoedselsRater:
             )
 
     def _normaliser_grupperingsvariabler(
-        self, grupperingsvariabler: None | str | list[str]
+        self, grupperingsvariabler: str | list[str] | None
     ) -> list[str]:
         """Normaliserer grupperingsvariabler til en liste som inkluderer `aldersgruppe_col`."""
         if grupperingsvariabler is None:
@@ -247,7 +247,7 @@ class FoedselsRater:
         df_start: pd.DataFrame,
         df_slutt: pd.DataFrame,
         df_foedsler: pd.DataFrame,
-        grupperingsvariabler: None | str | list[str] = None,
+        grupperingsvariabler: str | list[str] | None = None,
     ) -> pd.DataFrame:
         """Beregner fødselsrater per aldersgrupp valgte grupperingsvariabler.
 
@@ -349,7 +349,7 @@ def foedselsrate(
     df_slutt: pd.DataFrame,
     df_foedsler: pd.DataFrame,
     *,
-    grupperingsvariabler: None | str | list[str] = None,
+    grupperingsvariabler: str | list[str] | None = None,
     aldersgruppe_col: str = "aldersgruppe",
     alder_col: str = "alder",
     kjoenn_col: str = "kjoenn",
@@ -442,7 +442,7 @@ def samlet_fruktbarhet(
     df_slutt: pd.DataFrame,
     df_foedsler: pd.DataFrame,
     *,
-    grupperingsvariabler: None | str | list[str] = None,
+    grupperingsvariabler: str | list[str] | None = None,
     aldersgruppe_col: str = "aldersgruppe",
     alder_col: str = "alder",
     kjoenn_col: str = "kjoenn",
