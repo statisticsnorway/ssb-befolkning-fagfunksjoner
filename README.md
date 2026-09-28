@@ -41,7 +41,7 @@ poetry add ssb-befolkning-fagfunksjoner
 
 ## Usage
 
-### Quick Reference Guide
+### Reference Guide
 
 The library's utilities are grouped into structured submodule namespaces. Here is a quick reference cheat sheet:
 
