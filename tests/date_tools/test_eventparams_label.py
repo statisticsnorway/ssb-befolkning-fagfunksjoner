@@ -1,6 +1,6 @@
 import pytest
 
-from ssb_befolkning_fagfunksjoner import EventParams
+from ssb_befolkning_fagfunksjoner.date_tools import EventParams
 
 
 @pytest.mark.parametrize(

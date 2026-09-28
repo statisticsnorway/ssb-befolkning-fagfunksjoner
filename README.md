@@ -41,6 +41,21 @@ poetry add ssb-befolkning-fagfunksjoner
 
 ## Usage
 
+### Quick Reference Guide
+
+The library's utilities are grouped into structured submodule namespaces. Here is a quick reference cheat sheet:
+
+| Module Namespace | Key Utilities | Description |
+| :--- | :--- | :--- |
+| **`date_tools`** | `EventParams`, `validate_reference_date`, `get_last_day_of_month` | Prompts, validations, calendar windows, and formatting of statistical dates. |
+| **`demographics`** | `birth_rates`, `dublettsjekk` | Calculations of birth rates, cohort analyses, and duplicate checks. |
+| **`io`** | `read_csv_case_indep_pd`, `read_csv_case_indep_pl` | Fast Pandas/Polars case-insensitive loaders for register CSVs. |
+| **`klass`** | `load_komm_nr`, `map_to_country_codes`, `load_verdensinndeling` | Direct integrations with SSB's KLASS system for region/country classification mapping. |
+| **`logs`** | `config_logging` | Standardized logging setup for both terminal display and Cloud/Local file-logging (including SSB headers). |
+| **`sas`** | `ManagedSASsession` | Session setups and helpers to safely run migrations and SAS operations on Dapla. |
+
+---
+
 ### EventParams
 `EventParams` contains logic for:
 - Prompting and validating parameters for event periods
