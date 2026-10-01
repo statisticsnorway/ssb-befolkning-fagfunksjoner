@@ -4,33 +4,7 @@ import datetime
 __all__ = [
     "get_last_day_of_month",
     "get_last_day_of_next_month",
-    "validate_reference_date",
 ]
-
-
-def validate_reference_date(s: str) -> datetime.date:
-    """Validate and return a date from a date string.
-
-    Args:
-        s: The date string in format YYYY-MM-DD or YYYYMMDD.
-    
-    Returns:
-        date: The validated date object.
-
-    Raises:
-        ValueError: If the string is not a valid date.
-    """
-    if len(s) not in (8, 10):
-        raise ValueError(f"Invalid reference-date '{s}'. Expected YYYY-MM-DD or YYYYMMDD.")
-    try:
-        return datetime.date.fromisoformat(s)
-    except ValueError:
-        try:
-            return datetime.datetime.strptime(s, "%Y%m%d").date()
-        except ValueError as e:
-            raise ValueError(f"Invalid reference-date '{s}'. Expected YYYY-MM-DD or YYYYMMDD.") from e
-
-
 
 
 def get_last_day_of_month(input_date: datetime.date) -> datetime.date:

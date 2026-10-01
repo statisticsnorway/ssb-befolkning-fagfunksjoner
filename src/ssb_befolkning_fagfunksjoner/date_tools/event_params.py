@@ -6,6 +6,8 @@ from typing import TypeIs
 
 from dateutil.relativedelta import relativedelta
 
+
+
 type PeriodType = Literal["year", "halfyear", "quarter", "month", "week"]
 
 
