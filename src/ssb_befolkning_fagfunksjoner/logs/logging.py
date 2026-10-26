@@ -10,18 +10,7 @@ from typing import Any
 
 
 class FregLogger:
-    """Configure console and file logging.
-
-    Args:
-        logfile: Local file to append to, or None for console-only output.
-        console_log_level: Console threshold; defaults to INFO.
-        file_log_level: File threshold; defaults to DEBUG.
-        context: Metadata to append as a file header for this run.
-
-    Raises:
-        Exception: If logging configuration fails. The original exception
-            is re-raised after closing any handlers created by this instance.
-    """
+    """Configure console and file logging."""
 
     def __init__(
         self,
@@ -31,7 +20,18 @@ class FregLogger:
         file_log_level: str | int = logging.DEBUG,
         context: dict[str, Any] | None = None,
     ) -> None:
-        """Initialize logging handlers."""
+        """Initialize logging handlers.
+        
+        Args:
+            logfile: Local file to append to, or None for console-only output.
+            console_log_level: Console threshold; defaults to INFO.
+            file_log_level: File threshold; defaults to DEBUG.
+            context: Metadata to append as a file header for this run.
+
+        Raises:
+            Exception: If logging configuration fails. The original exception
+                is re-raised after closing any handlers created by this instance.
+        """
         self.logfile = (
             Path(logfile).expanduser().resolve() if logfile is not None else None
         )
