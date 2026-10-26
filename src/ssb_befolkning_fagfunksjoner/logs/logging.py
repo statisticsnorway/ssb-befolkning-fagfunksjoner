@@ -21,7 +21,7 @@ class FregLogger:
         context: dict[str, Any] | None = None,
     ) -> None:
         """Initialize logging handlers.
-        
+
         Args:
             logfile: Local file to append to, or None for console-only output.
             console_log_level: Console threshold; defaults to INFO.
