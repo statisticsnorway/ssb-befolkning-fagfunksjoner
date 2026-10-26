@@ -1,64 +1,137 @@
+"""Configure console and file logging.
+
+Call config_logging() once at application startup.
+Other modules should use logging.getLogger(__name__).
+"""
+
 import logging
 from pathlib import Path
 from typing import Any
 
-from fagfunksjoner.fagfunksjoner_logger import logger as faglogger
+
+class FregLogger:
+    """
+    Args:
+        logfile: Local file to append to, or None for console-only output.
+        console_level: Console threshold; defaults to INFO.
+        file_level: File threshold; defaults to DEBUG.
+        context: Metadata to append as a file header for this run.
+    """
+    def __init__(
+        self,
+        logfile: str | Path | None = None,
+        *,
+        console_log_level: str | int = logging.INFO,
+        file_log_level: str | int = logging.DEBUG,
+        context: dict[str, Any] | None = None,
+    ) -> None:
+        self.logfile = (
+            Path(logfile).expanduser().resolve()
+            if logfile is not None 
+            else None
+        )
+
+        self._root_logger = logging.getLogger()
+        self._handlers: list[logging.Handler] = []
+
+        console_log_level = self._normalize_level(console_log_level)
+        file_log_level = self._normalize_level(file_log_level)
+
+        # Build FregLogger handlers for console and file
+        try:
+            self._handlers.append(self._console_handler(console_log_level))
+            if self.logfile is not None:
+                self._handlers.append(self._file_handler(file_log_level, context))
+
+            # force=True removes and closes the previous root handlers.
+            logging.basicConfig(
+                level=min(handler.level for handler in self._handlers),
+                handlers=self._handlers,
+                force=True,
+            )
+        
+        except Exception:
+            self.close()
+            raise
+
+    @staticmethod
+    def _normalize_level(level: str | int) -> int:
+        """Convert a logging level to its numeric representation."""
+        if isinstance(level, str):
+            try:
+                return logging.getLevelNamesMapping()[level.upper()]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid logging level: {level}"
+                ) from None
+
+        return level
+
+    def close(self) -> None:
+        """Remove and close only the handlers created by this instance."""
+        for handler in self._handlers:
+            self._root_logger.removeHandler(handler)
+            handler.close()
+        self._handlers.clear()
+
+    @staticmethod
+    def _console_handler(level: int) -> logging.StreamHandler:
+        handler = logging.StreamHandler()
+        handler.setLevel(level)
+        handler.setFormatter(logging.Formatter("%(levelname)s | %(message)s"))
+        return handler
+
+    def _file_handler(self, level: int, context: dict[str, Any] | None) -> logging.FileHandler:
+        if self.logfile is None:
+            raise ValueError("'logfile' parameter is required.")
+            
+        self.logfile.parent.mkdir(parents=True, exist_ok=True)
+        handler = logging.FileHandler(filename=self.logfile, mode="a", encoding="utf-8")
+        try:
+            handler.setLevel(level)
+            handler.setFormatter(
+                logging.Formatter(
+                    "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S"
+                )
+            )
+            if context is not None:
+                self._write_log_header(handler, context)
+            return handler
+
+        except Exception:
+            handler.close()
+            raise
+
+    @staticmethod
+    def _write_log_header(handler: logging.FileHandler, context: dict[str, Any]) -> None:
+        """Append metadata 'header' to the existing log stream."""
+        separator = "=" * 60
+
+        lines = [
+            separator,
+            *[f"{key:<15}: {value}" for key, value in context.items()],
+            separator,
+        ]
+
+        if handler.stream is None:
+            raise RuntimeError("Log file is not open.")
+
+        handler.stream.write("\n".join(lines) + "\n")
+        handler.flush()
 
 
 def config_logging(
-    log_level: str = "INFO",
-    log_file: str | Path | None = None,
+    logfile: str | Path | None = None,
+    *,
+    console_log_level: str | int = logging.INFO,
+    file_log_level: str | int = logging.DEBUG,
     context: dict[str, Any] | None = None,
-) -> None:
-    """Sets up logging to both console and a log file.
-
-    Args:
-        log_level: Minimum log level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-        log_file:  Path to the log file. Pass None to disable file logging.
-        context: Optional dictionary containing context metadata to write to the header.
-    """
-    faglogger.handlers[:] = []
-
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    root_logger.handlers[:] = []
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(_build_console_formatter())
-    console_handler.setLevel(log_level)
-    root_logger.addHandler(console_handler)
-
-    if log_file is not None:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        if context is not None:
-            _write_log_header(log_path, context)
-
-        file_handler = logging.FileHandler(log_path, encoding="utf-8")
-        file_handler.setFormatter(_build_file_formatter())
-        file_handler.setLevel(log_level)
-        root_logger.addHandler(file_handler)
-
-
-def _write_log_header(log_path: Path, context: dict[str, Any]) -> None:
-    width = 60
-    lines = [
-        "=" * width,
-        *[f"{k:<12}: {v}" for k, v in context.items()],
-        "=" * width + "\n",
-    ]
-
-    with log_path.open("a", encoding="utf-8") as f:
-        f.write("\n".join(lines))
-
-
-def _build_console_formatter() -> logging.Formatter:
-    return logging.Formatter(fmt="%(levelname)s | %(message)s")
-
-
-def _build_file_formatter() -> logging.Formatter:
-    return logging.Formatter(
-        fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+) -> FregLogger:
+    """Initialize logging and return the instance used for GCS uploads."""
+    return FregLogger(
+        logfile=logfile,
+        console_log_level=console_log_level,
+        file_log_level=file_log_level,
+        context=context,
     )
