@@ -31,6 +31,7 @@ class FregLogger:
         file_log_level: str | int = logging.DEBUG,
         context: dict[str, Any] | None = None,
     ) -> None:
+        """Initialize logging handlers."""
         self.logfile = (
             Path(logfile).expanduser().resolve() if logfile is not None else None
         )
