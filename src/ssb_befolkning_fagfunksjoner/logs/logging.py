@@ -17,6 +17,10 @@ class FregLogger:
         console_log_level: Console threshold; defaults to INFO.
         file_log_level: File threshold; defaults to DEBUG.
         context: Metadata to append as a file header for this run.
+
+    Raises:
+        Exception: If logging configuration fails. The original exception
+            is re-raised after closing any handlers created by this instance.
     """
 
     def __init__(
