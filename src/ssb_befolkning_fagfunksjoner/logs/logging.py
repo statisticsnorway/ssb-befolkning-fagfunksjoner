@@ -1,7 +1,7 @@
-"""Application logging with optional local files and GCS uploads.
+"""Configure console and file logging.
 
-Call config_logging() once in the entry point. Other modules need only
-get_logger(__name__). GCS uploads require universal-pathlib and gcsfs.
+Call config_logging() once at application startup.
+Other modules should use logging.getLogger(__name__).
 """
 
 import logging
@@ -34,6 +34,9 @@ class FregLogger:
         self._root_logger = logging.getLogger()
         self._handlers: list[logging.Handler] = []
 
+        console_log_level = self._normalize_level(console_log_level)
+        file_log_level = self._normalize_level(file_log_level)
+
         # Build FregLogger handlers for console and file
         try:
             self._handlers.append(self._console_handler(console_log_level))
@@ -51,6 +54,19 @@ class FregLogger:
             self.close()
             raise
 
+    @staticmethod
+    def _normalize_level(level: str | int) -> int:
+        """Convert a logging level to its numeric representation."""
+        if isinstance(level, str):
+            try:
+                return logging.getLevelNamesMapping()[level.upper()]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid logging level: {level}"
+                ) from None
+
+        return level
+
     def close(self) -> None:
         """Remove and close only the handlers created by this instance."""
         for handler in self._handlers:
@@ -58,20 +74,14 @@ class FregLogger:
             handler.close()
         self._handlers.clear()
 
-    def _remove_handlers(self) -> None:
-        """Clear existing handlers from logger to prevent duplicate printouts."""
-        for handler in self._root_logger.handlers.copy():
-            self._root_logger.removeHandler(handler)
-            handler.close()
-
     @staticmethod
-    def _console_handler(level: str | int) -> logging.StreamHandler:
+    def _console_handler(level: int) -> logging.StreamHandler:
         handler = logging.StreamHandler()
         handler.setLevel(level)
         handler.setFormatter(logging.Formatter("%(levelname)s | %(message)s"))
         return handler
 
-    def _file_handler(self, level: str | int, context: dict[str, Any] | None) -> logging.FileHandler:
+    def _file_handler(self, level: int, context: dict[str, Any] | None) -> logging.FileHandler:
         if self.logfile is None:
             raise ValueError("'logfile' parameter is required.")
             
@@ -86,27 +96,29 @@ class FregLogger:
                 )
             )
             if context is not None:
-                self._write_log_header(context)
+                self._write_log_header(handler, context)
             return handler
 
         except Exception:
             handler.close()
             raise
 
-
-    def _write_log_header(self, context: dict[str, Any]) -> None:
-        if self.logfile is None:
-            raise ValueError("'logfile' parameter is required.")
-
+    @staticmethod
+    def _write_log_header(handler: logging.FileHandler, context: dict[str, Any]) -> None:
+        """Append metadata 'header' to the existing log stream."""
         separator = "=" * 60
+
         lines = [
             separator,
             *[f"{key:<15}: {value}" for key, value in context.items()],
             separator,
         ]
 
-        with self.logfile.open("a", encoding="utf-8") as file:
-            file.write("\n".join(lines) + "\n")
+        if handler.stream is None:
+            raise RuntimeError("Log file is not open.")
+
+        handler.stream.write("\n".join(lines) + "\n")
+        handler.flush()
 
 
 def config_logging(
