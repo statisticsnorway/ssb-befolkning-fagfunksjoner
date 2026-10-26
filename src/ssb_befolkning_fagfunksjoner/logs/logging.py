@@ -11,6 +11,7 @@ from typing import Any
 
 class FregLogger:
     """Configure console and file logging.
+
     Args:
         logfile: Local file to append to, or None for console-only output.
         console_log_level: Console threshold; defaults to INFO.
