@@ -10,15 +10,18 @@ from upath import UPath
 def read_csv_case_indep_pl(
     filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any
 ) -> pl.DataFrame:
-    """Reads a CSV-file using polars.read_csv choosing columns independent of upper/lower case.
+    """Read a CSV file using Polars with case-insensitive column selection.
 
     Args:
-        filepath: Filepath to read from.
-        cols: Optional list of columns to select.
-        **kwargs: Additional arguments that get sent to polars.read_csv
+        filepath: Path to the CSV file.
+        cols: Optional list of columns to select, ignoring case.
+        **kwargs: Additional keyword arguments passed to polars.read_csv.
 
     Returns:
-        pl.DataFrame: Dataset with lower-case column names.
+        pl.DataFrame: DataFrame with lowercase column names.
+
+    Raises:
+        ValueError: If one or more requested columns are not found.
     """
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'
@@ -49,15 +52,18 @@ def read_csv_case_indep_pl(
 def read_csv_case_indep_pd(
     filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any
 ) -> pd.DataFrame:
-    """Reads a CSV-file using pandas.read_csv choosing columns independent of upper/lower case.
+    """Read a CSV file using pandas with case-insensitive column selection.
 
     Args:
-        filepath: Filepath to read from.
-        cols: Optional list of columns to select.
-        **kwargs: Additional arguments that get sent to pandas.read_csv
+        filepath: Path to the CSV file.
+        cols: Optional list of columns to select, ignoring case.
+        **kwargs: Additional keyword arguments passed to pandas.read_csv.
 
     Returns:
-        pd.DataFrame: Dataset with lower-case column names.
+        pd.DataFrame: DataFrame with lowercase column names.
+
+    Raises:
+        ValueError: If one or more requested columns are not found.
     """
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'

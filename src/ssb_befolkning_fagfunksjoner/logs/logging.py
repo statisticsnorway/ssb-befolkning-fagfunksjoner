@@ -10,11 +10,12 @@ from typing import Any
 
 
 class FregLogger:
-    """Args:
-    logfile: Local file to append to, or None for console-only output.
-    console_level: Console threshold; defaults to INFO.
-    file_level: File threshold; defaults to DEBUG.
-    context: Metadata to append as a file header for this run.
+    """Configure console and file logging.
+    Args:
+        logfile: Local file to append to, or None for console-only output.
+        console_log_level: Console threshold; defaults to INFO.
+        file_log_level: File threshold; defaults to DEBUG.
+        context: Metadata to append as a file header for this run.
     """
 
     def __init__(
@@ -128,7 +129,7 @@ def config_logging(
     file_log_level: str | int = logging.DEBUG,
     context: dict[str, Any] | None = None,
 ) -> FregLogger:
-    """Initialize logging and return the instance used for GCS uploads."""
+    """Configure logging and return the configuration instance."""
     return FregLogger(
         logfile=logfile,
         console_log_level=console_log_level,
