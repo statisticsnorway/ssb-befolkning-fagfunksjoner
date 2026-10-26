@@ -10,13 +10,8 @@ from typing import Any
 
 
 class FregLogger:
-    """
-    Args:
-        logfile: Local file to append to, or None for console-only output.
-        console_level: Console threshold; defaults to INFO.
-        file_level: File threshold; defaults to DEBUG.
-        context: Metadata to append as a file header for this run.
-    """
+    """Configure console and file logging."""
+
     def __init__(
         self,
         logfile: str | Path | None = None,
@@ -25,10 +20,20 @@ class FregLogger:
         file_log_level: str | int = logging.DEBUG,
         context: dict[str, Any] | None = None,
     ) -> None:
+        """Initialize logging handlers.
+
+        Args:
+            logfile: Local file to append to, or None for console-only output.
+            console_log_level: Console threshold; defaults to INFO.
+            file_log_level: File threshold; defaults to DEBUG.
+            context: Metadata to append as a file header for this run.
+
+        Raises:
+            Exception: If logging configuration fails. The original exception
+                is re-raised after closing any handlers created by this instance.
+        """
         self.logfile = (
-            Path(logfile).expanduser().resolve()
-            if logfile is not None 
-            else None
+            Path(logfile).expanduser().resolve() if logfile is not None else None
         )
 
         self._root_logger = logging.getLogger()
@@ -49,7 +54,7 @@ class FregLogger:
                 handlers=self._handlers,
                 force=True,
             )
-        
+
         except Exception:
             self.close()
             raise
@@ -61,9 +66,7 @@ class FregLogger:
             try:
                 return logging.getLevelNamesMapping()[level.upper()]
             except KeyError:
-                raise ValueError(
-                    f"Invalid logging level: {level}"
-                ) from None
+                raise ValueError(f"Invalid logging level: {level}") from None
 
         return level
 
@@ -81,10 +84,12 @@ class FregLogger:
         handler.setFormatter(logging.Formatter("%(levelname)s | %(message)s"))
         return handler
 
-    def _file_handler(self, level: int, context: dict[str, Any] | None) -> logging.FileHandler:
+    def _file_handler(
+        self, level: int, context: dict[str, Any] | None
+    ) -> logging.FileHandler:
         if self.logfile is None:
             raise ValueError("'logfile' parameter is required.")
-            
+
         self.logfile.parent.mkdir(parents=True, exist_ok=True)
         handler = logging.FileHandler(filename=self.logfile, mode="a", encoding="utf-8")
         try:
@@ -92,7 +97,7 @@ class FregLogger:
             handler.setFormatter(
                 logging.Formatter(
                     "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S"
+                    datefmt="%Y-%m-%d %H:%M:%S",
                 )
             )
             if context is not None:
@@ -104,7 +109,9 @@ class FregLogger:
             raise
 
     @staticmethod
-    def _write_log_header(handler: logging.FileHandler, context: dict[str, Any]) -> None:
+    def _write_log_header(
+        handler: logging.FileHandler, context: dict[str, Any]
+    ) -> None:
         """Append metadata 'header' to the existing log stream."""
         separator = "=" * 60
 
@@ -128,7 +135,7 @@ def config_logging(
     file_log_level: str | int = logging.DEBUG,
     context: dict[str, Any] | None = None,
 ) -> FregLogger:
-    """Initialize logging and return the instance used for GCS uploads."""
+    """Configure logging and return the configuration instance."""
     return FregLogger(
         logfile=logfile,
         console_log_level=console_log_level,

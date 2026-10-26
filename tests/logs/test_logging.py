@@ -20,7 +20,9 @@ def test_config_logging_file(tmp_path: Path) -> None:
     log_file = tmp_path / "test.log"
     context = {"test_key": "test_val", "another_key": "another_val"}
 
-    logger_instance = config_logging(console_log_level="INFO", logfile=log_file, context=context)
+    logger_instance = config_logging(
+        console_log_level="INFO", logfile=log_file, context=context
+    )
     try:
         logger = logging.getLogger("test_logger")
         logger.info("This is a test log message")

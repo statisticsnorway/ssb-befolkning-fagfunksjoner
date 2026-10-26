@@ -17,8 +17,10 @@ def temp_csv_file(tmp_path: Path) -> Path:
 
 
 def test_read_csv_case_indep_pd_select_cols(temp_csv_file: Path) -> None:
-    df = read_csv_case_indep_pd(temp_csv_file, cols=["fnr", "foedselsdato"], sep=";", dtype={"FNR": str})
-    
+    df = read_csv_case_indep_pd(
+        temp_csv_file, cols=["fnr", "foedselsdato"], sep=";", dtype={"FNR": str}
+    )
+
     assert list(df.columns) == ["fnr", "foedselsdato"]
     assert len(df) == 2
     assert df.loc[0, "fnr"] == "12345678901"
@@ -27,7 +29,7 @@ def test_read_csv_case_indep_pd_select_cols(temp_csv_file: Path) -> None:
 
 def test_read_csv_case_indep_pd_all_cols(temp_csv_file: Path) -> None:
     df = read_csv_case_indep_pd(temp_csv_file, cols=None, sep=";")
-    
+
     assert list(df.columns) == ["fnr", "foedselsdato", "kommnr", "value"]
     assert len(df) == 2
 
@@ -38,8 +40,13 @@ def test_read_csv_case_indep_pd_missing_col(temp_csv_file: Path) -> None:
 
 
 def test_read_csv_case_indep_pl_select_cols(temp_csv_file: Path) -> None:
-    df = read_csv_case_indep_pl(temp_csv_file, cols=["fnr", "foedselsdato"], separator=";", dtypes={"FNR": pl.String})
-    
+    df = read_csv_case_indep_pl(
+        temp_csv_file,
+        cols=["fnr", "foedselsdato"],
+        separator=";",
+        dtypes={"FNR": pl.String},
+    )
+
     assert list(df.columns) == ["fnr", "foedselsdato"]
     assert len(df) == 2
     assert df.item(0, "fnr") == "12345678901"
@@ -48,11 +55,13 @@ def test_read_csv_case_indep_pl_select_cols(temp_csv_file: Path) -> None:
 
 def test_read_csv_case_indep_pl_all_cols(temp_csv_file: Path) -> None:
     df = read_csv_case_indep_pl(temp_csv_file, cols=None, separator=";")
-    
+
     assert list(df.columns) == ["fnr", "foedselsdato", "kommnr", "value"]
     assert len(df) == 2
 
 
 def test_read_csv_case_indep_pl_missing_col(temp_csv_file: Path) -> None:
     with pytest.raises(ValueError, match="Cannot find columns"):
-        read_csv_case_indep_pl(temp_csv_file, cols=["fnr", "non_existent_col"], separator=";")
+        read_csv_case_indep_pl(
+            temp_csv_file, cols=["fnr", "non_existent_col"], separator=";"
+        )
