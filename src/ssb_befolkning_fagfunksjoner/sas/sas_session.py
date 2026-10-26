@@ -9,6 +9,7 @@ from typing import Self
 try:
     from saspy import SASsession
 except ImportError:
+
     class SASsession:  # type: ignore[no-redef]
         """Placeholder class for SASsession when saspy is not installed."""
 
@@ -17,6 +18,7 @@ except ImportError:
             raise ImportError(
                 "saspy is not installed. Install with 'ssb-befolkning-fagfunksjoner[sas]' to use SAS functions."
             )
+
 
 AUTHKEY = "IOM_Prod_Grid1"
 PATTERN = re.compile(r"{SAS004}[A-Z\d]+")

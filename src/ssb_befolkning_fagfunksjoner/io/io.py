@@ -7,7 +7,9 @@ import polars as pl
 from upath import UPath
 
 
-def read_csv_case_indep_pl(filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any) -> pl.DataFrame:
+def read_csv_case_indep_pl(
+    filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any
+) -> pl.DataFrame:
     """Reads a CSV-file using polars.read_csv choosing columns independent of upper/lower case.
 
     Args:
@@ -20,7 +22,9 @@ def read_csv_case_indep_pl(filepath: str | Path | UPath, cols: list[str] | None 
     """
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'
-        colnames = pl.scan_csv(cast(Path, filepath), separator=";").collect_schema().names()
+        colnames = (
+            pl.scan_csv(cast(Path, filepath), separator=";").collect_schema().names()
+        )
         col_mapping = {col.lower(): col for col in colnames}
 
         # Check for missing cols
@@ -42,7 +46,9 @@ def read_csv_case_indep_pl(filepath: str | Path | UPath, cols: list[str] | None 
     return df
 
 
-def read_csv_case_indep_pd(filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any) -> pd.DataFrame:
+def read_csv_case_indep_pd(
+    filepath: str | Path | UPath, cols: list[str] | None = None, **kwargs: Any
+) -> pd.DataFrame:
     """Reads a CSV-file using pandas.read_csv choosing columns independent of upper/lower case.
 
     Args:
@@ -73,7 +79,8 @@ def read_csv_case_indep_pd(filepath: str | Path | UPath, cols: list[str] | None 
             cast(Path, filepath),
             usecols=cols,
             **kwargs,
-        ))
+        ),
+    )
     df.columns = df.columns.str.lower()
 
     return df
