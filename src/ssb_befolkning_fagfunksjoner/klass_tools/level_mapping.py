@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import datetime
 import functools
+from typing import Any
 from typing import cast
 from typing import overload
-from typing import Any
 
 import networkx
 import pandas as pd
-from klass.requests.klass_types import VersionPartType
-from klass import KlassVersion
-from klass import KlassCodes
 from klass import KlassClassification
+from klass import KlassCodes
+from klass import KlassVersion
+from klass.requests.klass_types import VersionPartType
 
 from .change_mapping import _get_from_date
 from .change_mapping import _get_to_date

@@ -5,16 +5,18 @@ from unittest.mock import Mock
 import networkx
 import pandas as pd
 import pytest
+from klass import KlassClassification
+from klass import KlassCorrespondence
+from klass import KlassVersion
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
-from klass import KlassClassification
-from klass import KlassVersion
-from klass import KlassCorrespondence
 
 from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _build_change_graph
 from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _CessionType
 from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _CodePoint
-from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import (
+    get_klass_change_mapping,
+)
 
 
 @pytest.fixture()

@@ -3,8 +3,8 @@ from typing import Any
 
 import pandas as pd
 import pytest
-from pytest_mock import MockerFixture
 from klass import KlassClassification
+from pytest_mock import MockerFixture
 
 from ssb_befolkning_fagfunksjoner.klass_tools.komm_nr import get_komm_nr_changes
 

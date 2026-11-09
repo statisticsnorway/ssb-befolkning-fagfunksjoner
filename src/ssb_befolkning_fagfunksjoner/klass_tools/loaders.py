@@ -3,6 +3,7 @@ from typing import cast
 from klass import KlassClassification
 from klass import KlassCorrespondence
 
+
 def load_komm_nr(year: int | str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     kommune_dict: dict[str, str] = (

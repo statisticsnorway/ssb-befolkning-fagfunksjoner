@@ -3,9 +3,9 @@ from unittest.mock import Mock
 
 import pandas as pd
 import pytest
-from klass.requests.klass_types import VersionPartType
-from klass import KlassVersion
 from klass import KlassClassification
+from klass import KlassVersion
+from klass.requests.klass_types import VersionPartType
 
 from ssb_befolkning_fagfunksjoner.klass_tools.level_mapping import aggregate_codes
 from ssb_befolkning_fagfunksjoner.klass_tools.level_mapping import get_klass_level_map

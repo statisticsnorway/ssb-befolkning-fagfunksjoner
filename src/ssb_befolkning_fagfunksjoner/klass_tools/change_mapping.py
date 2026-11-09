@@ -6,19 +6,17 @@ import functools
 from collections.abc import Iterable
 from itertools import chain
 from itertools import pairwise
+from typing import Any
 from typing import NamedTuple
 from typing import cast
-from typing import Any
 
 import networkx
 import pandas as pd
+from klass import KlassClassification
+from klass import KlassCorrespondence
+from klass import KlassVersion
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
-
-from klass import KlassClassification
-from klass import KlassVersion
-from klass import KlassCorrespondence
-
 
 __all__ = ["get_klass_change_mapping"]
 
