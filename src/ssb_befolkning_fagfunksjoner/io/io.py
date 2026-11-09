@@ -33,9 +33,6 @@ def read_csv_case_indep_pl(
 
     Returns:
         pl.DataFrame: DataFrame with lowercase column names.
-
-    Raises:
-        ValueError: If one or more requested columns are not found.
     """
     filepath_str = str(filepath)
 
@@ -60,9 +57,6 @@ def read_csv_case_indep_pd(
 
     Returns:
         pd.DataFrame: DataFrame with lowercase column names.
-
-    Raises:
-        ValueError: If one or more requested columns are not found.
     """
     filepath_str = str(filepath)
 
