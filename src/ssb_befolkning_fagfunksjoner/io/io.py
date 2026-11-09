@@ -37,8 +37,7 @@ def read_csv_case_indep_pl(
     filepath_str = str(filepath)
 
     if cols is not None:
-        sep = kwargs.get("separator", ";")
-        colnames = pl.scan_csv(filepath_str, separator=sep).collect_schema().names()
+        colnames = pl.read_csv(filepath_str, n_rows=0, **kwargs).collect_schema().names()
         cols = _resolve_case_indep_cols(colnames, cols)
 
     df = pl.read_csv(filepath_str, columns=cols, **kwargs)
