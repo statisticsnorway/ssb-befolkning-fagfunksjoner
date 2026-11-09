@@ -7,17 +7,19 @@ import pandas as pd
 import pytest
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
+from klass import KlassClassification
+from klass import KlassVersion
+from klass import KlassCorrespondence
 
-import klass
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import _build_change_graph
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import _CessionType
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import _CodePoint
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _build_change_graph
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _CessionType
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import _CodePoint
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import get_klass_change_mapping
 
 
 @pytest.fixture()
 def classification_mocker() -> Mock:
-    classification_mocker = Mock(spec=klass.KlassClassification)
+    classification_mocker = Mock(spec=KlassClassification)
     versions_meta: list[VersionPartType] = [
         {
             "name": "Kommuneinndeling 2026",
@@ -135,7 +137,7 @@ def classification_mocker() -> Mock:
     ]
 
     change_table_mock = [
-        Mock(spec=klass.KlassCorrespondence) for _ in range(len(change_meta))
+        Mock(spec=KlassCorrespondence) for _ in range(len(change_meta))
     ]
 
     for mock, meta, corr in zip(
@@ -150,8 +152,8 @@ def classification_mocker() -> Mock:
     def _get_change_table(correspondence_id: int, *args, **kwargs) -> Mock:
         return change_table_mock[correspondence_id - 1]
 
-    version_mockers: list[klass.KlassVersion] = [
-        Mock(spec=klass.KlassVersion) for _ in range(len(corr_meta))
+    version_mockers: list[KlassVersion] = [
+        Mock(spec=KlassVersion) for _ in range(len(corr_meta))
     ]
 
     for mock, v_id, meta, codes in zip(

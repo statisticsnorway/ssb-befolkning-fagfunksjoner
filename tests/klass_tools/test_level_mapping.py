@@ -4,15 +4,16 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 from klass.requests.klass_types import VersionPartType
+from klass import KlassVersion
+from klass import KlassClassification
 
-import klass
-from ssb_befolkning_fagfunksjoner.klass.level_mapping import aggregate_codes
-from ssb_befolkning_fagfunksjoner.klass.level_mapping import get_klass_level_map
+from ssb_befolkning_fagfunksjoner.klass_tools.level_mapping import aggregate_codes
+from ssb_befolkning_fagfunksjoner.klass_tools.level_mapping import get_klass_level_map
 
 
 @pytest.fixture()
 def version_nuts2024_mocker() -> Mock:
-    nuts_2024_mock = Mock(spec=klass.KlassVersion)
+    nuts_2024_mock = Mock(spec=KlassVersion)
 
     levels = [
         {"levelNumber": 1, "levelName": "NUTS 2"},
@@ -73,7 +74,7 @@ def version_nuts2024_mocker() -> Mock:
 
 @pytest.fixture()
 def classification_levels_mocker(version_nuts2024_mocker: Mock) -> Mock:
-    classification_mocker = Mock(spec=klass.KlassClassification)
+    classification_mocker = Mock(spec=KlassClassification)
     versions_meta: list[VersionPartType] = [
         {
             "name": "NUTS 2024",

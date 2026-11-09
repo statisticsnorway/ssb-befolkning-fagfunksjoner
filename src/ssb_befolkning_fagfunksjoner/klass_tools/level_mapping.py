@@ -9,8 +9,9 @@ from typing import Any
 import networkx
 import pandas as pd
 from klass.requests.klass_types import VersionPartType
-
-import klass
+from klass import KlassVersion
+from klass import KlassCodes
+from klass import KlassClassification
 
 from .change_mapping import _get_from_date
 from .change_mapping import _get_to_date
@@ -33,7 +34,7 @@ def _date_between(
 
 
 def _build_level_graph(
-    version: klass.KlassVersion | klass.KlassCodes,
+    version: KlassVersion | KlassCodes,
 ) -> networkx.DiGraph[_Code]:
     data = version.data
     graph: networkx.DiGraph[_Code] = networkx.DiGraph()
@@ -53,7 +54,7 @@ def _build_level_graph(
 
 
 def _find_index_and_label(
-    index_or_label: int | str, version: klass.KlassVersion
+    index_or_label: int | str, version: KlassVersion
 ) -> tuple[int, str]:
     if isinstance(index_or_label, str):
         level_label2index = cast(
@@ -99,9 +100,9 @@ def _find_index_and_label(
 
 
 def _get_version_from_date(
-    classification: klass.KlassClassification,
+    classification: KlassClassification,
     date: datetime.date,
-) -> klass.KlassVersion:
+) -> KlassVersion:
     try:
         version_meta = next(
             filter(
@@ -120,7 +121,7 @@ def _get_version_from_date(
 
 
 def _get_klass_level_map(
-    version: klass.KlassVersion | klass.KlassCodes,
+    version: KlassVersion | KlassCodes,
     to_levelindex: int,
 ) -> pd.Series:
     graph = _build_level_graph(version)
@@ -154,7 +155,7 @@ def get_klass_level_map(
     to_level: int | str,
     *,
     version: None = None,
-    classification: klass.KlassClassification = ...,
+    classification: KlassClassification = ...,
     date: datetime.date = ...,
 ) -> pd.Series: ...
 
@@ -163,7 +164,7 @@ def get_klass_level_map(
 def get_klass_level_map(
     to_level: int | str,
     *,
-    version: klass.KlassVersion = ...,
+    version: KlassVersion = ...,
     classification: None = None,
     date: None = None,
 ) -> pd.Series: ...
@@ -172,8 +173,8 @@ def get_klass_level_map(
 def get_klass_level_map(
     to_level: int | str,
     *,
-    version: klass.KlassVersion | None = None,
-    classification: klass.KlassClassification | None = None,
+    version: KlassVersion | None = None,
+    classification: KlassClassification | None = None,
     date: datetime.date | None = None,
 ) -> pd.Series:
     """Creates a mapping to a level in a Klass version, from all children codes.
@@ -210,7 +211,7 @@ def aggregate_codes(
     to_level: int | str,
     *,
     version: None = None,
-    classification: klass.KlassClassification = ...,
+    classification: KlassClassification = ...,
     date: datetime.date = ...,
     keep_others: bool = ...,
 ) -> pd.Series: ...
@@ -221,7 +222,7 @@ def aggregate_codes(
     codes: pd.Series,
     to_level: int | str,
     *,
-    version: klass.KlassVersion = ...,
+    version: KlassVersion = ...,
     classification: None = None,
     date: None = None,
     keep_others: bool = ...,
@@ -232,8 +233,8 @@ def aggregate_codes(
     codes: pd.Series,
     to_level: int | str,
     *,
-    version: klass.KlassVersion | None = None,
-    classification: klass.KlassClassification | None = None,
+    version: KlassVersion | None = None,
+    classification: KlassClassification | None = None,
     date: datetime.date | None = None,
     keep_others: bool = False,
 ) -> pd.Series:

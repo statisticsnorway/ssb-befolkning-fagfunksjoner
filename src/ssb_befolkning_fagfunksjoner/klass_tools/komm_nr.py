@@ -5,10 +5,10 @@ from typing import Any
 
 import pandas as pd
 from tabulate import tabulate
+from klass import KlassClassification
 
-import klass
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import get_klass_change_mapping
-from ssb_befolkning_fagfunksjoner.klass.loaders import load_komm_nr
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import get_klass_change_mapping
+from ssb_befolkning_fagfunksjoner.klass_tools.loaders import load_komm_nr
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +187,7 @@ def get_komm_nr_changes(
     if target_date is None and to_date is not None:
         target_date = to_date
 
-    komm_nr_classification: klass.KlassClassification = klass.KlassClassification(131)
+    komm_nr_classification = KlassClassification(131)
 
     # Read Series mapping old_code (index) -> new_code (value)
     komm_nr_change_series = get_klass_change_mapping(

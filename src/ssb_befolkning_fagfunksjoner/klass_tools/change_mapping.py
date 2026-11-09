@@ -15,7 +15,10 @@ import pandas as pd
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
 
-import klass
+from klass import KlassClassification
+from klass import KlassVersion
+from klass import KlassCorrespondence
+
 
 __all__ = ["get_klass_change_mapping"]
 
@@ -61,7 +64,7 @@ def _dates_overlap(
 
 
 def _build_change_graph(
-    classification: klass.KlassClassification,
+    classification: KlassClassification,
     from_date: datetime.date,
     to_date: datetime.date | None = None,
 ) -> networkx.DiGraph[_CodePoint]:
@@ -86,7 +89,7 @@ def _build_change_graph(
 
     versions_ids: set[int] = set()
     start_dates: dict[int, datetime.date] = {}
-    versions: list[klass.KlassVersion] = []
+    versions: list[KlassVersion] = []
 
     for meta in versions_meta:
         version_id = meta[
@@ -126,7 +129,7 @@ def _build_change_graph(
 
     # Get correspondence tables between filtered versions
     seen_change_tables_ides: set[int] = set()
-    change_tables: list[klass.KlassCorrespondence] = []
+    change_tables: list[KlassCorrespondence] = []
 
     for version in versions:
         select_cts: list[CorrespondenceTablesType] = [
@@ -208,7 +211,7 @@ def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
 
 
 def get_klass_change_mapping(
-    classification: klass.KlassClassification,
+    classification: KlassClassification,
     target_date: datetime.date | None = None,
     from_date: datetime.date | None = None,
     to_date: datetime.date | None = None,
