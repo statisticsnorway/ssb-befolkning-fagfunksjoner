@@ -42,7 +42,8 @@ def test_filter_og_aldersgruppering(
     - Oppretter kolonnen 'aldersgruppe' med 5-års intervaller
     Skal filtrere til kun kvinner, [min_alder, max_alder] (inklusivt).
     """
-    resultat = br_default._filtrer_og_lag_aldersgrupper(mock_df)
+    with pytest.warns(UserWarning, match="Fant 1 rader med manglende alder"):
+        resultat = br_default._filtrer_og_lag_aldersgrupper(mock_df)
 
     # Resultat bør ha bare kvinner
     assert not (resultat[br_default.kjoenn_col] == "1").any()

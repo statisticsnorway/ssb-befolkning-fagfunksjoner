@@ -8,6 +8,7 @@ from itertools import chain
 from itertools import pairwise
 from typing import NamedTuple
 from typing import cast
+from typing import Any
 
 import networkx
 import pandas as pd
@@ -34,11 +35,11 @@ class _CessionType(enum.Enum):
     BORDER_CHANGE = enum.auto()
 
 
-def _get_from_date(version: VersionPartType) -> datetime.date:
+def _get_from_date(version: VersionPartType | dict[str, Any]) -> datetime.date:
     return datetime.date.fromisoformat(version["validFrom"])
 
 
-def _get_to_date(version: VersionPartType) -> datetime.date | None:
+def _get_to_date(version: VersionPartType | dict[str, Any]) -> datetime.date | None:
     try:
         return datetime.date.fromisoformat(version["validTo"])
     except KeyError:
@@ -46,7 +47,7 @@ def _get_to_date(version: VersionPartType) -> datetime.date | None:
 
 
 def _dates_overlap(
-    version: VersionPartType,
+    version: VersionPartType | dict[str, Any],
     from_date: datetime.date,
     to_date: datetime.date | None,
 ) -> bool:

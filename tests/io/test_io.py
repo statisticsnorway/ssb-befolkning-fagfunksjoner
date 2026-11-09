@@ -44,7 +44,7 @@ def test_read_csv_case_indep_pl_select_cols(temp_csv_file: Path) -> None:
         temp_csv_file,
         cols=["fnr", "foedselsdato"],
         separator=";",
-        dtypes={"FNR": pl.String},
+        schema_overrides={"FNR": pl.String},
     )
 
     assert list(df.columns) == ["fnr", "foedselsdato"]

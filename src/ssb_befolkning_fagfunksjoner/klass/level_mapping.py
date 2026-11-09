@@ -4,6 +4,7 @@ import datetime
 import functools
 from typing import cast
 from typing import overload
+from typing import Any
 
 import networkx
 import pandas as pd
@@ -18,7 +19,7 @@ type _Code = str
 
 
 def _date_between(
-    version: VersionPartType,
+    version: VersionPartType | dict[str, Any],
     date: datetime.date,
 ) -> bool:
     """Return True if date is between VersionPartType's time period.

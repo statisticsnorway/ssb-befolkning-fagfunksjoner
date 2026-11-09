@@ -118,7 +118,8 @@ def update_komm_nr(
     komm_nr_changes_dict = komm_nr_changes.set_index("old_code").to_dict()["new_code"]
 
     updated_codes = original_codes.map(
-        lambda code: _get_latest_komm_nr(code, komm_nr_changes_dict)
+        lambda code: _get_latest_komm_nr(code, komm_nr_changes_dict),
+        na_action="ignore",
     )
 
     _log_municipality_update(original_codes, updated_codes)
