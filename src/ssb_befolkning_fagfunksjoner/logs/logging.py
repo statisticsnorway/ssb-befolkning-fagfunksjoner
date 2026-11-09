@@ -78,7 +78,7 @@ class FregLogger:
         self._handlers.clear()
 
     @staticmethod
-    def _console_handler(level: int) -> logging.StreamHandler:
+    def _console_handler(level: int) -> logging.StreamHandler[Any]:
         handler = logging.StreamHandler()
         handler.setLevel(level)
         handler.setFormatter(logging.Formatter("%(levelname)s | %(message)s"))

@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from typing import cast
 
 import pandas as pd
 import polars as pl
@@ -43,9 +44,8 @@ def read_csv_case_indep_pl(
         columns=cols,
         **kwargs,
     )
-    df = df.rename({c: c.lower() for c in df.columns})
 
-    return df
+    return cast(pl.DataFrame, df.rename({c: c.lower() for c in df.columns}))
 
 
 def read_csv_case_indep_pd(
@@ -87,4 +87,4 @@ def read_csv_case_indep_pd(
     )
     df.columns = df.columns.str.lower()
 
-    return df
+    return cast(pd.DataFrame, df)
