@@ -26,9 +26,7 @@ def read_csv_case_indep_pl(
 
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'
-        colnames = (
-            pl.scan_csv(filepath_str, separator=";").collect_schema().names()
-        )
+        colnames = pl.scan_csv(filepath_str, separator=";").collect_schema().names()
         col_mapping = {col.lower(): col for col in colnames}
 
         # Check for missing cols

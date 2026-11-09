@@ -69,6 +69,7 @@ def test_read_csv_case_indep_pl_missing_col(temp_csv_file: Path) -> None:
 
 def test_read_csv_case_indep_pl_upath(temp_csv_file: Path) -> None:
     from upath import UPath
+
     df = read_csv_case_indep_pl(
         UPath(temp_csv_file),
         cols=["fnr", "foedselsdato"],
@@ -80,6 +81,7 @@ def test_read_csv_case_indep_pl_upath(temp_csv_file: Path) -> None:
 
 def test_read_csv_case_indep_pd_upath(temp_csv_file: Path) -> None:
     from upath import UPath
+
     df = read_csv_case_indep_pd(
         UPath(temp_csv_file),
         cols=["fnr", "foedselsdato"],
