@@ -45,7 +45,7 @@ def read_csv_case_indep_pl(
         **kwargs,
     )
 
-    return cast(pl.DataFrame, df.rename({c: c.lower() for c in df.columns}))
+    return df.rename({c: c.lower() for c in df.columns})
 
 
 def read_csv_case_indep_pd(
