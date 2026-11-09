@@ -6,15 +6,17 @@ import functools
 from collections.abc import Iterable
 from itertools import chain
 from itertools import pairwise
+from typing import Any
 from typing import NamedTuple
 from typing import cast
 
 import networkx
 import pandas as pd
+from klass import KlassClassification
+from klass import KlassCorrespondence
+from klass import KlassVersion
 from klass.requests.klass_types import CorrespondenceTablesType
 from klass.requests.klass_types import VersionPartType
-
-import klass
 
 __all__ = ["get_klass_change_mapping"]
 
@@ -34,11 +36,11 @@ class _CessionType(enum.Enum):
     BORDER_CHANGE = enum.auto()
 
 
-def _get_from_date(version: VersionPartType) -> datetime.date:
+def _get_from_date(version: VersionPartType | dict[str, Any]) -> datetime.date:
     return datetime.date.fromisoformat(version["validFrom"])
 
 
-def _get_to_date(version: VersionPartType) -> datetime.date | None:
+def _get_to_date(version: VersionPartType | dict[str, Any]) -> datetime.date | None:
     try:
         return datetime.date.fromisoformat(version["validTo"])
     except KeyError:
@@ -46,7 +48,7 @@ def _get_to_date(version: VersionPartType) -> datetime.date | None:
 
 
 def _dates_overlap(
-    version: VersionPartType,
+    version: VersionPartType | dict[str, Any],
     from_date: datetime.date,
     to_date: datetime.date | None,
 ) -> bool:
@@ -60,7 +62,7 @@ def _dates_overlap(
 
 
 def _build_change_graph(
-    classification: klass.KlassClassification,
+    classification: KlassClassification,
     from_date: datetime.date,
     to_date: datetime.date | None = None,
 ) -> networkx.DiGraph[_CodePoint]:
@@ -85,7 +87,7 @@ def _build_change_graph(
 
     versions_ids: set[int] = set()
     start_dates: dict[int, datetime.date] = {}
-    versions: list[klass.KlassVersion] = []
+    versions: list[KlassVersion] = []
 
     for meta in versions_meta:
         version_id = meta[
@@ -125,7 +127,7 @@ def _build_change_graph(
 
     # Get correspondence tables between filtered versions
     seen_change_tables_ides: set[int] = set()
-    change_tables: list[klass.KlassCorrespondence] = []
+    change_tables: list[KlassCorrespondence] = []
 
     for version in versions:
         select_cts: list[CorrespondenceTablesType] = [
@@ -207,7 +209,7 @@ def _label_changes(graph: networkx.DiGraph[_CodePoint]) -> None:
 
 
 def get_klass_change_mapping(
-    classification: klass.KlassClassification,
+    classification: KlassClassification,
     target_date: datetime.date | None = None,
     from_date: datetime.date | None = None,
     to_date: datetime.date | None = None,

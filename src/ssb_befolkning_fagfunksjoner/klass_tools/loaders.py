@@ -1,12 +1,13 @@
 from typing import cast
 
-import klass
+from klass import KlassClassification
+from klass import KlassCorrespondence
 
 
 def load_komm_nr(year: int | str) -> dict[str, str]:
     """Load KLASS codelist for municipalities."""
     kommune_dict: dict[str, str] = (
-        klass.KlassClassification(131).get_codes(from_date=f"{year}-01-02").to_dict()
+        KlassClassification(131).get_codes(from_date=f"{year}-01-02").to_dict()
     )
 
     # Handle missing values
@@ -18,7 +19,7 @@ def load_komm_nr(year: int | str) -> dict[str, str]:
 
 def load_country_codes() -> dict[str, str]:
     """Load KLASS correspondence table for country codes."""
-    landkoder_dict: dict[str, str | None] = klass.KlassCorrespondence(953).to_dict()
+    landkoder_dict: dict[str, str | None] = KlassCorrespondence(953).to_dict()
 
     landkoder_dict["ANT"] = "656"
     landkoder_dict["CSK"] = "142"
@@ -40,7 +41,7 @@ def load_verdensinndeling(year: int | str) -> dict[str, int]:
 
     # Read world division classification
     world_div_dict = (
-        klass.KlassClassification(545)
+        KlassClassification(545)
         .get_codes(from_date=f"{year}-01-01", select_level=4)
         .data[["code", "parentCode"]]
         .set_index("code")["parentCode"]

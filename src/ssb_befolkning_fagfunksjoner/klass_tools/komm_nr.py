@@ -4,11 +4,13 @@ import warnings
 from typing import Any
 
 import pandas as pd
+from klass import KlassClassification
 from tabulate import tabulate
 
-import klass
-from ssb_befolkning_fagfunksjoner.klass.change_mapping import get_klass_change_mapping
-from ssb_befolkning_fagfunksjoner.klass.loaders import load_komm_nr
+from ssb_befolkning_fagfunksjoner.klass_tools.change_mapping import (
+    get_klass_change_mapping,
+)
+from ssb_befolkning_fagfunksjoner.klass_tools.loaders import load_komm_nr
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +120,8 @@ def update_komm_nr(
     komm_nr_changes_dict = komm_nr_changes.set_index("old_code").to_dict()["new_code"]
 
     updated_codes = original_codes.map(
-        lambda code: _get_latest_komm_nr(code, komm_nr_changes_dict)
+        lambda code: _get_latest_komm_nr(code, komm_nr_changes_dict),
+        na_action="ignore",
     )
 
     _log_municipality_update(original_codes, updated_codes)
@@ -186,7 +189,7 @@ def get_komm_nr_changes(
     if target_date is None and to_date is not None:
         target_date = to_date
 
-    komm_nr_classification: klass.KlassClassification = klass.KlassClassification(131)
+    komm_nr_classification = KlassClassification(131)
 
     # Read Series mapping old_code (index) -> new_code (value)
     komm_nr_change_series = get_klass_change_mapping(

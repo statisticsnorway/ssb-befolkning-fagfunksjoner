@@ -7,10 +7,10 @@ from typing import Any
 from typing import Self
 
 try:
-    from saspy import SASsession
+    from saspy import SASsession  # type: ignore[attr-defined]
 except ImportError:
 
-    class SASsession:  # type: ignore[no-redef]
+    class SASsession:
         """Placeholder class for SASsession when saspy is not installed."""
 
         def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -25,7 +25,7 @@ PATTERN = re.compile(r"{SAS004}[A-Z\d]+")
 logger = logging.getLogger(__name__)
 
 
-class ManagedSASsession(SASsession):
+class ManagedSASsession(SASsession):  # pyright: ignore[reportGeneralTypeIssues]
     """SASsession with dunder enter an exit methods.
 
     This allow us to use a SASsession in a with block to ensure that the session is closed,
@@ -54,7 +54,7 @@ class ManagedSASsession(SASsession):
         else:
             args["authkey"] = AUTHKEY
 
-        super().__init__(**args)
+        super().__init__(**args)  # type: ignore[no-untyped-call]
 
     def __enter__(self) -> Self:
         """Open SAS session."""
@@ -62,7 +62,7 @@ class ManagedSASsession(SASsession):
 
     def __exit__(self, *args: Any) -> None:
         """Close SAS session."""
-        self.endsas()
+        self.endsas()  # type: ignore[no-untyped-call]
 
 
 def _get_server_url() -> str:

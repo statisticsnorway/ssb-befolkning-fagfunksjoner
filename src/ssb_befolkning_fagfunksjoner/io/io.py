@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 from typing import cast
@@ -5,6 +6,19 @@ from typing import cast
 import pandas as pd
 import polars as pl
 from upath import UPath
+
+
+def _resolve_case_indep_cols(
+    available_cols: Sequence[str], requested_cols: Sequence[str]
+) -> list[str]:
+    """Map requested column names case-independently to actual column names."""
+    col_mapping = {col.lower(): col for col in available_cols}
+
+    missing = [col for col in requested_cols if col.lower() not in col_mapping]
+    if missing:
+        raise ValueError(f"Cannot find columns: {missing}")
+
+    return [col_mapping[c.lower()] for c in requested_cols]
 
 
 def read_csv_case_indep_pl(
@@ -19,34 +33,16 @@ def read_csv_case_indep_pl(
 
     Returns:
         pl.DataFrame: DataFrame with lowercase column names.
-
-    Raises:
-        ValueError: If one or more requested columns are not found.
     """
+    filepath_str = str(filepath)
+
     if cols is not None:
-        # Read colnames and create a mapping 'lower case -> original case'
-        colnames = (
-            pl.scan_csv(cast(Path, filepath), separator=";").collect_schema().names()
-        )
-        col_mapping = {col.lower(): col for col in colnames}
+        sep = kwargs.get("separator", ";")
+        colnames = pl.scan_csv(filepath_str, separator=sep).collect_schema().names()
+        cols = _resolve_case_indep_cols(colnames, cols)
 
-        # Check for missing cols
-        missing = [col for col in cols if col.lower() not in col_mapping]
-        if missing:
-            raise ValueError(f"Cannot find columns: {missing}")
-
-        # Map selected columns to original case
-        cols = [col_mapping[c.lower()] for c in cols]
-
-    # Read dataset and lower case columns
-    df = pl.read_csv(
-        cast(Path, filepath),
-        columns=cols,
-        **kwargs,
-    )
-    df = df.rename({c: c.lower() for c in df.columns})
-
-    return df
+    df = pl.read_csv(filepath_str, columns=cols, **kwargs)
+    return df.rename({c: c.lower() for c in df.columns})
 
 
 def read_csv_case_indep_pd(
@@ -61,32 +57,13 @@ def read_csv_case_indep_pd(
 
     Returns:
         pd.DataFrame: DataFrame with lowercase column names.
-
-    Raises:
-        ValueError: If one or more requested columns are not found.
     """
+    filepath_str = str(filepath)
+
     if cols is not None:
-        # Read colnames and create a mapping 'lower case -> original case'
-        colnames = pd.read_csv(cast(Path, filepath), nrows=0, **kwargs).columns.tolist()
-        col_mapping = {col.lower(): col for col in colnames}
+        colnames = pd.read_csv(filepath_str, nrows=0, **kwargs).columns.tolist()
+        cols = _resolve_case_indep_cols(colnames, cols)
 
-        # Check for missing cols
-        missing = [col for col in cols if col.lower() not in col_mapping]
-        if missing:
-            raise ValueError(f"Cannot find columns: {missing}")
-
-        # Map selected columns to original case
-        cols = [col_mapping[c.lower()] for c in cols]
-
-    # Read dataset and lower case columns
-    df = cast(
-        pd.DataFrame,
-        pd.read_csv(
-            cast(Path, filepath),
-            usecols=cols,
-            **kwargs,
-        ),
-    )
+    df = pd.read_csv(filepath_str, usecols=cols, **kwargs)
     df.columns = df.columns.str.lower()
-
-    return df
+    return cast(pd.DataFrame, df)
