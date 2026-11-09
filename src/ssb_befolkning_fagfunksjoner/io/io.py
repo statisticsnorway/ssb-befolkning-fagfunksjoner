@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Any
-from typing import cast
 
 import pandas as pd
 import polars as pl
@@ -23,10 +22,12 @@ def read_csv_case_indep_pl(
     Raises:
         ValueError: If one or more requested columns are not found.
     """
+    filepath_str = str(filepath)
+
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'
         colnames = (
-            pl.scan_csv(cast(Path, filepath), separator=";").collect_schema().names()
+            pl.scan_csv(filepath_str, separator=";").collect_schema().names()
         )
         col_mapping = {col.lower(): col for col in colnames}
 
@@ -40,7 +41,7 @@ def read_csv_case_indep_pl(
 
     # Read dataset and lower case columns
     df = pl.read_csv(
-        cast(Path, filepath),
+        filepath_str,
         columns=cols,
         **kwargs,
     )
@@ -65,9 +66,11 @@ def read_csv_case_indep_pd(
     Raises:
         ValueError: If one or more requested columns are not found.
     """
+    filepath_str = str(filepath)
+
     if cols is not None:
         # Read colnames and create a mapping 'lower case -> original case'
-        colnames = pd.read_csv(cast(Path, filepath), nrows=0, **kwargs).columns.tolist()
+        colnames = pd.read_csv(filepath_str, nrows=0, **kwargs).columns.tolist()
         col_mapping = {col.lower(): col for col in colnames}
 
         # Check for missing cols
@@ -79,13 +82,10 @@ def read_csv_case_indep_pd(
         cols = [col_mapping[c.lower()] for c in cols]
 
     # Read dataset and lower case columns
-    df = cast(
-        pd.DataFrame,
-        pd.read_csv(
-            cast(Path, filepath),
-            usecols=cols,
-            **kwargs,
-        ),
+    df = pd.read_csv(
+        filepath_str,
+        usecols=cols,
+        **kwargs,
     )
     df.columns = df.columns.str.lower()
 

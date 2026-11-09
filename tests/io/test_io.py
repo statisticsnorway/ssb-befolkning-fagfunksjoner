@@ -65,3 +65,25 @@ def test_read_csv_case_indep_pl_missing_col(temp_csv_file: Path) -> None:
         read_csv_case_indep_pl(
             temp_csv_file, cols=["fnr", "non_existent_col"], separator=";"
         )
+
+
+def test_read_csv_case_indep_pl_upath(temp_csv_file: Path) -> None:
+    from upath import UPath
+    df = read_csv_case_indep_pl(
+        UPath(temp_csv_file),
+        cols=["fnr", "foedselsdato"],
+        separator=";",
+    )
+    assert list(df.columns) == ["fnr", "foedselsdato"]
+    assert len(df) == 2
+
+
+def test_read_csv_case_indep_pd_upath(temp_csv_file: Path) -> None:
+    from upath import UPath
+    df = read_csv_case_indep_pd(
+        UPath(temp_csv_file),
+        cols=["fnr", "foedselsdato"],
+        sep=";",
+    )
+    assert list(df.columns) == ["fnr", "foedselsdato"]
+    assert len(df) == 2
